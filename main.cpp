@@ -3,9 +3,10 @@
 
 int main()
 {
-	std::string packagesPath = "I:/SteamLibrary/steamapps/common/Destiny 2/packages/";
-	std::string modelHash = "B5FFB080";
+	std::string modelHash = "B0E6B080";
 
-	std::string reference = getReferenceFromHash(packagesPath, "0187", modelHash);
+	//std::string reference = getReferenceFromHash("0174", modelHash);
+	Dynamic dyn(modelHash);
+	dyn.get();
 	return 0;
 }

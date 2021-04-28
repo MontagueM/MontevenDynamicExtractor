@@ -1,28 +1,32 @@
 #include "helpers.h"
 
-std::string getReferenceFromHash(std::string packagesPath, std::string pkgID, std::string hash)
+std::string getReferenceFromHash(std::string pkgID, std::string hash)
 {
-	Package Pkg(packagesPath, pkgID);
-	std::string reference = Pkg.getEntryReference(hash);
+	Package pkg(pkgID);
+	std::string reference = pkg.getEntryReference(hash);
 	return reference;
 }
 
 File::File(std::string x)
 {
-	id = x;
+	hash = x;
 }
 
-unsigned char* File::getData()
+int File::getData()
 {
-	if (pkgName == "")
+	if (pkgID == "")
 	{
 		getPkgID();
 	}
-	return nullptr;
+	Package pkg(pkgID);
+	int fileSize;
+	data = pkg.getEntryData(hash, fileSize);
+	if (data == nullptr) return 0;
+	return fileSize;
 }
 
 std::string File::getPkgID()
 {
-	std::string pkgID = uint32ToHexStr(floor((hexStrToUint32(id) - 0x80800000)/8192));
-	return pkgName;
+	pkgID = uint16ToHexStr(floor((hexStrToUint32(hash) - 0x80800000)/8192));
+	return pkgID;
 }

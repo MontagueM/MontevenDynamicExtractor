@@ -26,11 +26,11 @@ private:
 public:
 	File(std::string x);
 
-	std::string id = "";
+	std::string hash = "";
 	unsigned char* data = nullptr;
-	std::string pkgName = "";
+	std::string pkgID = "";
 
-	unsigned char* getData();
+	int getData();
 	std::string getPkgID();
 };
 
@@ -61,6 +61,10 @@ class Model : public File
 private:
 
 public:
+	Model(std::string x) : File(x)
+	{
+
+	}
 };
 
 class Mesh
@@ -91,4 +95,4 @@ private:
 public:
 };
 
-std::string getReferenceFromHash(std::string packagesPath, std::string pkgID, std::string hash);
+std::string getReferenceFromHash(std::string pkgID, std::string hash);

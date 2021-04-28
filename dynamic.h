@@ -18,6 +18,10 @@ private:
 	std::vector<std::vector<float_t>> trimVertsData();
 
 public:
+	Dynamic(std::string x) : Model(x)
+	{
+	}
+
 	void get();
 	void pack();
 
