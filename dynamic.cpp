@@ -133,7 +133,7 @@ void Dynamic::parseDyn3s()
 			PrimitiveType primType = mesh->submeshes[0]->primType;
 
 			mesh->vertPosFile->vertexBuffer->getVerts(mesh);
-			//transformPos(mesh, dyn3.data);
+			transformPos(mesh, dyn3.data);
 
 			mesh->facesFile->indexBuffer->getFaces(mesh, primType);
 
@@ -141,6 +141,28 @@ void Dynamic::parseDyn3s()
 		}
 	}
 }
+
+
+void Dynamic::transformPos(DynamicMesh* mesh, unsigned char* data)
+{
+	float scale;
+	memcpy((char*)&scale, data + 108, 4);
+	std::vector<float> offset;
+	for (int i = 96; i < 108; i += 4)
+	{
+		float val;
+		memcpy((char*)&val, data + i, 4);
+		offset.push_back(val);
+	}
+	for (auto& vert : mesh->vertPos)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			vert[i] = vert[i] * scale + offset[i];
+		}
+	}
+}
+
 
 void Dynamic::getSubmeshes()
 {
@@ -261,7 +283,7 @@ void Dynamic::pack(std::string saveDirectory)
 
 			if (add && submesh->faces.size() != 0)
 			{
-				if (meshes.size() == 1) submesh->name = hash + "_" + std::to_string(i);
+				if (meshes.size() == 1) submesh->name = hash + "_" + std::to_string(j);
 				else submesh->name = hash + "_" + std::to_string(i) + "_" + std::to_string(j);
 				
 				FbxNode* node = fbxModel->addSubmeshToFbx(submesh, saveDirectory);

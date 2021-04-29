@@ -20,7 +20,7 @@ private:
 	void getSubmeshes();
 
 	std::vector<std::vector<float_t>> trimVertsData(std::vector<std::vector<float_t>> vertPos, std::set<int> dsort, bool bVertCol);
-
+	void transformPos(DynamicMesh* mesh, unsigned char* data);
 public:
 	Dynamic(std::string x) : Model(x)
 	{
