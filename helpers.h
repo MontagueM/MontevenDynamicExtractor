@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <unordered_map>
 #include "../DestinyUnpackerCPP/package.h"
 
 enum PrimitiveType
@@ -63,36 +64,6 @@ public:
 	Model(std::string x) : File(x) {}
 };
 
-class Mesh
-{
-private:
-public:
-	VertexBufferHeader vertPosFile;
-	VertexBufferHeader vertUVFile;
-	VertexBufferHeader vertColFile;
-	IndexBufferHeader facesFile;
-	std::vector<std::vector<float>> vertPos;
-	std::vector<std::vector<float>> vertNorm;
-	std::vector<std::vector<float>> vertUV;
-	std::vector<std::vector<float>> vertCol;
-	std::vector<std::vector<uint32_t>> faces;
-	std::unordered_map<int, int> faceMap;
-	std::vector<Submesh> submeshes;
-};
-
-class DynamicMesh : public Mesh
-{
-private:
-	VertexBufferHeader oldWeightsFile;
-	VertexBufferHeader spsbWeightsFile;
-	std::vector<std::vector<float>> vertPosW;
-	std::vector<std::vector<float>> vertNormW;
-	std::vector<std::vector<float>> weights;
-
-public:
-	DynamicMesh() : Mesh() {};
-};
-
 class Submesh
 {
 private:
@@ -109,7 +80,6 @@ public:
 	int type;
 	int indexCount;
 	int indexOffset;
-	Mesh mesh;
 	PrimitiveType primType;
 };
 
@@ -118,7 +88,7 @@ class DynamicSubmesh : public Submesh
 private:
 
 public:
-	DynamicSubmesh() : Submesh() {};
+	//DynamicSubmesh() : Submesh() {};
 
 	std::vector<std::vector<float>> weights;
 	int stride;
@@ -128,5 +98,35 @@ public:
 	int lodGroup;
 };
 
+// Forward declarations
+class IndexBufferHeader;
+class VertexBufferHeader;
+
+class Mesh
+{
+private:
+public:
+	//Mesh() {};
+	IndexBufferHeader* facesFile = nullptr;
+	VertexBufferHeader* vertPosFile = nullptr;
+	std::vector<std::vector<float>> vertPos;
+	std::vector<std::vector<float>> vertNorm;
+	std::vector<std::vector<float>> vertUV;
+	std::vector<std::vector<float>> vertCol;
+	std::vector<std::vector<uint32_t>> faces;
+	std::unordered_map<int, int> faceMap;
+	std::vector< std::unique_ptr<Submesh>> submeshes;
+};
+
+class DynamicMesh : public Mesh
+{
+private:
+public:
+	//DynamicMesh() : Mesh() {};
+	std::vector<std::vector<float>> vertPosW;
+	std::vector<std::vector<float>> vertNormW;
+	std::vector<std::vector<float>> weights;
+};
+
 std::string getReferenceFromHash(std::string hash);
-std::string getPkgID();
+std::string getPkgID(std::string hash);

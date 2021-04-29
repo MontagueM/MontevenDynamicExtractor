@@ -16,7 +16,7 @@ int File::getData()
 {
 	if (pkgID == "")
 	{
-		pkgID = getPkgID();
+		pkgID = getPkgID(hash);
 	}
 	Package pkg(pkgID);
 	int fileSize;

@@ -1,11 +1,11 @@
 #include "vertex.h"
 
-void VertexBufferHeader::getHeader()
+void VertexBufferHeader::getHeader(std::string x)
 {
 	memcpy((char*)&stride, data + 4, 2);
 }
 
-void VertexBuffer::getVerts(Mesh mesh)
+void VertexBuffer::getVerts(Mesh* mesh)
 {
 	int fileSize = getData();
 	int s = header->stride;
@@ -23,7 +23,7 @@ void VertexBuffer::getVerts(Mesh mesh)
 					memcpy((char*)&num, data + i + j*4, 2);
 					vertex.push_back(num / 32767);
 				}
-				mesh.vertPos.push_back(vertex);
+				mesh->vertPos.push_back(vertex);
 			}
 		}
 	}

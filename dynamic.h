@@ -10,7 +10,7 @@ private:
 	std::vector<File> dyn2s;
 	std::vector<File> dyn3s;
 	void* fbxModel;
-	std::vector<DynamicMesh> meshes;
+	std::vector<DynamicMesh*> meshes;
 
 	void getDyn3Files();
 	void parseDyn3s();
@@ -29,3 +29,4 @@ public:
 	void pack();
 
 };
+

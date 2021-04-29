@@ -100,12 +100,11 @@ void Dynamic::parseDyn3s()
 		memcpy((char*)&count, dyn3.data + 0x10, 4);
 		for (int j = offset; j < offset + count * 0x80; i += 0x80)
 		{
-			DynamicMesh mesh;
+			DynamicMesh* mesh = new DynamicMesh();
 			meshes.push_back(mesh);
 			memcpy((char*)&offset, dyn3.data + j+0x10, 4);
-			mesh.facesFile = IndexBufferHeader(uint32ToHexStr(offset));
-			mesh.vertPosFile = VertexBufferHeader(uint32ToHexStr(offset), VertPrimary);
-			
+			mesh->facesFile = new IndexBufferHeader(uint32ToHexStr(offset));
+			mesh->vertPosFile = new VertexBufferHeader(uint32ToHexStr(offset), VertPrimary);
 			// rest here
 
 			uint32_t submeshTableCount;
@@ -118,23 +117,23 @@ void Dynamic::parseDyn3s()
 			int lodGroup = 0;
 			for (int k = submeshTableOffset; k < submeshTableOffset + submeshTableCount * 0x24; k += 0x24)
 			{
-				DynamicSubmesh submesh;
-				memcpy((char*)&submesh.primType, dyn3.data + k + 6, 2);
-				memcpy((char*)&submesh.indexOffset, dyn3.data + k + 0x8, 4);
-				memcpy((char*)&submesh.indexCount, dyn3.data + k + 0xC, 4);
-				memcpy((char*)&submesh.lodLevel, dyn3.data + k + 0x1B, 1);
-				if (submesh.lodLevel < currentLOD) lodGroup++;
-				currentLOD = submesh.lodLevel;
-				submesh.lodGroup = lodGroup;
-				mesh.submeshes.push_back(submesh);
+				std::unique_ptr<DynamicSubmesh> submesh = nullptr;
+				memcpy((char*)&submesh->primType, dyn3.data + k + 6, 2);
+				memcpy((char*)&submesh->indexOffset, dyn3.data + k + 0x8, 4);
+				memcpy((char*)&submesh->indexCount, dyn3.data + k + 0xC, 4);
+				memcpy((char*)&submesh->lodLevel, dyn3.data + k + 0x1B, 1);
+				if (submesh->lodLevel < currentLOD) lodGroup++;
+				currentLOD = submesh->lodLevel;
+				submesh->lodGroup = lodGroup;
+				mesh->submeshes.push_back(std::move(submesh));
 			}
 
-			PrimitiveType primType = mesh.submeshes[0].primType;
+			PrimitiveType primType = mesh->submeshes[0]->primType;
 
-			mesh.vertPosFile.vertexBuffer.getVerts(mesh);
+			mesh->vertPosFile->vertexBuffer->getVerts(mesh);
 			//transformPos(mesh, dyn3.data);
 
-			mesh.facesFile.indexBuffer.getFaces(mesh, primType);
+			mesh->facesFile->indexBuffer->getFaces(mesh, primType);
 		}
 	}
 }
