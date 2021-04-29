@@ -2,17 +2,16 @@
 #include <unordered_map>
 #include "helpers.h"
 
-class IndexBufferHeader;
 
 class IndexBuffer : public File
 {
-private:
-	IndexBufferHeader* header;
 
 public:
-	IndexBuffer(std::string x, IndexBufferHeader* h) : File(x)
+	int stride = -1;
+
+	IndexBuffer(std::string x, int s) : File(x)
 	{
-		header = h;
+		stride = s;
 	}
 
 	void getFaces(Mesh* mesh, PrimitiveType primType);
@@ -33,9 +32,9 @@ public:
 		{
 			getData();
 			getHeader(x);
-
+			indexBuffer = new IndexBuffer(getReferenceFromHash(x), stride);
 		}
-		IndexBuffer* indexBuffer = new IndexBuffer(getReferenceFromHash(x), this);
+		auto a = 0;
 	}
 
 };

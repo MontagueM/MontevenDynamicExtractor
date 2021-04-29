@@ -15,13 +15,15 @@ void IndexBuffer::getFaces(Mesh* mesh, PrimitiveType primType)
 	int fileSize = getData();
 	int increment = 3;
 	std::vector<uint32_t> intFacesData;
+	intFacesData.reserve((floor(fileSize / stride)));
 
-	for (int i = 0; i < fileSize; i += header->stride)
+	for (int i = 0; i < fileSize; i += stride)
 	{
-		uint32_t face;
-		memcpy((char*)&intFacesData, data, header->stride);
+		uint32_t face = 0;
+		memcpy((char*)&face, data + i, stride);
 		intFacesData.push_back(face);
 	}
+	if (primType == TriangleStrip) increment = 1;
 
 	int j = 0;
 	int faceIndex = 0;
@@ -47,7 +49,7 @@ void IndexBuffer::getFaces(Mesh* mesh, PrimitiveType primType)
 		bool bEnd = false;
 		for (int i = 0; i < 3; i++)
 		{
-			if (intFacesData[i] == 65535 or intFacesData[i] == 4294967295)
+			if (intFacesData[faceIndex + i] == 65535 or intFacesData[faceIndex + i] == 4294967295)
 			{
 				bEnd = true;
 				break;
@@ -68,6 +70,7 @@ void IndexBuffer::getFaces(Mesh* mesh, PrimitiveType primType)
 			face = {intFacesData[faceIndex + 1], intFacesData[faceIndex], intFacesData[faceIndex + 2] };
 		mesh->faces.push_back(face);
 		mesh->faceMap[faceIndex] = mesh->faces.size() - 1;
+		faceIndex += increment;
 		j++;
 	}
 }

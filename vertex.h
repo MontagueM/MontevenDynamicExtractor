@@ -2,17 +2,18 @@
 #include <unordered_map>
 #include "helpers.h"
 
-class VertexBufferHeader;
-
 class VertexBuffer : public File
 {
 private:
-	VertexBufferHeader* header = nullptr;
 
 public:
-	VertexBuffer(std::string x, VertexBufferHeader* h) : File(x)
+	uint16_t stride;
+	BufferType type;
+
+	VertexBuffer(std::string x, uint16_t s, BufferType type) : File(x)
 	{
-		header = h;
+		stride = s;
+		type = type;
 	}
 
 	void getVerts(Mesh* mesh);
@@ -32,7 +33,7 @@ public:
 	{
 		getData();
 		getHeader(x);
-		vertexBuffer = new VertexBuffer(getReferenceFromHash(x), this);
+		vertexBuffer = new VertexBuffer(getReferenceFromHash(x), stride, type);
 		type = type;
 	}
 

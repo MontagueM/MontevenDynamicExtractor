@@ -6,6 +6,7 @@ void Dynamic::get()
 	getDyn3Files();
 	parseDyn3s();
 	getSubmeshes();
+	auto a = 0;
 }
 
 void Dynamic::getDyn3Files()
@@ -98,13 +99,14 @@ void Dynamic::parseDyn3s()
 		memcpy((char*)&offset, dyn3.data + 0x18, 4);
 		offset += 0x18 + 0x10;
 		memcpy((char*)&count, dyn3.data + 0x10, 4);
-		for (int j = offset; j < offset + count * 0x80; i += 0x80)
+		for (int j = offset; j < offset + count * 0x80; j += 0x80)
 		{
+			uint32_t off;
 			DynamicMesh* mesh = new DynamicMesh();
-			meshes.push_back(mesh);
-			memcpy((char*)&offset, dyn3.data + j+0x10, 4);
-			mesh->facesFile = new IndexBufferHeader(uint32ToHexStr(offset));
-			mesh->vertPosFile = new VertexBufferHeader(uint32ToHexStr(offset), VertPrimary);
+			memcpy((char*)&off, dyn3.data + j+0x10, 4);
+			mesh->facesFile = new IndexBufferHeader(uint32ToHexStr(off));
+			memcpy((char*)&off, dyn3.data + j, 4);
+			mesh->vertPosFile = new VertexBufferHeader(uint32ToHexStr(off), VertPrimary);
 			// rest here
 
 			uint32_t submeshTableCount;
@@ -117,7 +119,7 @@ void Dynamic::parseDyn3s()
 			int lodGroup = 0;
 			for (int k = submeshTableOffset; k < submeshTableOffset + submeshTableCount * 0x24; k += 0x24)
 			{
-				std::unique_ptr<DynamicSubmesh> submesh = nullptr;
+				DynamicSubmesh* submesh = new DynamicSubmesh();
 				memcpy((char*)&submesh->primType, dyn3.data + k + 6, 2);
 				memcpy((char*)&submesh->indexOffset, dyn3.data + k + 0x8, 4);
 				memcpy((char*)&submesh->indexCount, dyn3.data + k + 0xC, 4);
@@ -125,7 +127,7 @@ void Dynamic::parseDyn3s()
 				if (submesh->lodLevel < currentLOD) lodGroup++;
 				currentLOD = submesh->lodLevel;
 				submesh->lodGroup = lodGroup;
-				mesh->submeshes.push_back(std::move(submesh));
+				mesh->submeshes.push_back(submesh);
 			}
 
 			PrimitiveType primType = mesh->submeshes[0]->primType;
@@ -134,11 +136,90 @@ void Dynamic::parseDyn3s()
 			//transformPos(mesh, dyn3.data);
 
 			mesh->facesFile->indexBuffer->getFaces(mesh, primType);
+
+			meshes.push_back(mesh);
 		}
 	}
 }
 
 void Dynamic::getSubmeshes()
 {
+	for (DynamicMesh* mesh : meshes)
+	{
+		std::vector<uint32_t> existingOffsets;
+		std::unordered_map<uint32_t, int> existingSubmeshes;
+		for (DynamicSubmesh* submesh : mesh->submeshes)
+		{
+			// Removing dupes
+			if (std::find(existingOffsets.begin(), existingOffsets.end(), submesh->indexOffset) != existingOffsets.end())
+			{
+				if (submesh->lodLevel >= existingSubmeshes[submesh->indexOffset]) continue;
+			}
 
+			// Potential memory leaking
+			if (submesh->primType == TriangleStrip)
+			{
+				submesh->faces.reserve(mesh->faceMap[submesh->indexOffset + submesh->indexCount + 1] - mesh->faceMap[submesh->indexOffset]);
+				for (std::size_t i = mesh->faceMap[submesh->indexOffset]; i < mesh->faceMap[submesh->indexOffset + submesh->indexCount + 1]; ++i) {
+					submesh->faces.emplace_back(mesh->faces[i].begin(), mesh->faces[i].end());
+				}
+			}
+			else
+			{
+				submesh->faces.reserve(floor((submesh->indexCount) / 3));
+				for (std::size_t i = floor(submesh->indexOffset / 3); i < floor((submesh->indexOffset + submesh->indexCount)/3); ++i) {
+					submesh->faces.emplace_back(mesh->faces[i].begin(), mesh->faces[i].end());
+				}
+			}
+
+			// Code to move faces down to zero
+			std::set<int> dsort;
+			for (auto& face : submesh->faces)
+			{
+				for (auto& f : face)
+				{
+					dsort.insert(f);
+				}
+			}
+			if (!dsort.size()) continue;
+
+			std::unordered_map<int, int> d;
+			int i = 0;
+			for (auto& val : dsort)
+			{
+				d[val] = i;
+				i++;
+			}
+			for (auto& face : submesh->faces)
+			{
+				for (auto& f : face)
+				{
+					f = d[f];
+				}
+			}
+
+			// Trimming verts to minimise file size
+			submesh->vertPos = trimVertsData(mesh->vertPos, dsort, false);
+			
+			existingOffsets.push_back(submesh->indexOffset);
+			existingSubmeshes[submesh->indexOffset] = submesh->lodLevel;
+		}
+	}
+}
+
+std::vector<std::vector<float_t>> Dynamic::trimVertsData(std::vector<std::vector<float_t>> vertPos, std::set<int> dsort, bool bVertCol)
+{
+	std::vector<std::vector<float_t>> newVec;
+	for (auto& val : dsort)
+	{
+		if (bVertCol)
+		{
+			printf("Add trim verts data VC code");
+		}
+		else
+		{
+			newVec.push_back(vertPos[val]);
+		}
+	}
+	return newVec;
 }

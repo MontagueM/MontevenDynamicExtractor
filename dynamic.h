@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <set>
 #include "helpers.h"
 #include "index.h"
 #include "vertex.h"
@@ -17,8 +18,8 @@ private:
 	void getSubmeshes();
 	void addSubmeshToFbx();
 	void createMesh();
-	void save();
-	std::vector<std::vector<float_t>> trimVertsData();
+
+	std::vector<std::vector<float_t>> trimVertsData(std::vector<std::vector<float_t>> vertPos, std::set<int> dsort, bool bVertCol);
 
 public:
 	Dynamic(std::string x) : Model(x)
@@ -26,7 +27,7 @@ public:
 	}
 
 	void get();
-	void pack();
-
+	void pack(std::string saveDirectory);
+	void save(std::string saveName);
 };
 

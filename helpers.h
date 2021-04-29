@@ -54,6 +54,7 @@ class Material : public File
 private:
 
 public:
+	Material(std::string x) : File(x) {};
 };
 
 class Model : public File
@@ -61,13 +62,12 @@ class Model : public File
 private:
 
 public:
-	Model(std::string x) : File(x) {}
+	Model(std::string x) : File(x) {};
 };
 
 class Submesh
 {
 private:
-
 public:
 	std::vector<std::vector<float>> vertPos;
 	std::vector<std::vector<float>> vertNorm;
@@ -76,7 +76,7 @@ public:
 	std::vector<std::vector<uint32_t>> faces;
 	int lodLevel;
 	std::string name;
-	Material material;
+	Material* material;
 	int type;
 	int indexCount;
 	int indexOffset;
@@ -86,13 +86,10 @@ public:
 class DynamicSubmesh : public Submesh
 {
 private:
-
 public:
-	//DynamicSubmesh() : Submesh() {};
-
 	std::vector<std::vector<float>> weights;
 	int stride;
-	TextureHeader diffuse;
+	TextureHeader* diffuse = nullptr;
 	int gearDyeChangeColourIndex;
 	int alphaClip;
 	int lodGroup;
@@ -115,7 +112,7 @@ public:
 	std::vector<std::vector<float>> vertCol;
 	std::vector<std::vector<uint32_t>> faces;
 	std::unordered_map<int, int> faceMap;
-	std::vector< std::unique_ptr<Submesh>> submeshes;
+	std::vector<Submesh*> submeshes;
 };
 
 class DynamicMesh : public Mesh
@@ -126,6 +123,7 @@ public:
 	std::vector<std::vector<float>> vertPosW;
 	std::vector<std::vector<float>> vertNormW;
 	std::vector<std::vector<float>> weights;
+	std::vector<DynamicSubmesh*> submeshes;
 };
 
 std::string getReferenceFromHash(std::string hash);
