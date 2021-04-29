@@ -114,15 +114,18 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;FBXSDK_SHARED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2020.2\include</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Program Files (x86)\Windows Kits\10\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyUnpackerCPP\x64\Debug\package.obj;C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyUnpackerCPP\x64\Debug\helpers.obj;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2020.2\lib\vs2019\x64\debug;C:\Program Files\Autodesk\FBX\FBX SDK\2020.2\lib;C:\Program Files (x86)\Windows Kits\10\Lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyUnpackerCPP\x64\Debug\package.obj;C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyUnpackerCPP\x64\Debug\helpers.obj;C:\Program Files\Autodesk\FBX\FBX SDK\2020.2\lib\vs2019\x64\debug\libfbxsdk-md.lib;wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>LIBMCT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -143,6 +146,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dynamic.cpp" />
+    <ClCompile Include="fbxmodel.cpp" />
     <ClCompile Include="helpers.cpp" />
     <ClCompile Include="index.cpp" />
     <ClCompile Include="main.cpp" />
@@ -150,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dynamic.h" />
+    <ClInclude Include="fbxmodel.h" />
     <ClInclude Include="helpers.h" />
     <ClInclude Include="index.h" />
     <ClInclude Include="main.h" />

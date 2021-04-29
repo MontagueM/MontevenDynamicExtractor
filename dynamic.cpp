@@ -223,3 +223,59 @@ std::vector<std::vector<float_t>> Dynamic::trimVertsData(std::vector<std::vector
 	}
 	return newVec;
 }
+
+
+void Dynamic::pack(std::string saveDirectory)
+{
+	fbxModel = new FbxModel();
+	std::filesystem::create_directories(saveDirectory);
+	for (int i = 0; i < meshes.size(); i++)
+	{
+		DynamicMesh* mesh = meshes[i];
+		for (int j = 0; j < mesh->submeshes.size(); j++)
+		{
+			DynamicSubmesh* submesh = mesh->submeshes[j];
+			bool add = false;
+			bool firstLodCheck = false;
+			for (auto& x : mesh->submeshes)
+			{
+				if (x->lodLevel == 0 && x->lodGroup == submesh->lodGroup)
+				{
+					firstLodCheck = true;
+					break;
+				}
+			}
+			int secondLodCheck = 9999;
+			for (auto& x : mesh->submeshes)
+			{
+				if (x->lodGroup == submesh->lodGroup)
+				{
+					if (x->lodLevel < secondLodCheck) secondLodCheck = x->lodLevel;
+				}
+			}
+			if (firstLodCheck)
+			{
+				if (submesh->lodLevel == 0) add = true;
+			}
+			else if (submesh->lodLevel == secondLodCheck) add = true;
+
+			if (add && submesh->faces.size() != 0)
+			{
+				if (meshes.size() == 1) submesh->name = hash + "_" + std::to_string(i);
+				else submesh->name = hash + "_" + std::to_string(i) + "_" + std::to_string(j);
+				
+				FbxNode* node = fbxModel->addSubmeshToFbx(submesh, saveDirectory);
+				nodes.push_back(node);
+			}
+		}
+	}
+}
+
+void Dynamic::save(std::string saveDirectory, std::string saveName)
+{
+	if (saveName == "") saveName = hash;
+
+	for (auto& node : nodes) fbxModel->scene->GetRootNode()->AddChild(node);
+
+	fbxModel->save(saveDirectory + "/" + saveName + ".fbx", false);
+}

@@ -13,6 +13,6 @@ int main()
 	Dynamic dyn(modelHash);
 	dyn.get();
 	dyn.pack("I:/dynamic_models/cpp/");
-	dyn.save("test");
+	dyn.save("I:/dynamic_models/cpp/", "test");
 	return 0;
 }
