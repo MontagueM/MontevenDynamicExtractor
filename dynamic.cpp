@@ -87,6 +87,56 @@ void Dynamic::getDyn3Files()
 
 void Dynamic::parseDyn3s()
 {
+	uint32_t offset;
+	uint32_t count;
+	int fileSize;
+
+	for (int i = 0; i < dyn3s.size(); i++)
+	{
+		File dyn3 = dyn3s[i];
+		// We've already gotten data for them
+		memcpy((char*)&offset, dyn3.data + 0x18, 4);
+		offset += 0x18 + 0x10;
+		memcpy((char*)&count, dyn3.data + 0x10, 4);
+		for (int j = offset; j < offset + count * 0x80; i += 0x80)
+		{
+			DynamicMesh mesh;
+			meshes.push_back(mesh);
+			memcpy((char*)&offset, dyn3.data + j+0x10, 4);
+			mesh.facesFile = IndexBufferHeader(uint32ToHexStr(offset));
+			mesh.vertPosFile = VertexBufferHeader(uint32ToHexStr(offset), VertPrimary);
+			
+			// rest here
+
+			uint32_t submeshTableCount;
+			memcpy((char*)&submeshTableCount, dyn3.data + j + 0x20, 4);
+			uint32_t submeshTableOffset;
+			memcpy((char*)&submeshTableOffset, dyn3.data + j + 0x28, 4);
+			submeshTableOffset += j + 0x28 + 0x10;
+
+			int currentLOD = 999;
+			int lodGroup = 0;
+			for (int k = submeshTableOffset; k < submeshTableOffset + submeshTableCount * 0x24; k += 0x24)
+			{
+				DynamicSubmesh submesh;
+				memcpy((char*)&submesh.primType, dyn3.data + k + 6, 2);
+				memcpy((char*)&submesh.indexOffset, dyn3.data + k + 0x8, 4);
+				memcpy((char*)&submesh.indexCount, dyn3.data + k + 0xC, 4);
+				memcpy((char*)&submesh.lodLevel, dyn3.data + k + 0x1B, 1);
+				if (submesh.lodLevel < currentLOD) lodGroup++;
+				currentLOD = submesh.lodLevel;
+				submesh.lodGroup = lodGroup;
+				mesh.submeshes.push_back(submesh);
+			}
+
+			PrimitiveType primType = mesh.submeshes[0].primType;
+
+			mesh.vertPosFile.vertexBuffer.getVerts(mesh);
+			//transformPos(mesh, dyn3.data);
+
+			mesh.facesFile.indexBuffer.getFaces(mesh, primType);
+		}
+	}
 }
 
 void Dynamic::getSubmeshes()

@@ -1,8 +1,8 @@
 #include "helpers.h"
 
-std::string getReferenceFromHash(std::string pkgID, std::string hash)
+std::string getReferenceFromHash(std::string hash)
 {
-	Package pkg(pkgID);
+	Package pkg(getPkgID(hash));
 	std::string reference = pkg.getEntryReference(hash);
 	return reference;
 }
@@ -16,7 +16,7 @@ int File::getData()
 {
 	if (pkgID == "")
 	{
-		getPkgID();
+		pkgID = getPkgID();
 	}
 	Package pkg(pkgID);
 	int fileSize;
@@ -25,8 +25,8 @@ int File::getData()
 	return fileSize;
 }
 
-std::string File::getPkgID()
+std::string getPkgID(std::string hash)
 {
-	pkgID = uint16ToHexStr(floor((hexStrToUint32(hash) - 0x80800000)/8192));
+	std::string pkgID = uint16ToHexStr(floor((hexStrToUint32(hash) - 0x80800000)/8192));
 	return pkgID;
 }
