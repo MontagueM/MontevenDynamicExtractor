@@ -23,8 +23,8 @@ int main(int argc, char** argv)
 	{
 		std::string pkgsPath = "I:/SteamLibrary/steamapps/common/Destiny 2/packages/";
 		std::string outputPath = "I:/dynamic_models/cpp/";
-		std::string fileName = "whatevaaa";
-		std::string modelHash = "B0E6B080";
+		std::string fileName = "whatevaaaa";
+		std::string modelHash = "7DE3DC80";
 		DynamicMesh* mesh = new DynamicMesh();
 		DynamicSubmesh* submesh = new DynamicSubmesh();
 		printf("\nBeginning to extract model...\n");

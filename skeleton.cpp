@@ -1,15 +1,15 @@
 #include "skeleton.h"
 
-void Skeleton::getSkeletonNames()
-{
-	std::ifstream boneNameFile("bone_names.txt");
-    int data1;
-    std::string data2;
-    while (boneNameFile >> data1 && boneNameFile >> data2)
-    {
-        boneNames[data1] = data2;
-    }
-}
+//void Skeleton::getSkeletonNames()
+//{
+//	std::ifstream boneNameFile("/bone_names.txt");
+//    int data1;
+//    std::string data2;
+//    while (boneNameFile >> data1 && boneNameFile >> data2)
+//    {
+//        boneNames[data1] = data2;
+//    }
+//}
 
 std::vector<Node*> Skeleton::parseSkeleton()
 {
@@ -83,6 +83,6 @@ std::vector<Node*> Skeleton::parseSkeleton()
 
 std::vector<Node*> Skeleton::get()
 {
-    getSkeletonNames();
+    //getSkeletonNames();
     return parseSkeleton();
 }

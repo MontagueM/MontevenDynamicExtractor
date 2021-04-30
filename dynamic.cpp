@@ -318,13 +318,15 @@ void Dynamic::getSkeleton()
 		fbxSkel->Size.Set(node->dost->scale);
 		node->fbxNode = FbxNode::Create(fbxModel->manager, node->name.c_str());
 		node->fbxNode->SetNodeAttribute(fbxSkel);
+		std::vector<float> loc;
+		loc.reserve(3);
 		if (node->parentNodeIndex != -1)
 		{
 			// To reverse inheritance of location
 			for (int i=0; i<3; i++)
-				node->dost->location[i] -= nodes[node->parentNodeIndex]->dost->location[i];
+				loc[i] = node->dost->location[i] - nodes[node->parentNodeIndex]->dost->location[i];
 		}
-		node->fbxNode->LclTranslation.Set(FbxDouble3(-node->dost->location[0] * 100, node->dost->location[2] * 100, node->dost->location[1] * 100));
+		node->fbxNode->LclTranslation.Set(FbxDouble3(-loc[0] * 100, loc[2] * 100, loc[1] * 100));
 
 		bones.push_back(node);
 	}

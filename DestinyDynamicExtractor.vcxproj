@@ -168,9 +168,6 @@
     <ClInclude Include="skeleton.h" />
     <ClInclude Include="vertex.h" />
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="bone_names.txt" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
