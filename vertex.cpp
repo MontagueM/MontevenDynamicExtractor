@@ -165,50 +165,51 @@ void VertexBuffer::getSPSBWeights(DynamicMesh* mesh, int fileSize)
 	bool bInHeader = false;
 	for (auto& w : mesh->vertPosW)
 	{
-		if (w & 0xf800 != 0)
+		if (w & 0xf800)
 		{
 			bInHeader = true;
 			break;
 		}
 	}
+	int headerOffset = 0;
 	if (bInHeader)
 	{
 		if (fileSize < 32) return;
-	}
-	int lastBlendValue = 0;
-	int lastBlendCount = 0;
-	int headerOffset = 0;
 
-	// Finding header end
-	int i = 0;
-	while (true)
-	{
-		int32_t comp1, comp2, comp3;
-		memcpy((char*)&comp1, data + i, 2);
-		memcpy((char*)&comp2, data + i + 2, 2);
-		memcpy((char*)&comp3, data + i, 4);
-		// Check if we're in header, there are often zero values or same value for both
-		if (comp1 == comp2 || comp3 == 0)
+		// Finding header end
+		int i = 0;
+		while (true)
 		{
-			bInHeader = true;
-			i = 32 * i / 32 + 32;
+			int32_t comp1, comp2, comp3;
+			memcpy((char*)&comp1, data + i, 2);
+			memcpy((char*)&comp2, data + i + 2, 2);
+			memcpy((char*)&comp3, data + i, 4);
+			// Check if we're in header, there are often zero values or same value for both
+			if (comp1 == comp2 || comp3 == 0)
+			{
+				bInHeader = true;
+				i = 32 * i / 32 + 32;
+			}
+			else
+			{
+				bInHeader = false;
+				i += 4;
+			}
+			if (i % 32 == 0 && i != 0 && !bInHeader)
+			{
+				headerOffset = i - 64;
+				break;
+			}
+			if (i >= fileSize) return;
 		}
-		else
-		{
-			bInHeader = false;
-			i += 4;
-		}
-		if (i % 32 == 0 && i != 0 && !bInHeader)
-		{
-			headerOffset = i - 64;
-			break;
-		}
-		if (i >= fileSize) return;
 	}
 
 	int blendIndex;
 	int blendFlags;
 	int bufferSize;
+	int lastBlendValue = 0;
+	int lastBlendCount = 0;
+
 	for (auto& w : mesh->vertPosW)
 	{
 		std::vector<uint8_t> indices = { 0, 0, 0, 0 };

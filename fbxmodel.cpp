@@ -1,8 +1,10 @@
 #include "fbxmodel.h"
 
-FbxNode* FbxModel::addSubmeshToFbx(Submesh* submesh, std::string fullSavePath)
+FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> bones, std::string fullSavePath)
 {
-	FbxMesh* mesh = createMesh(submesh);
+	bool bAddSkeleton = submesh->weights.size() && bones.size();
+
+	FbxMesh* mesh = createMesh(submesh, bAddSkeleton);
 	if (!mesh->GetLayer(0)) mesh->CreateLayer();
 	FbxLayer* layer = mesh->GetLayer(0);
 	FbxNode* node = FbxNode::Create(manager, submesh->name.c_str());
@@ -12,6 +14,8 @@ FbxNode* FbxModel::addSubmeshToFbx(Submesh* submesh, std::string fullSavePath)
 	if (submesh->vertNorm.size()) addNorm(mesh, submesh, layer);
 	if (submesh->vertUV.size()) addUV(mesh, submesh, layer);
 	if (submesh->vertCol.size()) addVC(mesh, submesh, layer);
+
+	if (bAddSkeleton) addWeights(mesh, submesh, bones);
 	return node;
 }
 
@@ -51,14 +55,54 @@ void FbxModel::addVC(FbxMesh* mesh, Submesh* submesh, FbxLayer* layer)
 	layer->SetVertexColors(vcLayerElement);
 }
 
+void FbxModel::addWeights(FbxMesh* mesh, DynamicSubmesh* submesh, std::vector <Node*> bones)
+{
+	FbxSkin* skin = FbxSkin::Create(manager, submesh->name.c_str());
+	std::vector< FbxCluster*> boneCluster;
+	boneCluster.reserve(bones.size());
 
-FbxMesh* FbxModel::createMesh(Submesh* submesh)
+	for (auto& bone : bones)
+	{
+		FbxCluster* weightCluster = FbxCluster::Create(manager, "BoneWeightCluster");
+		weightCluster->SetLink(bone->fbxNode);
+		weightCluster->SetLinkMode(FbxCluster::eTotalOne);
+		FbxAMatrix transform = bone->fbxNode->EvaluateGlobalTransform();
+		weightCluster->SetTransformLinkMatrix(transform);
+		boneCluster.push_back(weightCluster);
+	}
+
+	for (int i = 0; i < submesh->weights.size(); i++)
+	{
+		std::vector<uint8_t> indices = submesh->weightIndices[i];
+		std::vector<float> weights = submesh->weights[i];
+		for (int j = 0; j < indices.size(); j++)
+		{
+			if (boneCluster.size() < indices[j])
+			{
+				printf("Bone index longer than bone clusters, could not add weights!");
+				exit(1);
+			}
+			boneCluster[indices[j]]->AddControlPointIndex(i, weights[j]);
+		}
+	}
+
+	for (auto& c : boneCluster)
+		skin->AddCluster(c);
+
+	mesh->AddDeformer(skin);
+}
+
+
+FbxMesh* FbxModel::createMesh(Submesh* submesh, bool bAddSkeleton)
 {
 	FbxMesh* mesh = FbxMesh::Create(manager, submesh->name.c_str());
 	for (int i = 0; i < submesh->vertPos.size(); i++)
 	{
 		std::vector<float_t> v = submesh->vertPos[i];
-		mesh->SetControlPointAt(FbxVector4(-v[0], v[2], v[1]), i);
+		if (bAddSkeleton)
+			mesh->SetControlPointAt(FbxVector4(-v[0] * 100, v[2] * 100, v[1] * 100), i);
+		else
+			mesh->SetControlPointAt(FbxVector4(-v[0], v[2], v[1]), i);
 	}
 	for (auto& face : submesh->faces)
 	{

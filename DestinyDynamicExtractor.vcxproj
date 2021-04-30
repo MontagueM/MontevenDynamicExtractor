@@ -156,6 +156,7 @@
     <ClCompile Include="helpers.cpp" />
     <ClCompile Include="index.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="skeleton.cpp" />
     <ClCompile Include="vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -164,7 +165,11 @@
     <ClInclude Include="helpers.h" />
     <ClInclude Include="index.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="skeleton.h" />
     <ClInclude Include="vertex.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="bone_names.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

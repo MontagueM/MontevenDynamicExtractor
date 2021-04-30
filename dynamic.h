@@ -5,6 +5,7 @@
 #include "index.h"
 #include "fbxmodel.h"
 #include "vertex.h"
+#include "skeleton.h"
 
 class Dynamic : public Model
 {
@@ -14,10 +15,13 @@ private:
 	FbxModel* fbxModel = nullptr;
 	std::vector<DynamicMesh*> meshes;
 	std::vector<FbxNode*> nodes;
+	std::vector<Node*> bones;
+	std::string skeletonHash = "";
 
 	void getDyn3Files();
 	void parseDyn3s();
 	void getSubmeshes();
+	void getSkeleton();
 
 	std::vector<std::vector<float_t>> trimVertsData(std::vector<std::vector<float_t>> verts, std::set<int> dsort, bool bVertCol);
 	std::vector<std::vector<uint8_t>> trimVertsData(std::vector<std::vector<uint8_t>> verts, std::set<int> dsort);

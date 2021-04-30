@@ -2,9 +2,12 @@
 
 void Dynamic::get()
 {
+	fbxModel = new FbxModel();
 	getData();
 	getDyn3Files();
 	parseDyn3s();
+	if (skeletonHash != "")
+		getSkeleton();
 	getSubmeshes();
 	auto a = 0;
 }
@@ -28,6 +31,7 @@ void Dynamic::getDyn3Files()
 
 	if (bSkeleton)
 	{
+		skeletonHash = primFile.hash;
 		memcpy((char*)&off, data + 0xBC, 4);
 		dyn2s.push_back(File(uint32ToHexStr(off), packagesPath));
 		memcpy((char*)&off, data + 0xC8, 4);
@@ -235,12 +239,13 @@ void Dynamic::getSubmeshes()
 {
 	for (DynamicMesh* mesh : meshes)
 	{
-		std::vector<uint32_t> existingOffsets;
+		//std::vector<uint32_t> existingOffsets;
 		std::unordered_map<uint32_t, int> existingSubmeshes;
 		for (DynamicSubmesh* submesh : mesh->submeshes)
 		{
 			// Removing dupes
-			if (std::find(existingOffsets.begin(), existingOffsets.end(), submesh->indexOffset) != existingOffsets.end())
+			//if (std::find(existingOffsets.begin(), existingOffsets.end(), submesh->indexOffset) != existingOffsets.end())
+			if (existingSubmeshes.find(submesh->indexOffset) != existingSubmeshes.end())
 			{
 				if (submesh->lodLevel >= existingSubmeshes[submesh->indexOffset]) continue;
 			}
@@ -294,9 +299,51 @@ void Dynamic::getSubmeshes()
 			if (mesh->vertCol.size()) submesh->vertCol = trimVertsData(mesh->vertCol, dsort, true);
 			if (mesh->weights.size()) submesh->weights = trimVertsData(mesh->weights, dsort, false);
 			if (mesh->weightIndices.size()) submesh->weightIndices = trimVertsData(mesh->weightIndices, dsort);
-			existingOffsets.push_back(submesh->indexOffset);
+			//existingOffsets.push_back(submesh->indexOffset);
 			existingSubmeshes[submesh->indexOffset] = submesh->lodLevel;
 		}
+	}
+}
+
+void Dynamic::getSkeleton()
+{
+	Skeleton* skeleton = new Skeleton(skeletonHash, packagesPath);
+	std::vector<Node*> nodes = skeleton->get();
+	if (!nodes.size()) return;
+
+	for (auto& node : nodes)
+	{
+		FbxSkeleton* fbxSkel = FbxSkeleton::Create(fbxModel->manager, node->name.c_str());
+		fbxSkel->SetSkeletonType(FbxSkeleton::eLimbNode);
+		fbxSkel->Size.Set(node->dost->scale);
+		node->fbxNode = FbxNode::Create(fbxModel->manager, node->name.c_str());
+		node->fbxNode->SetNodeAttribute(fbxSkel);
+		if (node->parentNodeIndex != -1)
+		{
+			// To reverse inheritance of location
+			for (int i=0; i<3; i++)
+				node->dost->location[i] -= nodes[node->parentNodeIndex]->dost->location[i];
+		}
+		node->fbxNode->LclTranslation.Set(FbxDouble3(-node->dost->location[0] * 100, node->dost->location[2] * 100, node->dost->location[1] * 100));
+
+		bones.push_back(node);
+	}
+	// Building heirachy
+	FbxNode* root = nullptr;
+	for (auto& node : nodes)
+	{
+		if (node->parentNodeIndex != -1)
+			nodes[node->parentNodeIndex]->fbxNode->AddChild(node->fbxNode);
+		else
+		{
+			FbxSkeleton* nodeatt = FbxSkeleton::Create(fbxModel->manager, node->name.c_str());
+			nodeatt->SetSkeletonType(FbxSkeleton::eRoot);
+			root = FbxNode::Create(fbxModel->manager, "root");
+			root->AddChild(node->fbxNode);
+			root->SetNodeAttribute(nodeatt);
+		}
+		if (root != nullptr)
+			fbxModel->scene->GetRootNode()->AddChild(root);
 	}
 }
 
@@ -332,7 +379,6 @@ std::vector<std::vector<uint8_t>> Dynamic::trimVertsData(std::vector<std::vector
 
 void Dynamic::pack(std::string saveDirectory)
 {
-	fbxModel = new FbxModel();
 	std::filesystem::create_directories(saveDirectory);
 	for (int i = 0; i < meshes.size(); i++)
 	{
@@ -369,7 +415,7 @@ void Dynamic::pack(std::string saveDirectory)
 				if (meshes.size() == 1) submesh->name = hash + "_" + std::to_string(j);
 				else submesh->name = hash + "_" + std::to_string(i) + "_" + std::to_string(j);
 				
-				FbxNode* node = fbxModel->addSubmeshToFbx(submesh, saveDirectory);
+				FbxNode* node = fbxModel->addSubmeshToFbx(submesh, bones, saveDirectory);
 				nodes.push_back(node);
 			}
 		}
