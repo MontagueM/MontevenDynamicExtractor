@@ -157,15 +157,18 @@
     <ClCompile Include="index.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="skeleton.cpp" />
+    <ClCompile Include="texture.cpp" />
     <ClCompile Include="vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dxgiformat.h" />
     <ClInclude Include="dynamic.h" />
     <ClInclude Include="fbxmodel.h" />
     <ClInclude Include="helpers.h" />
     <ClInclude Include="index.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="skeleton.h" />
+    <ClInclude Include="texture.h" />
     <ClInclude Include="vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -318,8 +318,7 @@ void Dynamic::getSkeleton()
 		fbxSkel->Size.Set(node->dost->scale);
 		node->fbxNode = FbxNode::Create(fbxModel->manager, node->name.c_str());
 		node->fbxNode->SetNodeAttribute(fbxSkel);
-		std::vector<float> loc;
-		loc.reserve(3);
+		std::vector<float> loc = { 0, 0, 0 };
 		if (node->parentNodeIndex != -1)
 		{
 			// To reverse inheritance of location

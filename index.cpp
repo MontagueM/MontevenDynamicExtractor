@@ -6,8 +6,6 @@ void IndexBufferHeader::getHeader(std::string x)
 	bool bIsStride4;
 	memcpy((char*)&bIsStride4, data + 0x1, 1);
 	if (bIsStride4) stride = 4;
-
-	
 }
 
 void IndexBuffer::getFaces(Mesh* mesh, PrimitiveType primType)

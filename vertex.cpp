@@ -228,7 +228,7 @@ void VertexBuffer::getSPSBWeights(DynamicMesh* mesh, int fileSize)
 		{
 			bufferSize = 2;
 		}
-		else if (blendFlags & 0x1000)
+		else if (blendFlags & 0x1000 || blendFlags & 0x4000)
 		{
 			bufferSize = 2;
 			blendIndex = abs(w) - 2048;

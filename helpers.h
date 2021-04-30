@@ -3,6 +3,8 @@
 #include <unordered_map>
 #include "../DestinyUnpackerCPP/package.h"
 
+class Texture;
+
 enum PrimitiveType
 {
 	Triangles = 3,
@@ -41,13 +43,6 @@ private:
 
 public:
 	Header(std::string x, std::string pkgsPath) : File(x, pkgsPath) {}
-};
-
-class TextureHeader : public Header
-{
-private:
-
-public:
 };
 
 class Material : public File
@@ -91,7 +86,7 @@ public:
 	std::vector<std::vector<uint8_t>> weightIndices;
 	std::vector<std::vector<float>> weights;
 	int stride;
-	TextureHeader* diffuse = nullptr;
+	Texture* diffuse = nullptr;
 	int gearDyeChangeColourIndex;
 	int alphaClip;
 	int lodGroup;
