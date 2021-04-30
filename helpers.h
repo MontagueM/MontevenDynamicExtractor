@@ -25,11 +25,12 @@ class File
 private:
 
 public:
-	File(std::string x);
+	File(std::string x, std::string pkgsPath);
 
 	std::string hash = "";
 	unsigned char* data = nullptr;
 	std::string pkgID = "";
+	std::string packagesPath;
 
 	int getData();
 };
@@ -39,7 +40,7 @@ class Header : public File
 private:
 
 public:
-	Header(std::string x) : File(x) {}
+	Header(std::string x, std::string pkgsPath) : File(x, pkgsPath) {}
 };
 
 class TextureHeader : public Header
@@ -54,7 +55,7 @@ class Material : public File
 private:
 
 public:
-	Material(std::string x) : File(x) {};
+	Material(std::string x, std::string pkgsPath) : File(x, pkgsPath) {};
 };
 
 class Model : public File
@@ -62,7 +63,7 @@ class Model : public File
 private:
 
 public:
-	Model(std::string x) : File(x) {};
+	Model(std::string x, std::string pkgsPath) : File(x, pkgsPath) {};
 };
 
 class Submesh
@@ -126,5 +127,5 @@ public:
 	std::vector<DynamicSubmesh*> submeshes;
 };
 
-std::string getReferenceFromHash(std::string hash);
+std::string getReferenceFromHash(std::string hash, std::string pkgsPath);
 std::string getPkgID(std::string hash);

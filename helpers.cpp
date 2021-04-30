@@ -1,15 +1,16 @@
 #include "helpers.h"
 
-std::string getReferenceFromHash(std::string hash)
+std::string getReferenceFromHash(std::string hash, std::string pkgsPath)
 {
-	Package pkg(getPkgID(hash));
+	Package pkg(getPkgID(hash), pkgsPath);
 	std::string reference = pkg.getEntryReference(hash);
 	return reference;
 }
 
-File::File(std::string x)
+File::File(std::string x, std::string pkgsPath)
 {
 	hash = x;
+	packagesPath = pkgsPath;
 }
 
 int File::getData()
@@ -18,7 +19,7 @@ int File::getData()
 	{
 		pkgID = getPkgID(hash);
 	}
-	Package pkg(pkgID);
+	Package pkg(pkgID, packagesPath);
 	int fileSize;
 	data = pkg.getEntryData(hash, fileSize);
 	if (data == nullptr) return 0;

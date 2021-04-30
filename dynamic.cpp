@@ -16,7 +16,7 @@ void Dynamic::getDyn3Files()
 
 	uint32_t primFileID;
 	memcpy((char*)&primFileID, data + 0xB0, 4);
-	File primFile = File(uint32ToHexStr(primFileID));
+	File primFile = File(uint32ToHexStr(primFileID), packagesPath);
 	fileSize = primFile.getData();
 
 	// Finding 42868080
@@ -29,16 +29,16 @@ void Dynamic::getDyn3Files()
 	if (bSkeleton)
 	{
 		memcpy((char*)&off, data + 0xBC, 4);
-		dyn2s.push_back(File(uint32ToHexStr(off)));
+		dyn2s.push_back(File(uint32ToHexStr(off), packagesPath));
 		memcpy((char*)&off, data + 0xC8, 4);
-		dyn2s.push_back(File(uint32ToHexStr(off)));
+		dyn2s.push_back(File(uint32ToHexStr(off), packagesPath));
 	}
 	else
 	{
 		memcpy((char*)&off, data + 0xB0, 4);
-		dyn2s.push_back(File(uint32ToHexStr(off)));
+		dyn2s.push_back(File(uint32ToHexStr(off), packagesPath));
 		memcpy((char*)&off, data + 0xBC, 4);
-		dyn2s.push_back(File(uint32ToHexStr(off)));
+		dyn2s.push_back(File(uint32ToHexStr(off), packagesPath));
 	}
 	memcpy((char*)&off, data + 0xA0, 4);
 	if (off == 1) dyn2s.pop_back(); // If the array size is 1 just delete the second dyn2
@@ -74,7 +74,7 @@ void Dynamic::getDyn3Files()
 			return;
 		}
 		memcpy((char*)&off, dyn2.data + off + 572, 4);
-		File dyn3 = File(uint32ToHexStr(off));
+		File dyn3 = File(uint32ToHexStr(off), packagesPath);
 		if (std::find(existingDyn3s.begin(), existingDyn3s.end(), dyn3.hash) != existingDyn3s.end()
 			|| dyn3.getData() == 0)
 			dyn2s.pop_back();
@@ -104,9 +104,9 @@ void Dynamic::parseDyn3s()
 			uint32_t off;
 			DynamicMesh* mesh = new DynamicMesh();
 			memcpy((char*)&off, dyn3.data + j+0x10, 4);
-			mesh->facesFile = new IndexBufferHeader(uint32ToHexStr(off));
+			mesh->facesFile = new IndexBufferHeader(uint32ToHexStr(off), packagesPath);
 			memcpy((char*)&off, dyn3.data + j, 4);
-			mesh->vertPosFile = new VertexBufferHeader(uint32ToHexStr(off), VertPrimary);
+			mesh->vertPosFile = new VertexBufferHeader(uint32ToHexStr(off), packagesPath, VertPrimary);
 			// rest here
 
 			uint32_t submeshTableCount;

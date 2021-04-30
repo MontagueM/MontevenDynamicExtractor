@@ -2,17 +2,72 @@
 #include "dynamic.h"
 #include "helpers.h"
 
-int main()
+
+static void show_usage()
 {
-	std::string modelHash = "B0E6B080";
+	std::cerr << "Usage: DestinyDynamicExtractor.exe -p [packages path] -o [output path] -n [file name] -i [input hash]"
+		<< std::endl;
+}
+
+/*
+Format to run exe is
+
+DestinyDynamicExtractor.exe -p [packages path] -o [output path] -n [file name] -i [input hash]
+
+Using Sarge https://mayaposch.wordpress.com/2019/03/17/parsing-command-line-arguments-in-c/
+*/
+int main(int argc, char** argv)
+{
+	if (argc != 9)
+	{
+		show_usage();
+		std::cout << argc;
+		exit(1);
+	}
+
+	Sarge sarge;
+
+	sarge.setArgument("p", "pkgspath", "pkgs path", true);
+	sarge.setArgument("o", "outputpath", "output path", true);
+	sarge.setArgument("n", "filename", "output file name", true);
+	sarge.setArgument("i", "inputhash", "hash of Dynamic Model Header 1", true);
+	sarge.setDescription("Destiny 2 dynamic model extractor by Monteven.");
+	sarge.setUsage("DestinyDynamicExtractor ");
+
+	if (!sarge.parseArguments(argc, argv))
+	{
+		std::cerr << "Couldn't parse arguments..." << std::endl;
+		return 1;
+	}
+	std::cout << "Number of flags found: " << sarge.flagCount() << std::endl;
+	std::string pkgsPath;
+	std::string outputPath;
+	std::string fileName;
+	std::string modelHash;
+	sarge.getFlag("pkgspath", pkgsPath);
+	sarge.getFlag("outputpath", outputPath);
+	sarge.getFlag("filename", fileName);
+	sarge.getFlag("inputhash", modelHash);
+
+	//std::string modelHash = "B0E6B080";
+	std::string password;
+	std::cout << "if you're not jud go away thanks pswd: ";
+	std::cin >> password;
+	if (password != "warlock")
+	{
+		printf("Wrong password");
+		return 69;
+	}
 
 	DynamicMesh* mesh = new DynamicMesh();
 	DynamicSubmesh* submesh = new DynamicSubmesh();
-
+	printf("\nBeginning to extract model...\n");
 	//std::string reference = getReferenceFromHash("0174", modelHash);
-	Dynamic dyn(modelHash);
+	Dynamic dyn(modelHash, pkgsPath);
 	dyn.get();
-	dyn.pack("I:/dynamic_models/cpp/");
-	dyn.save("I:/dynamic_models/cpp/", "test");
+	printf("\n\nFile extraction readied...\n");
+	dyn.pack(outputPath);
+	dyn.save(outputPath, fileName);
+	std::cout << "\nFile extraction complete! Saved to" << outputPath << "/" << fileName << ".fbx\n";
 	return 0;
 }

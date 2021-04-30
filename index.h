@@ -9,7 +9,7 @@ class IndexBuffer : public File
 public:
 	int stride = -1;
 
-	IndexBuffer(std::string x, int s) : File(x)
+	IndexBuffer(std::string x, std::string pkgsPath, int s) : File(x, pkgsPath)
 	{
 		stride = s;
 	}
@@ -26,13 +26,13 @@ public:
 	int stride = 2;
 	IndexBuffer* indexBuffer = nullptr;
 
-	IndexBufferHeader(std::string x) : Header(x)
+	IndexBufferHeader(std::string x, std::string pkgsPath) : Header(x, pkgsPath)
 	{
 		if (x != "")
 		{
 			getData();
 			getHeader(x);
-			indexBuffer = new IndexBuffer(getReferenceFromHash(x), stride);
+			indexBuffer = new IndexBuffer(getReferenceFromHash(x, pkgsPath), pkgsPath, stride);
 		}
 		auto a = 0;
 	}

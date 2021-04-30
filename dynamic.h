@@ -22,8 +22,10 @@ private:
 	std::vector<std::vector<float_t>> trimVertsData(std::vector<std::vector<float_t>> vertPos, std::set<int> dsort, bool bVertCol);
 	void transformPos(DynamicMesh* mesh, unsigned char* data);
 public:
-	Dynamic(std::string x) : Model(x)
+	std::string packagesPath;
+	Dynamic(std::string x, std::string pkgsPath) : Model(x, pkgsPath)
 	{
+		packagesPath = pkgsPath;
 	}
 
 	void get();
