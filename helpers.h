@@ -88,6 +88,7 @@ class DynamicSubmesh : public Submesh
 {
 private:
 public:
+	std::vector<std::vector<uint8_t>> weightIndices;
 	std::vector<std::vector<float>> weights;
 	int stride;
 	TextureHeader* diffuse = nullptr;
@@ -107,6 +108,8 @@ public:
 	//Mesh() {};
 	IndexBufferHeader* facesFile = nullptr;
 	VertexBufferHeader* vertPosFile = nullptr;
+	VertexBufferHeader* vertUVFile = nullptr;
+	VertexBufferHeader* vertColFile = nullptr;
 	std::vector<std::vector<float>> vertPos;
 	std::vector<std::vector<float>> vertNorm;
 	std::vector<std::vector<float>> vertUV;
@@ -121,10 +124,13 @@ class DynamicMesh : public Mesh
 private:
 public:
 	//DynamicMesh() : Mesh() {};
-	std::vector<std::vector<float>> vertPosW;
-	std::vector<std::vector<float>> vertNormW;
+	std::vector<int16_t> vertPosW;
+	std::vector<int16_t> vertNormW;
+	std::vector<std::vector<uint8_t>> weightIndices;
 	std::vector<std::vector<float>> weights;
 	std::vector<DynamicSubmesh*> submeshes;
+	VertexBufferHeader* oldWeightsFile = nullptr;
+	VertexBufferHeader* spsbWeightsFile = nullptr;
 };
 
 std::string getReferenceFromHash(std::string hash, std::string pkgsPath);

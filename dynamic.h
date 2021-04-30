@@ -19,8 +19,11 @@ private:
 	void parseDyn3s();
 	void getSubmeshes();
 
-	std::vector<std::vector<float_t>> trimVertsData(std::vector<std::vector<float_t>> vertPos, std::set<int> dsort, bool bVertCol);
+	std::vector<std::vector<float_t>> trimVertsData(std::vector<std::vector<float_t>> verts, std::set<int> dsort, bool bVertCol);
+	std::vector<std::vector<uint8_t>> trimVertsData(std::vector<std::vector<uint8_t>> verts, std::set<int> dsort);
+
 	void transformPos(DynamicMesh* mesh, unsigned char* data);
+	void transformUV(DynamicMesh* mesh, unsigned char* data);
 public:
 	std::string packagesPath;
 	Dynamic(std::string x, std::string pkgsPath) : Model(x, pkgsPath)

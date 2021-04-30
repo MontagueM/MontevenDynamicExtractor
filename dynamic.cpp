@@ -107,7 +107,31 @@ void Dynamic::parseDyn3s()
 			mesh->facesFile = new IndexBufferHeader(uint32ToHexStr(off), packagesPath);
 			memcpy((char*)&off, dyn3.data + j, 4);
 			mesh->vertPosFile = new VertexBufferHeader(uint32ToHexStr(off), packagesPath, VertPrimary);
-			// rest here
+			// UV
+			memcpy((char*)&off, dyn3.data + j + 0x4, 4);
+			std::string uvHash = uint32ToHexStr(off);
+			if (uvHash != "ffffffff")
+			{
+				mesh->vertUVFile = new VertexBufferHeader(uvHash, packagesPath, VertSecondary);
+			}
+			memcpy((char*)&off, dyn3.data + j + 0x8, 4);
+			std::string oldWeightsHash = uint32ToHexStr(off);
+			if (oldWeightsHash != "ffffffff")
+			{
+				mesh->oldWeightsFile = new VertexBufferHeader(oldWeightsHash, packagesPath, OldWeights);
+			}
+			memcpy((char*)&off, dyn3.data + j + 0x14, 4);
+			std::string vcHash = uint32ToHexStr(off);
+			if (vcHash != "ffffffff")
+			{
+				mesh->vertColFile = new VertexBufferHeader(vcHash, packagesPath, VertColour);
+			}
+			memcpy((char*)&off, dyn3.data + j + 0x18, 4);
+			std::string spsbHash = uint32ToHexStr(off);
+			if (spsbHash != "ffffffff")
+			{
+				mesh->spsbWeightsFile = new VertexBufferHeader(spsbHash, packagesPath, SPSBWeights);
+			}
 
 			uint32_t submeshTableCount;
 			memcpy((char*)&submeshTableCount, dyn3.data + j + 0x20, 4);
@@ -134,6 +158,27 @@ void Dynamic::parseDyn3s()
 
 			mesh->vertPosFile->vertexBuffer->getVerts(mesh);
 			transformPos(mesh, dyn3.data);
+
+			if (mesh->vertUVFile)
+			{
+				mesh->vertUVFile->vertexBuffer->getVerts(mesh);
+				transformUV(mesh, dyn3.data);
+			}
+
+			if (mesh->oldWeightsFile)
+			{
+				mesh->oldWeightsFile->vertexBuffer->getVerts(mesh);
+			}
+
+			if (mesh->vertColFile)
+			{
+				mesh->vertColFile->vertexBuffer->getVerts(mesh);
+			}
+
+			if (mesh->spsbWeightsFile)
+			{
+				mesh->spsbWeightsFile->vertexBuffer->getVerts(mesh);
+			}
 
 			mesh->facesFile->indexBuffer->getFaces(mesh, primType);
 
@@ -163,6 +208,28 @@ void Dynamic::transformPos(DynamicMesh* mesh, unsigned char* data)
 	}
 }
 
+void Dynamic::transformUV(DynamicMesh* mesh, unsigned char* data)
+{
+	std::vector<float> scales;
+	std::vector<float> offset;
+	for (int i = 112; i < 120; i += 4)
+	{
+		float val;
+		memcpy((char*)&val, data + i, 4);
+		scales.push_back(val);
+	}
+	for (int i = 120; i < 128; i += 4)
+	{
+		float val;
+		memcpy((char*)&val, data + i, 4);
+		offset.push_back(val);
+	}
+	for (auto& vert : mesh->vertUV)
+	{
+		vert[0] = vert[0] * scales[0] + offset[0];
+		vert[1] = vert[1] * -scales[1] + (1 - offset[1]);
+	}
+}
 
 void Dynamic::getSubmeshes()
 {
@@ -222,26 +289,42 @@ void Dynamic::getSubmeshes()
 
 			// Trimming verts to minimise file size
 			submesh->vertPos = trimVertsData(mesh->vertPos, dsort, false);
-			
+			if (mesh->vertNorm.size()) submesh->vertNorm = trimVertsData(mesh->vertNorm, dsort, false);
+			if (mesh->vertUV.size()) submesh->vertUV = trimVertsData(mesh->vertUV, dsort, false);
+			if (mesh->vertCol.size()) submesh->vertCol = trimVertsData(mesh->vertCol, dsort, true);
+			if (mesh->weights.size()) submesh->weights = trimVertsData(mesh->weights, dsort, false);
+			if (mesh->weightIndices.size()) submesh->weightIndices = trimVertsData(mesh->weightIndices, dsort);
 			existingOffsets.push_back(submesh->indexOffset);
 			existingSubmeshes[submesh->indexOffset] = submesh->lodLevel;
 		}
 	}
 }
 
-std::vector<std::vector<float_t>> Dynamic::trimVertsData(std::vector<std::vector<float_t>> vertPos, std::set<int> dsort, bool bVertCol)
+std::vector<std::vector<float_t>> Dynamic::trimVertsData(std::vector<std::vector<float_t>> verts, std::set<int> dsort, bool bVertCol)
 {
 	std::vector<std::vector<float_t>> newVec;
+	std::vector<float_t> zeroVec = { 0, 0, 0, 0 };
 	for (auto& val : dsort)
 	{
 		if (bVertCol)
 		{
-			printf("Add trim verts data VC code");
+			if (val >= verts.size()) newVec.push_back(zeroVec);
+			else newVec.push_back(verts[val]);
 		}
 		else
 		{
-			newVec.push_back(vertPos[val]);
+			newVec.push_back(verts[val]);
 		}
+	}
+	return newVec;
+}
+
+std::vector<std::vector<uint8_t>> Dynamic::trimVertsData(std::vector<std::vector<uint8_t>> verts, std::set<int> dsort)
+{
+	std::vector<std::vector<uint8_t>> newVec;
+	for (auto& val : dsort)
+	{
+		newVec.push_back(verts[val]);
 	}
 	return newVec;
 }

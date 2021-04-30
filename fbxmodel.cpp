@@ -8,8 +8,49 @@ FbxNode* FbxModel::addSubmeshToFbx(Submesh* submesh, std::string fullSavePath)
 	FbxNode* node = FbxNode::Create(manager, submesh->name.c_str());
 	node->SetNodeAttribute(mesh);
 	node->LclScaling.Set(FbxDouble3(100, 100, 100));
+	
+	if (submesh->vertNorm.size()) addNorm(mesh, submesh, layer);
+	if (submesh->vertUV.size()) addUV(mesh, submesh, layer);
+	if (submesh->vertCol.size()) addVC(mesh, submesh, layer);
 	return node;
 }
+
+void FbxModel::addNorm(FbxMesh* mesh, Submesh* submesh, FbxLayer* layer)
+{
+	FbxLayerElementNormal* normLayerElement = FbxLayerElementNormal::Create(mesh, "uv");
+	normLayerElement->SetMappingMode(FbxLayerElement::eByControlPoint);
+	normLayerElement->SetReferenceMode(FbxLayerElement::eDirect);
+	for (auto& vert : submesh->vertNorm)
+	{
+		normLayerElement->GetDirectArray().Add(FbxVector4(-vert[0], vert[2], vert[1]));
+	}
+	layer->SetNormals(normLayerElement);
+}
+
+void FbxModel::addUV(FbxMesh* mesh, Submesh* submesh, FbxLayer* layer)
+{
+	FbxLayerElementUV* uvLayerElement = FbxLayerElementUV::Create(mesh, "uv");
+	uvLayerElement->SetMappingMode(FbxLayerElement::eByControlPoint);
+	uvLayerElement->SetReferenceMode(FbxLayerElement::eDirect);
+	for (auto& vert : submesh->vertUV)
+	{
+		uvLayerElement->GetDirectArray().Add(FbxVector2(vert[0], vert[1]));
+	}
+	layer->SetUVs(uvLayerElement, FbxLayerElement::eTextureDiffuse);
+}
+
+void FbxModel::addVC(FbxMesh* mesh, Submesh* submesh, FbxLayer* layer)
+{
+	FbxLayerElementVertexColor* vcLayerElement = FbxLayerElementVertexColor::Create(mesh, "uv");
+	vcLayerElement->SetMappingMode(FbxLayerElement::eByControlPoint);
+	vcLayerElement->SetReferenceMode(FbxLayerElement::eDirect);
+	for (auto& vert : submesh->vertCol)
+	{
+		vcLayerElement->GetDirectArray().Add(FbxColor(vert[0], vert[1], vert[2], vert[3]));
+	}
+	layer->SetVertexColors(vcLayerElement);
+}
+
 
 FbxMesh* FbxModel::createMesh(Submesh* submesh)
 {
