@@ -18,11 +18,31 @@ Using Sarge https://mayaposch.wordpress.com/2019/03/17/parsing-command-line-argu
 */
 int main(int argc, char** argv)
 {
+	// Debug
+	if (true)
+	{
+		std::string pkgsPath = "I:/SteamLibrary/steamapps/common/Destiny 2/packages/";
+		std::string outputPath = "I:/dynamic_models/cpp/";
+		std::string fileName = "whatevaa";
+		std::string modelHash = "2DFEB080";
+		DynamicMesh* mesh = new DynamicMesh();
+		DynamicSubmesh* submesh = new DynamicSubmesh();
+		printf("\nBeginning to extract model...\n");
+		//std::string reference = getReferenceFromHash("0174", modelHash);
+		Dynamic dyn(modelHash, pkgsPath);
+		dyn.get();
+		printf("\n\nFile extraction readied...\n");
+		dyn.pack(outputPath);
+		dyn.save(outputPath, fileName);
+		std::cout << "\nFile extraction complete! Saved to" << outputPath << "/" << fileName << ".fbx\n";
+		return 0;
+	}
+
 	if (argc != 9)
 	{
 		show_usage();
 		std::cout << argc;
-		exit(1);
+		return 1;
 	}
 
 	Sarge sarge;
