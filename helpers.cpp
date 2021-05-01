@@ -31,3 +31,10 @@ std::string getPkgID(std::string hash)
 	std::string pkgID = uint16ToHexStr(floor((hexStrToUint32(hash) - 0x80800000)/8192));
 	return pkgID;
 }
+
+std::string getHash64(std::string hash64, std::string pkgsPath)
+{
+	//return "";
+	std::string h64 = getH64(hash64, pkgsPath);
+	return h64;
+}

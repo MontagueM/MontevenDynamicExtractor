@@ -3,6 +3,7 @@
 #include <fbxsdk.h>
 #include "helpers.h"
 #include "skeleton.h"
+#include "texture.h"
 
 class FbxModel
 {

@@ -22,18 +22,21 @@ int main(int argc, char** argv)
 	if (true)
 	{
 		std::string pkgsPath = "I:/SteamLibrary/steamapps/common/Destiny 2/packages/";
+		std::string h64 = getHash64("0000CE9FABB437ED", pkgsPath);
+		return 0;
+
 		Texture tex = Texture("8425CF80", pkgsPath);
 		tex.tex2DDS("I:/test_out/8425CF80.dds");
 		return 0;
 	}
 
 	// Debug
-	if (false)
+	if (true)
 	{
 		std::string pkgsPath = "I:/SteamLibrary/steamapps/common/Destiny 2/packages/";
 		std::string outputPath = "I:/dynamic_models/cpp/";
-		std::string fileName = "riven";
-		std::string modelHash = "B000B780";
+		std::string fileName = "tt";
+		std::string modelHash = "B0E6B080";
 		DynamicMesh* mesh = new DynamicMesh();
 		DynamicSubmesh* submesh = new DynamicSubmesh();
 		printf("\nBeginning to extract model...\n");

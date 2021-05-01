@@ -148,6 +148,13 @@ void Dynamic::parseDyn3s()
 			for (int k = submeshTableOffset; k < submeshTableOffset + submeshTableCount * 0x24; k += 0x24)
 			{
 				DynamicSubmesh* submesh = new DynamicSubmesh();
+				int val;
+				memcpy((char*)&val, dyn3.data + k, 4);
+				std::string materialHash = uint32ToHexStr(val);
+				if (materialHash != "ffffffff")
+					submesh->material = new Material(materialHash, packagesPath);
+
+
 				memcpy((char*)&submesh->primType, dyn3.data + k + 6, 2);
 				memcpy((char*)&submesh->indexOffset, dyn3.data + k + 0x8, 4);
 				memcpy((char*)&submesh->indexCount, dyn3.data + k + 0xC, 4);

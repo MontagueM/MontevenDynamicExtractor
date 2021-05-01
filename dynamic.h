@@ -5,6 +5,7 @@
 #include "index.h"
 #include "fbxmodel.h"
 #include "vertex.h"
+#include "texture.h"
 #include "skeleton.h"
 
 class Dynamic : public Model

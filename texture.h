@@ -71,3 +71,12 @@ public:
 	void tex2DDS(std::string fullSavePath);
 };
 
+class Material : public File
+{
+private:
+public:
+	Material(std::string x, std::string pkgsPath) : File(x, pkgsPath) {};
+
+	void parseMaterial();
+	void exportTextures(std::string fullSavePath, std::string saveFormat);
+};

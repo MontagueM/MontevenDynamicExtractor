@@ -3,7 +3,9 @@
 #include <unordered_map>
 #include "../DestinyUnpackerCPP/package.h"
 
+// forward declarations
 class Texture;
+class Material;
 
 enum PrimitiveType
 {
@@ -45,14 +47,6 @@ public:
 	Header(std::string x, std::string pkgsPath) : File(x, pkgsPath) {}
 };
 
-class Material : public File
-{
-private:
-
-public:
-	Material(std::string x, std::string pkgsPath) : File(x, pkgsPath) {};
-};
-
 class Model : public File
 {
 private:
@@ -72,7 +66,7 @@ public:
 	std::vector<std::vector<uint32_t>> faces;
 	int lodLevel;
 	std::string name;
-	Material* material;
+	Material* material = nullptr;
 	int type;
 	int indexCount;
 	int indexOffset;
@@ -129,4 +123,5 @@ public:
 };
 
 std::string getReferenceFromHash(std::string hash, std::string pkgsPath);
+std::string getHash64(std::string hash64, std::string pkgsPath);
 std::string getPkgID(std::string hash);

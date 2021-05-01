@@ -93,3 +93,31 @@ void Texture::writeFile(DDSHeader dds, DXT10Header dxt, std::string fullSavePath
         fclose(outputFile);
     }
 }
+
+void Material::parseMaterial()
+{
+    getData();
+    uint32_t textureCount;
+    uint32_t textureOffset;
+    memcpy((char*)&textureCount, data + 0x2A0, 4);
+    memcpy((char*)&textureOffset, data + 0x2A8, 4);
+    textureOffset += 0x2A8 + 0x10;
+
+    for (int i = textureOffset; i < textureOffset + textureCount * 0x18; i += 0x18)
+    {
+        uint32_t textureIndex;
+        memcpy((char*)&textureIndex, data + i, 4);
+        uint32_t val;
+        memcpy((char*)&val, data + i + 8, 4);
+        std::string h64Check = uint32ToHexStr(val);
+        if (h64Check == "ffffffff")
+        {
+            std::string hash64 = getHash64(hash, packagesPath);
+        }
+    }
+}
+
+void Material::exportTextures(std::string fullSavePath, std::string saveFormat)
+{
+
+}

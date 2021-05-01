@@ -16,6 +16,15 @@ FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> b
 	if (submesh->vertCol.size()) addVC(mesh, submesh, layer);
 
 	if (bAddSkeleton) addWeights(mesh, submesh, bones);
+
+	if (submesh->material != nullptr)
+	{
+		std::filesystem::create_directories(fullSavePath + "/textures/");
+		//submesh->material->parseMaterial();
+		//submesh->material->exportTextures(fullSavePath + "/textures/", "tga");
+		// TODO tex.txt
+	}
+
 	return node;
 }
 
