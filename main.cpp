@@ -19,12 +19,9 @@ Using Sarge https://mayaposch.wordpress.com/2019/03/17/parsing-command-line-argu
 */
 int main(int argc, char** argv)
 {
-	if (true)
+	if (false)
 	{
 		std::string pkgsPath = "I:/SteamLibrary/steamapps/common/Destiny 2/packages/";
-		std::string h64 = getHash64("0000CE9FABB437ED", pkgsPath);
-		return 0;
-
 		Texture tex = Texture("8425CF80", pkgsPath);
 		tex.tex2DDS("I:/test_out/8425CF80.dds");
 		return 0;
@@ -34,14 +31,26 @@ int main(int argc, char** argv)
 	if (true)
 	{
 		std::string pkgsPath = "I:/SteamLibrary/steamapps/common/Destiny 2/packages/";
+		// Check if h64 file exists, if not then generate and save
+		std::unordered_map<uint64_t, uint32_t> hash64Table;
+		std::ifstream f("h64");
+		if (f.good())
+		{
+			hash64Table = loadH64Table();
+		}
+		else
+		{
+			hash64Table = generateH64Table(pkgsPath);
+			saveH64Table(hash64Table);
+		}
 		std::string outputPath = "I:/dynamic_models/cpp/";
-		std::string fileName = "tt";
-		std::string modelHash = "B0E6B080";
+		std::string fileName = "orin";
+		std::string modelHash = "8117AB80";
 		DynamicMesh* mesh = new DynamicMesh();
 		DynamicSubmesh* submesh = new DynamicSubmesh();
 		printf("\nBeginning to extract model...\n");
 		//std::string reference = getReferenceFromHash("0174", modelHash);
-		Dynamic dyn(modelHash, pkgsPath);
+		Dynamic dyn(modelHash, hash64Table, pkgsPath);
 		dyn.get();
 		printf("\n\nFile extraction readied...\n");
 		dyn.pack(outputPath);
@@ -91,11 +100,24 @@ int main(int argc, char** argv)
 		return 69;
 	}
 
+	// Check if h64 file exists, if not then generate and save
+	std::unordered_map<uint64_t, uint32_t> hash64Table;
+	std::ifstream f("h64");
+	if (f.good())
+	{
+		hash64Table = loadH64Table();
+	}
+	else
+	{
+		hash64Table = generateH64Table(pkgsPath);
+		saveH64Table(hash64Table);
+	}
+
 	DynamicMesh* mesh = new DynamicMesh();
 	DynamicSubmesh* submesh = new DynamicSubmesh();
 	printf("\nBeginning to extract model...\n");
 	//std::string reference = getReferenceFromHash("0174", modelHash);
-	Dynamic dyn(modelHash, pkgsPath);
+	Dynamic dyn(modelHash, hash64Table, pkgsPath);
 	dyn.get();
 	printf("\n\nFile extraction readied...\n");
 	dyn.pack(outputPath);

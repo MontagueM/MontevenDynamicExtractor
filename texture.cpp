@@ -94,7 +94,7 @@ void Texture::writeFile(DDSHeader dds, DXT10Header dxt, std::string fullSavePath
     }
 }
 
-void Material::parseMaterial()
+void Material::parseMaterial(std::unordered_map<uint64_t, uint32_t> hash64Table)
 {
     getData();
     uint32_t textureCount;
@@ -102,22 +102,45 @@ void Material::parseMaterial()
     memcpy((char*)&textureCount, data + 0x2A0, 4);
     memcpy((char*)&textureOffset, data + 0x2A8, 4);
     textureOffset += 0x2A8 + 0x10;
-
+    uint64_t h64Val;
     for (int i = textureOffset; i < textureOffset + textureCount * 0x18; i += 0x18)
     {
-        uint32_t textureIndex;
-        memcpy((char*)&textureIndex, data + i, 4);
+        uint8_t textureIndex;
+        memcpy((char*)&textureIndex, data + i, 1);
         uint32_t val;
         memcpy((char*)&val, data + i + 8, 4);
         std::string h64Check = uint32ToHexStr(val);
         if (h64Check == "ffffffff")
         {
-            std::string hash64 = getHash64(hash, packagesPath);
+            memcpy((char*)&h64Val, data + i + 0x10, 8);
+            std::string textureHash = getHash64(h64Val, hash64Table);
+            if (textureHash != "ffffffff")
+            {
+                Texture* texture = new Texture(textureHash, packagesPath);
+                textures[textureIndex] = texture;
+            }
+        }
+        else
+        {
+            printf("Support old texture format");
+            return;
         }
     }
 }
 
 void Material::exportTextures(std::string fullSavePath, std::string saveFormat)
 {
+    std::string actualSavePath;
+    for (auto& element : textures)
+    {
+        uint8_t texID = element.first;
+        Texture* tex = element.second;
+        actualSavePath = fullSavePath + "/" + tex->hash + ".dds";
+        // Check texture exists already
+        std::ifstream f(fullSavePath);
+        if (f.good()) continue;
 
+        if (saveFormat == "dds") tex->tex2DDS(actualSavePath);
+        //else tex->tex2Other(actualSavePath, saveFormat);
+    }
 }

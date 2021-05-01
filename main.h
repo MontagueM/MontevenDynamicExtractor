@@ -4,3 +4,5 @@
 #include <stdio.h> 
 #include "Sarge/src/sarge.cpp"
 #include "dynamic.h"
+#include "../DestinyUnpackerCPP/package.h"
+#include <fstream>

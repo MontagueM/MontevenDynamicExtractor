@@ -18,6 +18,7 @@ private:
 	std::vector<FbxNode*> nodes;
 	std::vector<Node*> bones;
 	std::string skeletonHash = "";
+	std::unordered_map<uint64_t, uint32_t> h64Table;
 
 	void getDyn3Files();
 	void parseDyn3s();
@@ -31,9 +32,10 @@ private:
 	void transformUV(DynamicMesh* mesh, unsigned char* data);
 public:
 	std::string packagesPath;
-	Dynamic(std::string x, std::string pkgsPath) : Model(x, pkgsPath)
+	Dynamic(std::string x, std::unordered_map<uint64_t, uint32_t> hash64Table, std::string pkgsPath) : Model(x, pkgsPath)
 	{
 		packagesPath = pkgsPath;
+		h64Table = hash64Table;
 	}
 
 	void get();

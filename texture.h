@@ -1,6 +1,7 @@
 #pragma once
 #include "helpers.h"
 #include "dxgiformat.h"
+#include <fstream>
 
 
 struct TexHeader
@@ -74,9 +75,10 @@ public:
 class Material : public File
 {
 private:
+	std::unordered_map<uint8_t, Texture*> textures;
 public:
 	Material(std::string x, std::string pkgsPath) : File(x, pkgsPath) {};
 
-	void parseMaterial();
+	void parseMaterial(std::unordered_map<uint64_t, uint32_t> hash64Table);
 	void exportTextures(std::string fullSavePath, std::string saveFormat);
 };

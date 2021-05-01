@@ -423,7 +423,7 @@ void Dynamic::pack(std::string saveDirectory)
 				if (meshes.size() == 1) submesh->name = hash + "_" + std::to_string(j);
 				else submesh->name = hash + "_" + std::to_string(i) + "_" + std::to_string(j);
 				
-				FbxNode* node = fbxModel->addSubmeshToFbx(submesh, bones, saveDirectory);
+				FbxNode* node = fbxModel->addSubmeshToFbx(submesh, bones, h64Table, saveDirectory);
 				nodes.push_back(node);
 			}
 		}

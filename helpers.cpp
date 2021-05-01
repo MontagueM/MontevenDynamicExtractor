@@ -32,9 +32,8 @@ std::string getPkgID(std::string hash)
 	return pkgID;
 }
 
-std::string getHash64(std::string hash64, std::string pkgsPath)
+std::string getHash64(uint64_t hash64, std::unordered_map<uint64_t, uint32_t> hash64Table)
 {
-	//return "";
-	std::string h64 = getH64(hash64, pkgsPath);
+	std::string h64 = uint32ToHexStr(hash64Table[hash64]);
 	return h64;
 }

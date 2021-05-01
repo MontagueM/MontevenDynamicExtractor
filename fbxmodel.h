@@ -15,7 +15,7 @@ private:
 	void addWeights(FbxMesh* mesh, DynamicSubmesh* submesh, std::vector <Node*> bones);
 
 public:
-	FbxNode* addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> bones, std::string fullSavePath);
+	FbxNode* addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> bones, std::unordered_map<uint64_t, uint32_t> hash64Table, std::string fullSavePath);
 	void save(std::string savePath, bool ascii);
 
 	FbxManager* manager = FbxManager::Create();
