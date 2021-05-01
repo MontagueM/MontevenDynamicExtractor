@@ -87,6 +87,42 @@ void Dynamic::getDyn3Files()
 			existingDyn3s.push_back(dyn3.hash);
 			dyn3s.push_back(dyn3);
 		}
+
+		// External material table
+		uint32_t extOff;
+		memcpy((char*)&extOff, dyn2.data + 0x48, 4);
+		extOff += 0x48 - 8;
+		uint32_t val;
+		bool bFound = false;
+		while (true)
+		{
+			memcpy((char*)&val, dyn2.data + extOff, 4);
+			if (val == 2155872276)
+			{
+				bFound = true;
+				extOff -= 8;
+				break;
+			}
+			else if (val == 2155913144) break;
+			extOff -= 4;
+		}
+		if (bFound)
+		{
+			uint32_t extCount;
+			memcpy((char*)&extCount, dyn2.data + extOff, 4);
+			extOff += 0x10;
+			std::set<std::uint32_t> existingMats;
+			for (int j = extOff; j < extOff + extCount * 4; j += 4)
+			{
+				memcpy((char*)&val, dyn2.data + j, 4);
+				if (existingMats.find(val) == existingMats.end())
+				{
+					Material* mat = new Material(uint32ToHexStr(val), packagesPath);
+					externalMaterials.push_back(mat);
+					existingMats.insert(val);
+				}
+			}
+		}
 	}
 }
 
@@ -427,6 +463,13 @@ void Dynamic::pack(std::string saveDirectory)
 				nodes.push_back(node);
 			}
 		}
+	}
+
+	std::filesystem::create_directories(saveDirectory + "/unk_textures/");
+	for (auto& mat : externalMaterials)
+	{
+		mat->parseMaterial(h64Table);
+		mat->exportTextures(saveDirectory + "/unk_textures/", "tga");
 	}
 }
 

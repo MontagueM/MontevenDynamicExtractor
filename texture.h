@@ -70,13 +70,14 @@ public:
 	}
 
 	void tex2DDS(std::string fullSavePath);
+	void tex2Other(std::string fullSavePath, std::string saveFormat);
 };
 
 class Material : public File
 {
 private:
-	std::unordered_map<uint8_t, Texture*> textures;
 public:
+	std::unordered_map<uint8_t, Texture*> textures;
 	Material(std::string x, std::string pkgsPath) : File(x, pkgsPath) {};
 
 	void parseMaterial(std::unordered_map<uint64_t, uint32_t> hash64Table);

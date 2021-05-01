@@ -20,6 +20,48 @@ void Texture::tex2DDS(std::string fullSavePath)
 	writeTexture(fullSavePath);
 }
 
+void Texture::tex2Other(std::string fullSavePath, std::string saveFormat)
+{
+    tex2DDS(fullSavePath);
+    std::string dxgiFormat;
+    switch (textureFormat)
+    {
+    case 27:
+        dxgiFormat = "R8G8B8A8_TYPELESS";
+        break;
+    case 72:
+        dxgiFormat = "BC1_UNORM_SRGB";
+        break;
+    case 74:
+        dxgiFormat = "BC2_UNORM";
+        break;
+    case 77:
+        dxgiFormat = "BC3_UNORM";
+        break;
+    case 80:
+        dxgiFormat = "BC4_UNORM";
+        break;
+    case 83:
+        dxgiFormat = "BC5_UNORM";
+        break;
+    case 95:
+        dxgiFormat = "BC6H_UNORM";
+        break;
+    case 98:
+        dxgiFormat = "BC7_UNORM";
+        break;
+    }
+    if (dxgiFormat == "")
+    {
+        printf("dxgiFormat type not accounted for! Error: " + textureFormat+48);
+        exit(1);
+    }
+    std::string str = "texconv.exe " + fullSavePath + " -y -ft " + saveFormat + " -f " + dxgiFormat;
+    system(str.c_str());
+    // Delete dds file if it exists
+    bool failed = std::remove(fullSavePath.c_str());
+}
+
 void Texture::writeTexture(std::string fullSavePath)
 {
 	bool bCompressed = false;
@@ -136,11 +178,9 @@ void Material::exportTextures(std::string fullSavePath, std::string saveFormat)
         uint8_t texID = element.first;
         Texture* tex = element.second;
         actualSavePath = fullSavePath + "/" + tex->hash + ".dds";
-        // Check texture exists already
-        std::ifstream f(fullSavePath);
-        if (f.good()) continue;
 
         if (saveFormat == "dds") tex->tex2DDS(actualSavePath);
-        //else tex->tex2Other(actualSavePath, saveFormat);
+        else tex->tex2Other(actualSavePath, saveFormat);
+        free(tex);
     }
 }

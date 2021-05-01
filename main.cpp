@@ -125,3 +125,13 @@ int main(int argc, char** argv)
 	std::cout << "\nFile extraction complete! Saved to" << outputPath << "/" << fileName << ".fbx\n";
 	return 0;
 }
+
+/*
+TODO
++ tex.txt
+- unk textures
+- texplates
+- jud VC slots
++ TGA etc export option
+- if texture already exists dont overwrite, just skip (efficiency for multiple materials same textures)
+*/

@@ -116,7 +116,7 @@ void VertexBuffer::getOldWeights(DynamicMesh* mesh, int fileSize)
 {
 	for (int i = 0; i < fileSize; i += 8)
 	{
-		uint32_t val;
+		uint8_t val;
 
 		// Weight indices
 		std::vector<uint8_t> wi;

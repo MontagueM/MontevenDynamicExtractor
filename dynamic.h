@@ -19,6 +19,7 @@ private:
 	std::vector<Node*> bones;
 	std::string skeletonHash = "";
 	std::unordered_map<uint64_t, uint32_t> h64Table;
+	std::vector<Material*> externalMaterials;
 
 	void getDyn3Files();
 	void parseDyn3s();
