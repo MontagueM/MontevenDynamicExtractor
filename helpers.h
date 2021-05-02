@@ -79,6 +79,7 @@ private:
 public:
 	std::vector<std::vector<uint8_t>> weightIndices;
 	std::vector<std::vector<float>> weights;
+	std::vector<std::vector<float>> vertColSlots;
 	int stride;
 	Texture* diffuse = nullptr;
 	int gearDyeChangeColourIndex;
@@ -115,6 +116,7 @@ public:
 	//DynamicMesh() : Mesh() {};
 	std::vector<int16_t> vertPosW;
 	std::vector<int16_t> vertNormW;
+	bool bCloth = false;
 	std::vector<std::vector<uint8_t>> weightIndices;
 	std::vector<std::vector<float>> weights;
 	std::vector<DynamicSubmesh*> submeshes;

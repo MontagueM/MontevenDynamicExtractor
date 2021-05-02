@@ -31,6 +31,7 @@ private:
 
 	void transformPos(DynamicMesh* mesh, unsigned char* data);
 	void transformUV(DynamicMesh* mesh, unsigned char* data);
+	void addVertColSlots(DynamicMesh* mesh, DynamicSubmesh* submesh);
 public:
 	std::string packagesPath;
 	Dynamic(std::string x, std::unordered_map<uint64_t, uint32_t> hash64Table, std::string pkgsPath) : Model(x, pkgsPath)

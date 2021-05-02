@@ -344,6 +344,73 @@ void Dynamic::getSubmeshes()
 			if (mesh->weightIndices.size()) submesh->weightIndices = trimVertsData(mesh->weightIndices, dsort);
 			//existingOffsets.push_back(submesh->indexOffset);
 			existingSubmeshes[submesh->indexOffset] = submesh->lodLevel;
+
+			// Vertex colour slots
+			addVertColSlots(mesh, submesh);
+			submesh->vertColSlots = trimVertsData(submesh->vertColSlots, dsort, true);
+		}
+	}
+}
+
+void Dynamic::addVertColSlots(DynamicMesh* mesh, DynamicSubmesh* submesh)
+{
+	if (mesh->bCloth)
+	{
+		std::vector<float> vc = { 0., 0., 0., 1. };
+		switch (submesh->gearDyeChangeColourIndex)
+		{
+		case 0:
+			vc[0] = 0.333;
+			break;
+		case 1:
+			vc[0] = 0.666;
+			break;
+		case 2:
+			vc[0] = 0.999;
+			break;
+		case 3:
+			vc[1] = 0.333;
+			break;
+		case 4:
+			vc[1] = 0.666;
+			break;
+		case 5:
+			vc[1] = 0.999;
+			break;
+		}
+		if (submesh->alphaClip) vc[2] = 0.25;
+		for (int i = 0; i < submesh->vertPos.size(); i++)
+			submesh->vertColSlots.push_back(vc);
+	}
+	else
+	{
+		// TODO We can partially pull this out since its per-mesh, not per-submesh
+		for (auto& w : mesh->vertNormW)
+		{
+			std::vector<float> vc = { 0., 0., 0., 1. };
+			switch (w & 0x7)
+			{
+			case 0:
+				vc[0] = 0.333;
+				break;
+			case 1:
+				vc[0] = 0.666;
+				break;
+			case 2:
+				vc[0] = 0.999;
+				break;
+			case 3:
+				vc[1] = 0.333;
+				break;
+			case 4:
+				vc[1] = 0.666;
+				break;
+			case 5:
+				vc[1] = 0.999;
+				break;
+			}
+			if (submesh->alphaClip) vc[2] = 0.25;
+			submesh->vertColSlots.push_back(vc);
 		}
 	}
 }

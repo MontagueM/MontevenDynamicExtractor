@@ -44,8 +44,8 @@ int main(int argc, char** argv)
 			saveH64Table(hash64Table);
 		}
 		std::string outputPath = "I:/dynamic_models/cpp/";
-		std::string fileName = "orin";
-		std::string modelHash = "8117AB80";
+		std::string fileName = "skullfort";
+		std::string modelHash = "3874B180";
 		DynamicMesh* mesh = new DynamicMesh();
 		DynamicSubmesh* submesh = new DynamicSubmesh();
 		printf("\nBeginning to extract model...\n");
@@ -129,7 +129,7 @@ int main(int argc, char** argv)
 /*
 TODO
 + tex.txt
-- unk textures
++ unk textures
 - texplates
 - jud VC slots
 + TGA etc export option

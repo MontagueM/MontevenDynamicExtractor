@@ -14,6 +14,12 @@ FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> b
 	if (submesh->vertNorm.size()) addNorm(mesh, submesh, layer);
 	if (submesh->vertUV.size()) addUV(mesh, submesh, layer);
 	if (submesh->vertCol.size()) addVC(mesh, submesh, layer);
+	if (submesh->vertColSlots.size())
+	{
+		mesh->CreateLayer();
+		FbxLayer* layerVC = mesh->GetLayer(1);
+		addVCSlots(mesh, submesh, layerVC);
+	}
 
 	if (bAddSkeleton) addWeights(mesh, submesh, bones);
 
@@ -44,7 +50,7 @@ FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> b
 
 void FbxModel::addNorm(FbxMesh* mesh, Submesh* submesh, FbxLayer* layer)
 {
-	FbxLayerElementNormal* normLayerElement = FbxLayerElementNormal::Create(mesh, "uv");
+	FbxLayerElementNormal* normLayerElement = FbxLayerElementNormal::Create(mesh, "norm");
 	normLayerElement->SetMappingMode(FbxLayerElement::eByControlPoint);
 	normLayerElement->SetReferenceMode(FbxLayerElement::eDirect);
 	for (auto& vert : submesh->vertNorm)
@@ -68,10 +74,22 @@ void FbxModel::addUV(FbxMesh* mesh, Submesh* submesh, FbxLayer* layer)
 
 void FbxModel::addVC(FbxMesh* mesh, Submesh* submesh, FbxLayer* layer)
 {
-	FbxLayerElementVertexColor* vcLayerElement = FbxLayerElementVertexColor::Create(mesh, "uv");
+	FbxLayerElementVertexColor* vcLayerElement = FbxLayerElementVertexColor::Create(mesh, "vc");
 	vcLayerElement->SetMappingMode(FbxLayerElement::eByControlPoint);
 	vcLayerElement->SetReferenceMode(FbxLayerElement::eDirect);
 	for (auto& vert : submesh->vertCol)
+	{
+		vcLayerElement->GetDirectArray().Add(FbxColor(vert[0], vert[1], vert[2], vert[3]));
+	}
+	layer->SetVertexColors(vcLayerElement);
+}
+
+void FbxModel::addVCSlots(FbxMesh* mesh, DynamicSubmesh* submesh, FbxLayer* layer)
+{
+	FbxLayerElementVertexColor* vcLayerElement = FbxLayerElementVertexColor::Create(mesh, "slots");
+	vcLayerElement->SetMappingMode(FbxLayerElement::eByControlPoint);
+	vcLayerElement->SetReferenceMode(FbxLayerElement::eDirect);
+	for (auto& vert : submesh->vertColSlots)
 	{
 		vcLayerElement->GetDirectArray().Add(FbxColor(vert[0], vert[1], vert[2], vert[3]));
 	}
@@ -114,7 +132,6 @@ void FbxModel::addWeights(FbxMesh* mesh, DynamicSubmesh* submesh, std::vector <N
 
 	mesh->AddDeformer(skin);
 }
-
 
 FbxMesh* FbxModel::createMesh(Submesh* submesh, bool bAddSkeleton)
 {
