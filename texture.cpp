@@ -173,12 +173,19 @@ void Material::parseMaterial(std::unordered_map<uint64_t, uint32_t> hash64Table)
 void Material::exportTextures(std::string fullSavePath, std::string saveFormat)
 {
     std::string actualSavePath;
+    std::string newPath;
     for (auto& element : textures)
     {
         uint8_t texID = element.first;
         Texture* tex = element.second;
         actualSavePath = fullSavePath + "/" + tex->hash + ".dds";
-
+        newPath = fullSavePath + "/" + tex->hash + "." + saveFormat;
+        std::ifstream f(newPath);
+        if (f)
+        {
+            free(tex);
+            continue;
+        }
         if (saveFormat == "dds") tex->tex2DDS(actualSavePath);
         else tex->tex2Other(actualSavePath, saveFormat);
         free(tex);

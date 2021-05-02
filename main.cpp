@@ -103,7 +103,7 @@ int main(int argc, char** argv)
 	// Check if h64 file exists, if not then generate and save
 	std::unordered_map<uint64_t, uint32_t> hash64Table;
 	std::ifstream f("h64");
-	if (f.good())
+	if (f)
 	{
 		hash64Table = loadH64Table();
 	}
@@ -133,5 +133,5 @@ TODO
 - texplates
 - jud VC slots
 + TGA etc export option
-- if texture already exists dont overwrite, just skip (efficiency for multiple materials same textures)
++ if texture already exists dont overwrite, just skip (efficiency for multiple materials same textures)
 */
