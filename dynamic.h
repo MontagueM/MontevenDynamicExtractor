@@ -12,6 +12,7 @@
 class Dynamic : public Model
 {
 private:
+	bool bTextures;
 	std::vector<File> dyn2s;
 	std::vector<File> dyn3s;
 	FbxModel* fbxModel = nullptr;
@@ -37,13 +38,14 @@ private:
 	void addVertColSlots(DynamicMesh* mesh, DynamicSubmesh* submesh);
 public:
 	std::string packagesPath;
-	Dynamic(std::string x, std::unordered_map<uint64_t, uint32_t> hash64Table, std::string pkgsPath) : Model(x, pkgsPath)
+	Dynamic(std::string x, std::unordered_map<uint64_t, uint32_t> hash64Table, std::string pkgsPath, bool btex) : Model(x, pkgsPath)
 	{
 		packagesPath = pkgsPath;
 		h64Table = hash64Table;
+		bTextures = btex;
 	}
 
-	void get();
+	bool get();
 	void pack(std::string saveDirectory);
 	void save(std::string saveDirectory, std::string saveName);
 };

@@ -64,7 +64,7 @@ void TexturePlate::savePlate(std::string fullSavePath)
 	cv::Mat3b res(dimensions[0], dimensions[1], cv::Vec3b(0, 0, 0));
 	for (auto& tex : textures)
 	{
-		std::string save = fullSavePath + tex->hash + ".png";
+		std::string save = fullSavePath + tex->hash + ".PNG";
 		tex->tex2Other(fullSavePath + tex->hash + ".dds", "png");
 		cv::Mat cvIm = cv::imread(save);
 		if (cvIm.empty())

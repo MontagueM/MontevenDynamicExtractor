@@ -26,8 +26,14 @@ void Texture::tex2Other(std::string fullSavePath, std::string saveFormat)
     std::string dxgiFormat;
     switch (textureFormat)
     {
-    case 27:
-        dxgiFormat = "R8G8B8A8_TYPELESS";
+    case 28:
+        dxgiFormat = "R8G8B8A8_UNORM";
+        break;
+    case 29:
+        dxgiFormat = "R8G8B8A8_UNORM_SRGB";
+        break;
+    case 71:
+        dxgiFormat = "BC1_UNORM";
         break;
     case 72:
         dxgiFormat = "BC1_UNORM_SRGB";
@@ -35,24 +41,43 @@ void Texture::tex2Other(std::string fullSavePath, std::string saveFormat)
     case 74:
         dxgiFormat = "BC2_UNORM";
         break;
+    case 75:
+        dxgiFormat = "BC2_UNORM_SRGB";
+        break;
     case 77:
         dxgiFormat = "BC3_UNORM";
+        break;
+    case 78:
+        dxgiFormat = "BC3_UNORM_SRGB";
         break;
     case 80:
         dxgiFormat = "BC4_UNORM";
         break;
+    case 81:
+        dxgiFormat = "BC4_UNORM_SRGB";
+        break;
     case 83:
         dxgiFormat = "BC5_UNORM";
+        break;
+    case 84:
+        dxgiFormat = "BC5_UNORM_SRGB";
         break;
     case 95:
         dxgiFormat = "BC6H_UNORM";
         break;
+    case 96:
+        dxgiFormat = "BC6H_UNORM_SRGB";
+        break;
     case 98:
         dxgiFormat = "BC7_UNORM";
+        break;
+    case 99:
+        dxgiFormat = "BC7_UNORM_SRGB";
         break;
     }
     if (dxgiFormat == "")
     {
+        std::cerr << "dxgiformat error";
         printf("dxgiFormat type not accounted for! Error: " + textureFormat+48);
         exit(1);
     }

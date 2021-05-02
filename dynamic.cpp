@@ -1,6 +1,6 @@
 #include "dynamic.h"
 
-void Dynamic::get()
+bool Dynamic::get()
 {
 	fbxModel = new FbxModel();
 	getData();
@@ -8,9 +8,10 @@ void Dynamic::get()
 	parseDyn3s();
 	if (skeletonHash != "")
 		getSkeleton();
-	getTexturePlates();
+	if (bTextures)
+		getTexturePlates();
 	getSubmeshes();
-	auto a = 0;
+	return meshes.size();
 }
 
 void Dynamic::getTexturePlates()
@@ -78,7 +79,7 @@ void Dynamic::getDyn3Files()
 			fileSize = dyn2.getData();
 			if (fileSize == 0)
 			{
-				printf("Model file empty, skipping...");
+				printf("\nModel file empty, skipping...");
 				return;
 			}
 		}
@@ -94,14 +95,17 @@ void Dynamic::getDyn3Files()
 		memcpy((char*)&off, dyn2.data + 0x18, 4);
 		if (off + 572 - 4 >= fileSize)
 		{
-			printf("Not a valid model file, skipping...");
+			printf("\nNot a valid model file, skipping...");
 			return;
 		}
 		memcpy((char*)&off, dyn2.data + off + 572, 4);
 		File dyn3 = File(uint32ToHexStr(off), packagesPath);
 		if (std::find(existingDyn3s.begin(), existingDyn3s.end(), dyn3.hash) != existingDyn3s.end()
 			|| dyn3.getData() == 0)
+		{
 			dyn2s.pop_back();
+			continue;
+		}
 		else
 		{
 			existingDyn3s.push_back(dyn3.hash);
@@ -109,37 +113,40 @@ void Dynamic::getDyn3Files()
 		}
 
 		// External material table
-		uint32_t extOff;
-		memcpy((char*)&extOff, dyn2.data + 0x48, 4);
-		extOff += 0x48 - 8;
-		uint32_t val;
-		bool bFound = false;
-		while (true)
+		if (bTextures)
 		{
-			memcpy((char*)&val, dyn2.data + extOff, 4);
-			if (val == 2155872276)
+			uint32_t extOff = 0;
+			memcpy((char*)&extOff, dyn2.data + 0x48, 4);
+			extOff += 0x48 - 8;
+			uint32_t val;
+			bool bFound = false;
+			while (true)
 			{
-				bFound = true;
-				extOff -= 8;
-				break;
-			}
-			else if (val == 2155913144) break;
-			extOff -= 4;
-		}
-		if (bFound)
-		{
-			uint32_t extCount;
-			memcpy((char*)&extCount, dyn2.data + extOff, 4);
-			extOff += 0x10;
-			std::set<std::uint32_t> existingMats;
-			for (int j = extOff; j < extOff + extCount * 4; j += 4)
-			{
-				memcpy((char*)&val, dyn2.data + j, 4);
-				if (existingMats.find(val) == existingMats.end())
+				memcpy((char*)&val, dyn2.data + extOff, 4);
+				if (val == 2155872276)
 				{
-					Material* mat = new Material(uint32ToHexStr(val), packagesPath);
-					externalMaterials.push_back(mat);
-					existingMats.insert(val);
+					bFound = true;
+					extOff -= 8;
+					break;
+				}
+				else if (val == 2155913144) break;
+				extOff -= 4;
+			}
+			if (bFound)
+			{
+				uint32_t extCount;
+				memcpy((char*)&extCount, dyn2.data + extOff, 4);
+				extOff += 0x10;
+				std::set<std::uint32_t> existingMats;
+				for (int j = extOff; j < extOff + extCount * 4; j += 4)
+				{
+					memcpy((char*)&val, dyn2.data + j, 4);
+					if (existingMats.find(val) == existingMats.end())
+					{
+						Material* mat = new Material(uint32ToHexStr(val), packagesPath);
+						externalMaterials.push_back(mat);
+						existingMats.insert(val);
+					}
 				}
 			}
 		}
@@ -540,31 +547,32 @@ void Dynamic::pack(std::string saveDirectory)
 				if (submesh->lodLevel == 0) add = true;
 			}
 			else if (submesh->lodLevel == secondLodCheck) add = true;
-
 			if (add && submesh->faces.size() != 0)
 			{
 				if (meshes.size() == 1) submesh->name = hash + "_" + std::to_string(j);
 				else submesh->name = hash + "_" + std::to_string(i) + "_" + std::to_string(j);
 				
-				FbxNode* node = fbxModel->addSubmeshToFbx(submesh, bones, h64Table, saveDirectory);
+				FbxNode* node = fbxModel->addSubmeshToFbx(submesh, bones, h64Table, saveDirectory, bTextures);
 				nodes.push_back(node);
 			}
 		}
 	}
-
-	// Export unk material textures
-	std::filesystem::create_directories(saveDirectory + "/unk_textures/");
-	for (auto& mat : externalMaterials)
+	if (bTextures)
 	{
-		mat->parseMaterial(h64Table);
-		mat->exportTextures(saveDirectory + "/unk_textures/", "tga");
-	}
+		// Export unk material textures
+		std::filesystem::create_directories(saveDirectory + "/unk_textures/");
+		for (auto& mat : externalMaterials)
+		{
+			mat->parseMaterial(h64Table);
+			mat->exportTextures(saveDirectory + "/unk_textures/", "tga");
+		}
 
-	// Export texplates
-	for (auto& texplateSet : texplateSets)
-	{
-		texplateSet->parse();
-		texplateSet->saveTexturePlateSet(saveDirectory + "/textures/");
+		// Export texplates
+		for (auto& texplateSet : texplateSets)
+		{
+			texplateSet->parse();
+			texplateSet->saveTexturePlateSet(saveDirectory + "/textures/");
+		}
 	}
 }
 

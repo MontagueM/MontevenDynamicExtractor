@@ -1,6 +1,6 @@
 #include "fbxmodel.h"
 
-FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> bones, std::unordered_map<uint64_t, uint32_t> hash64Table, std::string fullSavePath)
+FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> bones, std::unordered_map<uint64_t, uint32_t> hash64Table, std::string fullSavePath, bool bTextures)
 {
 	bool bAddSkeleton = submesh->weights.size() && bones.size();
 
@@ -10,7 +10,6 @@ FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> b
 	FbxNode* node = FbxNode::Create(manager, submesh->name.c_str());
 	node->SetNodeAttribute(mesh);
 	node->LclScaling.Set(FbxDouble3(100, 100, 100));
-	
 	if (submesh->vertNorm.size()) addNorm(mesh, submesh, layer);
 	if (submesh->vertUV.size()) addUV(mesh, submesh, layer);
 	if (submesh->vertCol.size()) addVC(mesh, submesh, layer);
@@ -20,10 +19,8 @@ FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> b
 		FbxLayer* layerVC = mesh->GetLayer(1);
 		addVCSlots(mesh, submesh, layerVC);
 	}
-
 	if (bAddSkeleton) addWeights(mesh, submesh, bones);
-
-	if (submesh->material != nullptr)
+	if (submesh->material != nullptr && bTextures)
 	{
 		std::filesystem::create_directories(fullSavePath + "/textures/");
 
@@ -40,11 +37,9 @@ FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> b
 		toWrite += "\n";
 		fwrite(toWrite.c_str(), toWrite.size(), 1, texFile);
 		fclose(texFile);
-
 		submesh->material->parseMaterial(hash64Table);
-		submesh->material->exportTextures(fullSavePath + "/textures/", "tga");
+		submesh->material->exportTextures(fullSavePath + "/textures/", "png");
 	}
-
 	return node;
 }
 
