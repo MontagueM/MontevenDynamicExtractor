@@ -130,8 +130,9 @@ int main(int argc, char** argv)
 TODO
 + tex.txt
 + unk textures
-- texplates
-- jud VC slots
+- texplates https://stackoverflow.com/questions/33239669/opencv-how-to-merge-two-images/45595773
++ jud VC slots
 + TGA etc export option
 + if texture already exists dont overwrite, just skip (efficiency for multiple materials same textures)
+- dont export dyemap if all black tex
 */

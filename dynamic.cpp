@@ -8,8 +8,28 @@ void Dynamic::get()
 	parseDyn3s();
 	if (skeletonHash != "")
 		getSkeleton();
+	getTexturePlates();
 	getSubmeshes();
 	auto a = 0;
+}
+
+void Dynamic::getTexturePlates()
+{
+	uint32_t offset;
+	uint32_t fileVal;
+	std::string fileHash;
+	for (auto& dyn2 : dyn2s)
+	{
+		// can optimise by replacing with pointers
+		dyn2.getData();
+		memcpy((char*)&offset, dyn2.data + 0x18, 4);
+		offset += 712;
+		memcpy((char*)&fileVal, dyn2.data + offset, 4);
+		fileHash = uint32ToHexStr(fileVal);
+		if (fileHash == "ffffffff") continue;
+		TexturePlateSet* texplateSet = new TexturePlateSet(fileHash, packagesPath);
+		texplateSets.push_back(texplateSet);
+	}
 }
 
 void Dynamic::getDyn3Files()
@@ -532,11 +552,19 @@ void Dynamic::pack(std::string saveDirectory)
 		}
 	}
 
+	// Export unk material textures
 	std::filesystem::create_directories(saveDirectory + "/unk_textures/");
 	for (auto& mat : externalMaterials)
 	{
 		mat->parseMaterial(h64Table);
 		mat->exportTextures(saveDirectory + "/unk_textures/", "tga");
+	}
+
+	// Export texplates
+	for (auto& texplateSet : texplateSets)
+	{
+		texplateSet->parse();
+		texplateSet->saveTexturePlateSet(saveDirectory + "/textures/");
 	}
 }
 

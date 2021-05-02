@@ -7,6 +7,7 @@
 #include "vertex.h"
 #include "texture.h"
 #include "skeleton.h"
+#include "texplate.h"
 
 class Dynamic : public Model
 {
@@ -20,11 +21,13 @@ private:
 	std::string skeletonHash = "";
 	std::unordered_map<uint64_t, uint32_t> h64Table;
 	std::vector<Material*> externalMaterials;
+	std::vector<TexturePlateSet*> texplateSets;
 
 	void getDyn3Files();
 	void parseDyn3s();
 	void getSubmeshes();
 	void getSkeleton();
+	void getTexturePlates();
 
 	std::vector<std::vector<float_t>> trimVertsData(std::vector<std::vector<float_t>> verts, std::set<int> dsort, bool bVertCol);
 	std::vector<std::vector<uint8_t>> trimVertsData(std::vector<std::vector<uint8_t>> verts, std::set<int> dsort);
