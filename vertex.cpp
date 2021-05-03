@@ -154,7 +154,7 @@ void VertexBuffer::getVertexColour(DynamicMesh* mesh, int fileSize)
 			}
 			vc.push_back((float)val / 255);
 		}
-		if (vc[3] != 1.0) vc = { 0, 0, 0, 0 };
+		//if (vc[3] != 1.0) vc = { 0, 0, 0, 0 };
 		mesh->vertCol.push_back(vc);
 	}
 	if (!bAnyValidVC) mesh->vertCol.clear();

@@ -60,7 +60,7 @@ void Texture::tex2Other(std::string fullSavePath, std::string saveFormat)
         dxgiFormat = "BC5_UNORM";
         break;
     case 84:
-        dxgiFormat = "BC5_UNORM_SRGB";
+        dxgiFormat = "BC5_SNORM";
         break;
     case 95:
         dxgiFormat = "BC6H_UNORM";
@@ -81,10 +81,13 @@ void Texture::tex2Other(std::string fullSavePath, std::string saveFormat)
         printf("dxgiFormat type not accounted for! Error: " + textureFormat+48);
         exit(1);
     }
-    std::string str = "texconv.exe " + fullSavePath + " -y -ft " + saveFormat + " -f " + dxgiFormat;
+    std::string str = "texconv.exe \"" + fullSavePath + "\" -y -ft " + saveFormat + " -f " + dxgiFormat;
+    printf(str.c_str());
     system(str.c_str());
     // Delete dds file if it exists
-    bool failed = std::remove(fullSavePath.c_str());
+    std::string newPath = fullSavePath.substr(0, fullSavePath.size() - 3) + saveFormat;
+    std::ifstream f(newPath);
+    if (f) std::remove(fullSavePath.c_str());
 }
 
 void Texture::writeTexture(std::string fullSavePath)
@@ -206,7 +209,8 @@ void Material::exportTextures(std::string fullSavePath, std::string saveFormat)
         actualSavePath = fullSavePath + "/" + tex->hash + ".dds";
         newPath = fullSavePath + "/" + tex->hash + "." + saveFormat;
         std::ifstream f(newPath);
-        if (f)
+        std::ifstream q(actualSavePath);
+        if (f || q)
         {
             free(tex);
             continue;

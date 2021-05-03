@@ -50,6 +50,6 @@ private:
 	std::vector<TexturePlate*> texplates;
 public:
 	TexturePlateSet(std::string x, std::string pkgsPath) : File(x, pkgsPath) {};
-	void parse();
+	bool parse();
 	void saveTexturePlateSet(std::string fullSavePath);
 };

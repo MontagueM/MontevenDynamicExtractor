@@ -1,8 +1,9 @@
 #include "texplate.h"
 
-void TexturePlateSet::parse()
+bool TexturePlateSet::parse()
 {
-	getData();
+	int fileSize = getData();
+	if (!fileSize) return false;
 	uint32_t val;
 	memcpy((char*)&val, data + 0x18, 4);
 	dimensionFlag = (val == 4);
@@ -21,6 +22,7 @@ void TexturePlateSet::parse()
 	// Check to see if we should bother extracting dyemap or not
 	texplate = new TexturePlate(uint32ToHexStr(val), packagesPath, "Dyemap");
 	texplates.push_back(texplate);
+	return true;
 }
 
 void TexturePlateSet::saveTexturePlateSet(std::string fullSavePath)

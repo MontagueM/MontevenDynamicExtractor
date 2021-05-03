@@ -79,7 +79,7 @@ void Dynamic::getDyn3Files()
 			fileSize = dyn2.getData();
 			if (fileSize == 0)
 			{
-				printf("\nModel file empty, skipping...");
+				printf("\nDynamic has no mesh data (B), skipping...");
 				return;
 			}
 		}
@@ -95,7 +95,7 @@ void Dynamic::getDyn3Files()
 		memcpy((char*)&off, dyn2.data + 0x18, 4);
 		if (off + 572 - 4 >= fileSize)
 		{
-			printf("\nNot a valid model file, skipping...");
+			printf("\nDynamic has no mesh data (C), skipping...");
 			return;
 		}
 		memcpy((char*)&off, dyn2.data + off + 572, 4);
@@ -559,19 +559,21 @@ void Dynamic::pack(std::string saveDirectory)
 	}
 	if (bTextures)
 	{
-		// Export unk material textures
-		std::filesystem::create_directories(saveDirectory + "/unk_textures/");
+		// Export texplates
+		for (auto& texplateSet : texplateSets)
+		{
+			bool status = texplateSet->parse();
+			if (!status) continue;
+			texplateSet->saveTexturePlateSet(saveDirectory + "/textures/");
+		}
+
+		if (!externalMaterials.size()) return;
+			// Export unk material textures
+			std::filesystem::create_directories(saveDirectory + "/unk_textures/");
 		for (auto& mat : externalMaterials)
 		{
 			mat->parseMaterial(h64Table);
 			mat->exportTextures(saveDirectory + "/unk_textures/", "tga");
-		}
-
-		// Export texplates
-		for (auto& texplateSet : texplateSets)
-		{
-			texplateSet->parse();
-			texplateSet->saveTexturePlateSet(saveDirectory + "/textures/");
 		}
 	}
 }
