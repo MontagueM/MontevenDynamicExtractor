@@ -24,7 +24,7 @@ FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> b
 	{
 		std::filesystem::create_directories(fullSavePath + "/textures/");
 
-		// TODO tex.txt
+		submesh->material->parseMaterial(hash64Table);
 		FILE* texFile;
 		std::string path = fullSavePath + "/textures/tex.txt";
 		fopen_s(&texFile, path.c_str(), "a");
@@ -37,7 +37,6 @@ FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> b
 		toWrite += "\n";
 		fwrite(toWrite.c_str(), toWrite.size(), 1, texFile);
 		fclose(texFile);
-		submesh->material->parseMaterial(hash64Table);
 		submesh->material->exportTextures(fullSavePath + "/textures/", "png");
 	}
 	return node;

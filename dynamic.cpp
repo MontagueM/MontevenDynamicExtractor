@@ -22,10 +22,11 @@ void Dynamic::getTexturePlates()
 	for (auto& dyn2 : dyn2s)
 	{
 		// can optimise by replacing with pointers
-		dyn2.getData();
-		memcpy((char*)&offset, dyn2.data + 0x18, 4);
+		//dyn2->getData();
+		if (!dyn2->getData()) continue;
+		memcpy((char*)&offset, dyn2->data + 0x18, 4);
 		offset += 712;
-		memcpy((char*)&fileVal, dyn2.data + offset, 4);
+		memcpy((char*)&fileVal, dyn2->data + offset, 4);
 		fileHash = uint32ToHexStr(fileVal);
 		if (fileHash == "ffffffff") continue;
 		TexturePlateSet* texplateSet = new TexturePlateSet(fileHash, packagesPath);
@@ -40,47 +41,49 @@ void Dynamic::getDyn3Files()
 
 	uint32_t primFileID;
 	memcpy((char*)&primFileID, data + 0xB0, 4);
-	File primFile = File(uint32ToHexStr(primFileID), packagesPath);
-	fileSize = primFile.getData();
+	File* primFile = new File(uint32ToHexStr(primFileID), packagesPath);
+	fileSize = primFile->getData();
 
 	// Finding 42868080
 	bool bSkeleton = false;
-	memcpy((char*)&off, primFile.data + 0x18, 4);
+	memcpy((char*)&off, primFile->data + 0x18, 4);
 	off += 0x18;
-	memcpy((char*)&off, primFile.data + off + 4, 4);
+	memcpy((char*)&off, primFile->data + off + 4, 4);
 	if (off == 2155905501) bSkeleton = true;
 
 	if (bSkeleton)
 	{
-		skeletonHash = primFile.hash;
+		skeletonHash = primFile->hash;
 		memcpy((char*)&off, data + 0xBC, 4);
-		dyn2s.push_back(File(uint32ToHexStr(off), packagesPath));
+		dyn2s.push_back(new File(uint32ToHexStr(off), packagesPath));
 		memcpy((char*)&off, data + 0xC8, 4);
-		dyn2s.push_back(File(uint32ToHexStr(off), packagesPath));
+		dyn2s.push_back(new File(uint32ToHexStr(off), packagesPath));
 	}
 	else
 	{
 		memcpy((char*)&off, data + 0xB0, 4);
-		dyn2s.push_back(File(uint32ToHexStr(off), packagesPath));
+		dyn2s.push_back(new File(uint32ToHexStr(off), packagesPath));
 		memcpy((char*)&off, data + 0xBC, 4);
-		dyn2s.push_back(File(uint32ToHexStr(off), packagesPath));
+		dyn2s.push_back(new File(uint32ToHexStr(off), packagesPath));
 	}
 	memcpy((char*)&off, data + 0xA0, 4);
 	if (off == 1) dyn2s.pop_back(); // If the array size is 1 just delete the second dyn2
 
 	std::vector<std::string> existingDyn3s = {};
-	for (int i = 0; i < dyn2s.size(); i++)
+	int size = dyn2s.size();
+	for (int i = 0; i < size; i++)
 	{
-		File dyn2 = primFile;
+		File* dyn2 = primFile;
 		// We don't need to reopen the primFile if there isnt a skeleton
 		if (bSkeleton)
 		{
 			dyn2 = dyn2s[i];
-			fileSize = dyn2.getData();
+			fileSize = dyn2->getData();
 			if (fileSize == 0)
 			{
 				printf("\nDynamic has no mesh data (B), skipping...");
-				return;
+				dyn2s.erase(dyn2s.begin() + i);
+				continue;
 			}
 		}
 		else
@@ -88,27 +91,27 @@ void Dynamic::getDyn3Files()
 			if (i == 1)
 			{
 				dyn2 = dyn2s[i];
-				dyn2.getData();
+				dyn2->getData();
 			}
 		}
 
-		memcpy((char*)&off, dyn2.data + 0x18, 4);
+		memcpy((char*)&off, dyn2->data + 0x18, 4);
 		if (off + 572 - 4 >= fileSize)
 		{
 			printf("\nDynamic has no mesh data (C), skipping...");
 			return;
 		}
-		memcpy((char*)&off, dyn2.data + off + 572, 4);
-		File dyn3 = File(uint32ToHexStr(off), packagesPath);
-		if (std::find(existingDyn3s.begin(), existingDyn3s.end(), dyn3.hash) != existingDyn3s.end()
-			|| dyn3.getData() == 0)
+		memcpy((char*)&off, dyn2->data + off + 572, 4);
+		File* dyn3 = new File(uint32ToHexStr(off), packagesPath);
+		if (std::find(existingDyn3s.begin(), existingDyn3s.end(), dyn3->hash) != existingDyn3s.end()
+			|| dyn3->getData() == 0)
 		{
 			dyn2s.pop_back();
 			continue;
 		}
 		else
 		{
-			existingDyn3s.push_back(dyn3.hash);
+			existingDyn3s.push_back(dyn3->hash);
 			dyn3s.push_back(dyn3);
 		}
 
@@ -116,13 +119,13 @@ void Dynamic::getDyn3Files()
 		if (bTextures)
 		{
 			uint32_t extOff = 0;
-			memcpy((char*)&extOff, dyn2.data + 0x48, 4);
+			memcpy((char*)&extOff, dyn2->data + 0x48, 4);
 			extOff += 0x48 - 8;
 			uint32_t val;
 			bool bFound = false;
 			while (true)
 			{
-				memcpy((char*)&val, dyn2.data + extOff, 4);
+				memcpy((char*)&val, dyn2->data + extOff, 4);
 				if (val == 2155872276)
 				{
 					bFound = true;
@@ -135,12 +138,12 @@ void Dynamic::getDyn3Files()
 			if (bFound)
 			{
 				uint32_t extCount;
-				memcpy((char*)&extCount, dyn2.data + extOff, 4);
+				memcpy((char*)&extCount, dyn2->data + extOff, 4);
 				extOff += 0x10;
 				std::set<std::uint32_t> existingMats;
 				for (int j = extOff; j < extOff + extCount * 4; j += 4)
 				{
-					memcpy((char*)&val, dyn2.data + j, 4);
+					memcpy((char*)&val, dyn2->data + j, 4);
 					if (existingMats.find(val) == existingMats.end())
 					{
 						Material* mat = new Material(uint32ToHexStr(val), packagesPath);
@@ -161,39 +164,39 @@ void Dynamic::parseDyn3s()
 
 	for (int i = 0; i < dyn3s.size(); i++)
 	{
-		File dyn3 = dyn3s[i];
+		File* dyn3 = dyn3s[i];
 		// We've already gotten data for them
-		memcpy((char*)&offset, dyn3.data + 0x18, 4);
+		memcpy((char*)&offset, dyn3->data + 0x18, 4);
 		offset += 0x18 + 0x10;
-		memcpy((char*)&count, dyn3.data + 0x10, 4);
+		memcpy((char*)&count, dyn3->data + 0x10, 4);
 		for (int j = offset; j < offset + count * 0x80; j += 0x80)
 		{
 			uint32_t off;
 			DynamicMesh* mesh = new DynamicMesh();
-			memcpy((char*)&off, dyn3.data + j+0x10, 4);
+			memcpy((char*)&off, dyn3->data + j+0x10, 4);
 			mesh->facesFile = new IndexBufferHeader(uint32ToHexStr(off), packagesPath);
-			memcpy((char*)&off, dyn3.data + j, 4);
+			memcpy((char*)&off, dyn3->data + j, 4);
 			mesh->vertPosFile = new VertexBufferHeader(uint32ToHexStr(off), packagesPath, VertPrimary);
 			// UV
-			memcpy((char*)&off, dyn3.data + j + 0x4, 4);
+			memcpy((char*)&off, dyn3->data + j + 0x4, 4);
 			std::string uvHash = uint32ToHexStr(off);
 			if (uvHash != "ffffffff")
 			{
 				mesh->vertUVFile = new VertexBufferHeader(uvHash, packagesPath, VertSecondary);
 			}
-			memcpy((char*)&off, dyn3.data + j + 0x8, 4);
+			memcpy((char*)&off, dyn3->data + j + 0x8, 4);
 			std::string oldWeightsHash = uint32ToHexStr(off);
 			if (oldWeightsHash != "ffffffff")
 			{
 				mesh->oldWeightsFile = new VertexBufferHeader(oldWeightsHash, packagesPath, OldWeights);
 			}
-			memcpy((char*)&off, dyn3.data + j + 0x14, 4);
+			memcpy((char*)&off, dyn3->data + j + 0x14, 4);
 			std::string vcHash = uint32ToHexStr(off);
 			if (vcHash != "ffffffff")
 			{
 				mesh->vertColFile = new VertexBufferHeader(vcHash, packagesPath, VertColour);
 			}
-			memcpy((char*)&off, dyn3.data + j + 0x18, 4);
+			memcpy((char*)&off, dyn3->data + j + 0x18, 4);
 			std::string spsbHash = uint32ToHexStr(off);
 			if (spsbHash != "ffffffff")
 			{
@@ -201,9 +204,9 @@ void Dynamic::parseDyn3s()
 			}
 
 			uint32_t submeshTableCount;
-			memcpy((char*)&submeshTableCount, dyn3.data + j + 0x20, 4);
+			memcpy((char*)&submeshTableCount, dyn3->data + j + 0x20, 4);
 			uint32_t submeshTableOffset;
-			memcpy((char*)&submeshTableOffset, dyn3.data + j + 0x28, 4);
+			memcpy((char*)&submeshTableOffset, dyn3->data + j + 0x28, 4);
 			submeshTableOffset += j + 0x28 + 0x10;
 
 			int currentLOD = 999;
@@ -212,16 +215,16 @@ void Dynamic::parseDyn3s()
 			{
 				DynamicSubmesh* submesh = new DynamicSubmesh();
 				int val;
-				memcpy((char*)&val, dyn3.data + k, 4);
+				memcpy((char*)&val, dyn3->data + k, 4);
 				std::string materialHash = uint32ToHexStr(val);
 				if (materialHash != "ffffffff")
 					submesh->material = new Material(materialHash, packagesPath);
 
 
-				memcpy((char*)&submesh->primType, dyn3.data + k + 6, 2);
-				memcpy((char*)&submesh->indexOffset, dyn3.data + k + 0x8, 4);
-				memcpy((char*)&submesh->indexCount, dyn3.data + k + 0xC, 4);
-				memcpy((char*)&submesh->lodLevel, dyn3.data + k + 0x1B, 1);
+				memcpy((char*)&submesh->primType, dyn3->data + k + 6, 2);
+				memcpy((char*)&submesh->indexOffset, dyn3->data + k + 0x8, 4);
+				memcpy((char*)&submesh->indexCount, dyn3->data + k + 0xC, 4);
+				memcpy((char*)&submesh->lodLevel, dyn3->data + k + 0x1B, 1);
 				if (submesh->lodLevel < currentLOD) lodGroup++;
 				currentLOD = submesh->lodLevel;
 				submesh->lodGroup = lodGroup;
@@ -231,12 +234,12 @@ void Dynamic::parseDyn3s()
 			PrimitiveType primType = mesh->submeshes[0]->primType;
 
 			mesh->vertPosFile->vertexBuffer->getVerts(mesh);
-			transformPos(mesh, dyn3.data);
+			transformPos(mesh, dyn3->data);
 
 			if (mesh->vertUVFile)
 			{
 				mesh->vertUVFile->vertexBuffer->getVerts(mesh);
-				transformUV(mesh, dyn3.data);
+				transformUV(mesh, dyn3->data);
 			}
 
 			if (mesh->oldWeightsFile)

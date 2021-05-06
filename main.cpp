@@ -18,8 +18,9 @@ Using Sarge https://mayaposch.wordpress.com/2019/03/17/parsing-command-line-argu
 */
 int main(int argc, char** argv)
 {
-	if (true)
+	if (false)
 	{
+		printf("DEBUG MODE");
 		std::string pkgsPath = "I:/SteamLibrary/steamapps/common/Destiny 2/packages/";
 		std::unordered_map<uint64_t, uint32_t> hash64Table;
 		std::ifstream f("h64");
@@ -39,11 +40,12 @@ int main(int argc, char** argv)
 		}
 		std::string outputPath = "I:/dynamic_models/cpp/";
 		printf("API flag found, getting api models...\n");
-		uint32_t apiHash = 1107624473;
+		uint32_t apiHash = 3950088638;
+		uint32_t debugapiHash = std::stoul("3950088638");
 		bool bSingle = false;
 		std::vector<std::string> hashes = getAPIModelHashes(apiHash, pkgsPath, hash64Table, bSingle);
 		printf("exporting api model...\n");
-		std::string fileName = "pas";
+		std::string fileName = "t";
 		for (int i = 0; i < hashes.size(); i++)
 		{
 			std::string savePath = outputPath;
@@ -67,6 +69,7 @@ int main(int argc, char** argv)
 	}
 	if (false)
 	{
+		printf("DEBUG MODE");
 		std::string pkgsPath = "I:/SteamLibrary/steamapps/common/Destiny 2/packages/";
 		std::unordered_map<uint64_t, uint32_t> hash64Table;
 		std::ifstream f("h64");
@@ -114,8 +117,8 @@ int main(int argc, char** argv)
 			saveH64Table(hash64Table);
 		}
 		std::string outputPath = "I:/dynamic_models/cpp/";
-		std::string fileName = "vctesting";
-		std::string modelHash = "B0E6B080";
+		std::string fileName = "testcage";
+		std::string modelHash = "5ae7dc80";
 		outputPath += "/" + fileName + "/";
 
 		printf("\nBeginning to extract model...\n");
@@ -138,7 +141,6 @@ int main(int argc, char** argv)
 		printf("Wrong password");
 		exit(1);
 	}
-
 	Sarge sarge;
 
 	sarge.setArgument("p", "pkgspath", "pkgs path", true);
@@ -178,7 +180,8 @@ int main(int argc, char** argv)
 	sarge.getFlag("filename", fileName);
 	sarge.getFlag("inputhash", modelHash);
 	sarge.getFlag("api", apiHashStr);
-	if (apiHashStr != "") apiHash = std::stoi(apiHashStr);
+
+	if (apiHashStr != "") apiHash = std::stoul(apiHashStr);
 	bTextures = sarge.exists("textures");
 	sarge.getFlag("batch", batchPkg);
 
@@ -271,16 +274,19 @@ int main(int argc, char** argv)
 }
 
 /*
-Currently on: v1.4
+Currently on: v1.7
 Bugs
 ----
+- api extraction doesnt work for some things
 
 Additions
 ----
 + api extraction
-- fix pointer code in pkg and early dynamic stuff
+- fix pointer code in pkg
++ fix pointers early dynamic stuff
 + only make unk_textures folder if there are any
-+ api skeletons
+- api skeletons
++ tex.txt
 */
 
 void doBatch(std::string pkgsPath, std::string outputPath, std::string batchPkg, std::unordered_map<uint64_t, uint32_t> hash64Table)

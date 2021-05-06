@@ -13,8 +13,8 @@ class Dynamic : public Model
 {
 private:
 	bool bTextures;
-	std::vector<File> dyn2s;
-	std::vector<File> dyn3s;
+	std::vector<File*> dyn2s;
+	std::vector<File*> dyn3s;
 	FbxModel* fbxModel = nullptr;
 	std::vector<DynamicMesh*> meshes;
 	std::vector<FbxNode*> nodes;
