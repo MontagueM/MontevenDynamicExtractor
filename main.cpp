@@ -6,7 +6,7 @@
 
 static void show_usage()
 {
-	std::cerr << "Usage: DestinyDynamicExtractor -p [packages path] -o [output path] -n [file name] -i [input hash] -t -b [package ID] -a [api hash]"
+	std::cerr << "Usage: MontevenDynamicExtractorv1.0.0 -p [packages path] -o [output path] -n [file name] -i [input hash] -t -b [package ID] -a [api hash]"
 		<< std::endl;
 	std::cerr << "-t enables texture extraction\n";
 	std::cerr << "-b [package ID] extracts all the dynamic models available for that package ID. -t, -i, -n are ignored\n";
@@ -18,14 +18,6 @@ Using Sarge https://mayaposch.wordpress.com/2019/03/17/parsing-command-line-argu
 */
 int main(int argc, char** argv)
 {
-	std::string password;
-	std::cout << "if you're not jud go away thanks pswd: ";
-	std::cin >> password;
-	if (password != "warlock")
-	{
-		printf("Wrong password");
-		exit(1);
-	}
 	Sarge sarge;
 
 	sarge.setArgument("p", "pkgspath", "pkgs path", true);
@@ -37,7 +29,7 @@ int main(int argc, char** argv)
 	sarge.setArgument("h", "help", "help shows arguments", false);
 	sarge.setArgument("a", "api", "api hash", true);
 	sarge.setDescription("Destiny 2 dynamic model extractor by Monteven.");
-	sarge.setUsage("DestinyDynamicExtractor ");
+	sarge.setUsage("MontevenDynamicExtractor");
 
 	if (!sarge.parseArguments(argc, argv))
 	{
@@ -79,9 +71,15 @@ int main(int argc, char** argv)
 	}
 
 	// Checking params are valid
-	if (pkgsPath == "" || (modelHash == "" && batchPkg == "" && apiHash == 0))
+	if (pkgsPath == "" || outputPath == "" || (modelHash == "" && batchPkg == "" && apiHash == 0))
 	{
-		std::cerr << "Invalid parameters, potentially backslashes in paths";
+		std::cerr << "Invalid parameters, potentially backslashes in paths or paths not given.\n";
+		show_usage();
+		return 1;
+	}
+	else if (!std::filesystem::exists(outputPath) || !std::filesystem::exists(pkgsPath))
+	{
+		std::cerr << "Output path or packages path does not exist. Check they exist and try again.\n";
 		show_usage();
 		return 1;
 	}
@@ -118,7 +116,7 @@ int main(int argc, char** argv)
 
 		if (!hashes.size())
 		{
-			printf("API hash has no valid data, try another hash for the same item.");
+			printf("API hash has no valid data, try another hash for the same item.\n");
 			return 1;
 		}
 
@@ -147,9 +145,9 @@ int main(int argc, char** argv)
 
 	if (batchPkg != "")
 	{
-		printf("Batch flag found, exporting batch...");
+		printf("Batch flag found, exporting batch...\n");
 		doBatch(pkgsPath, outputPath, batchPkg, hash64Table);
-		printf("Batch done!");
+		printf("Batch done!\n");
 		return 0;
 	}
 
@@ -164,22 +162,6 @@ int main(int argc, char** argv)
 	std::cout << "\nFile extraction complete! Saved to" << outputPath << "/" << fileName << ".fbx\n";
 	return 0;
 }
-
-/*
-Currently on: v1.7
-Bugs
-----
-- api extraction doesnt work for some things
-
-Additions
-----
-+ api extraction
-- fix pointer code in pkg
-+ fix pointers early dynamic stuff
-+ only make unk_textures folder if there are any
-- api skeletons
-+ tex.txt
-*/
 
 void doBatch(std::string pkgsPath, std::string outputPath, std::string batchPkg, std::unordered_map<uint64_t, uint32_t> hash64Table)
 {
@@ -199,7 +181,7 @@ void doBatch(std::string pkgsPath, std::string outputPath, std::string batchPkg,
 			std::cout << "\nFile extraction complete! Saved to " << outputPath << "/" << hash << ".fbx\n";
 		}
 		else
-			printf("\nDynamic has no mesh data (A), skipping...");
+			printf("\nDynamic has no mesh data (A), skipping...\n");
 	}
 }
 

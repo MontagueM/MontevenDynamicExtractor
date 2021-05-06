@@ -12,6 +12,8 @@ Things I would like to support in the future:
 * better skeleton support with correct rotations
 * animations
 
+There is no risk of a game ban by using this tool.
+
 If you use MDE in any of your projects, it would be highly appreciated if you credit me :)
 
 ## Usage
