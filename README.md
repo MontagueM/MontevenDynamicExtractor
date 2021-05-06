@@ -18,6 +18,8 @@ If you use MDE in any of your projects, it would be highly appreciated if you cr
 
 ## Usage
 
+The tool requires Windows 64 bit and a Destiny 2 installation.
+
 The tool is used via the command line:
 
 MontevenDynamicExtractor -p [packages path] -o [output path] -n [file name] -i [input hash] -t -b [package ID] -a [api hash]
