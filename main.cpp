@@ -18,121 +18,6 @@ Using Sarge https://mayaposch.wordpress.com/2019/03/17/parsing-command-line-argu
 */
 int main(int argc, char** argv)
 {
-	if (false)
-	{
-		printf("DEBUG MODE");
-		std::string pkgsPath = "I:/SteamLibrary/steamapps/common/Destiny 2/packages/";
-		std::unordered_map<uint64_t, uint32_t> hash64Table;
-		std::ifstream f("h64");
-		if (f)
-		{
-			hash64Table = loadH64Table();
-			if (hash64Table.size() < 10000)
-			{
-				hash64Table = generateH64Table(pkgsPath);
-				saveH64Table(hash64Table);
-			}
-		}
-		else
-		{
-			hash64Table = generateH64Table(pkgsPath);
-			saveH64Table(hash64Table);
-		}
-		std::string outputPath = "I:/dynamic_models/cpp/";
-		printf("API flag found, getting api models...\n");
-		uint32_t apiHash = 3950088638;
-		uint32_t debugapiHash = std::stoul("3950088638");
-		bool bSingle = false;
-		std::vector<std::string> hashes = getAPIModelHashes(apiHash, pkgsPath, hash64Table, bSingle);
-		printf("exporting api model...\n");
-		std::string fileName = "t";
-		for (int i = 0; i < hashes.size(); i++)
-		{
-			std::string savePath = outputPath;
-			std::string fName = fileName;
-			if (hashes.size() == 2 && bSingle)
-			{
-				if (i)
-					fName += "_f";
-				else
-					fName += "_m";
-			}
-			savePath += "/" + fName + "/";
-			std::string h = hashes[i];
-			Dynamic dyn(h, hash64Table, pkgsPath, true);
-			dyn.get();
-			dyn.pack(savePath);
-			dyn.save(savePath, fName + "_" + h);
-		}
-		printf("API rip done!");
-		return 0;
-	}
-	if (false)
-	{
-		printf("DEBUG MODE");
-		std::string pkgsPath = "I:/SteamLibrary/steamapps/common/Destiny 2/packages/";
-		std::unordered_map<uint64_t, uint32_t> hash64Table;
-		std::ifstream f("h64");
-		if (f)
-		{
-			hash64Table = loadH64Table();
-			if (hash64Table.size() < 10000)
-			{
-				hash64Table = generateH64Table(pkgsPath);
-				saveH64Table(hash64Table);
-			}
-		}
-		else
-		{
-			hash64Table = generateH64Table(pkgsPath);
-			saveH64Table(hash64Table);
-		}
-		std::string outputPath = "I:/dynamic_models/cpp/";
-		printf("Batch flag found, exporting batch...");
-		doBatch(pkgsPath, outputPath, "011c", hash64Table);
-		printf("Batch done!");
-		return 0;
-	}
-
-	// Debug
-	if (false)
-	{
-		printf("DEBUG MODE");
-		std::string pkgsPath = "I:/SteamLibrary/steamapps/common/Destiny 2/packages/";
-		// Check if h64 file exists, if not then generate and save
-		std::unordered_map<uint64_t, uint32_t> hash64Table;
-		std::ifstream f("h64");
-		if (f)
-		{
-			hash64Table = loadH64Table();
-			if (hash64Table.size() < 10000)
-			{
-				hash64Table = generateH64Table(pkgsPath);
-				saveH64Table(hash64Table);
-			}
-		}
-		else
-		{
-			hash64Table = generateH64Table(pkgsPath);
-			saveH64Table(hash64Table);
-		}
-		std::string outputPath = "I:/dynamic_models/cpp/";
-		std::string fileName = "testcage";
-		std::string modelHash = "5ae7dc80";
-		outputPath += "/" + fileName + "/";
-
-		printf("\nBeginning to extract model...\n");
-		//std::string reference = getReferenceFromHash("0174", modelHash);
-		Dynamic dyn(modelHash, hash64Table, pkgsPath, true);
-		dyn.get();
-		printf("\n\nFile extraction readied...\n");
-		dyn.pack(outputPath);
-		dyn.save(outputPath, fileName);
-		std::cout << "\nFile extraction complete! Saved to " << outputPath << "/" << fileName << ".fbx\n";
-		return 0;
-	}
-
-	//std::string modelHash = "B0E6B080";
 	std::string password;
 	std::cout << "if you're not jud go away thanks pswd: ";
 	std::cin >> password;
@@ -230,6 +115,13 @@ int main(int argc, char** argv)
 		printf("API flag found, getting api models...\n");
 		bool bSingle = false;
 		std::vector<std::string> hashes = getAPIModelHashes(apiHash, pkgsPath, hash64Table, bSingle);
+
+		if (!hashes.size())
+		{
+			printf("API hash has no valid data, try another hash for the same item.");
+			return 1;
+		}
+
 		printf("exporting api model...\n");
 		for (int i = 0; i < hashes.size(); i++)
 		{
