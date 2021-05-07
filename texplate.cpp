@@ -13,10 +13,10 @@ bool TexturePlateSet::parse()
 	texplate = new TexturePlate(uint32ToHexStr(val), packagesPath, "Diffuse");
 	texplates.push_back(texplate);
 	memcpy((char*)&val, data + 0x2C, 4);
-	texplate = new TexturePlate(uint32ToHexStr(val), packagesPath, "GStack");
+	texplate = new TexturePlate(uint32ToHexStr(val), packagesPath, "Normal");
 	texplates.push_back(texplate);
 	memcpy((char*)&val, data + 0x30, 4);
-	texplate = new TexturePlate(uint32ToHexStr(val), packagesPath, "Normal");
+	texplate = new TexturePlate(uint32ToHexStr(val), packagesPath, "GStack");
 	texplates.push_back(texplate);
 	memcpy((char*)&val, data + 0x34, 4);
 	// Check to see if we should bother extracting dyemap or not
@@ -63,12 +63,12 @@ void TexturePlate::savePlate(std::string fullSavePath)
 	}
 	// Extract every image on plate
 	//std::vector<cv::Mat> cvIms;
-	cv::Mat3b res(dimensions[0], dimensions[1], cv::Vec3b(0, 0, 0));
+	cv::Mat4b res(dimensions[0], dimensions[1], cv::Vec4b(0, 0, 0, 0));
 	for (auto& tex : textures)
 	{
 		std::string save = fullSavePath + tex->hash + ".PNG";
 		tex->tex2Other(fullSavePath + tex->hash + ".dds", "png");
-		cv::Mat cvIm = cv::imread(save);
+		cv::Mat cvIm = cv::imread(save, cv::IMREAD_UNCHANGED);
 		if (cvIm.empty())
 		{
 			printf("Tex not written!");
