@@ -159,7 +159,7 @@ int main(int argc, char** argv)
 	outputPath += "/" + fileName + "/";
 	dyn.pack(outputPath);
 	dyn.save(outputPath, fileName);
-	std::cout << "\nFile extraction complete! Saved to" << outputPath << "/" << fileName << ".fbx\n";
+	std::cout << "\nFile extraction complete! Saved to " << outputPath << "/" << fileName << ".fbx\n";
 	return 0;
 }
 
