@@ -81,7 +81,7 @@ std::vector<std::string> getAPIMultiHashes(uint32_t tableOffset, File* modelTabl
 		uint32_t val3;
 		for (int j = val2; j < val2 + tableCount2 * 4; j += 4)
 		{
-			memcpy((char*)&val3, modelTable->data + val2, 4);
+			memcpy((char*)&val3, modelTable->data + j, 4);
 			pairFiles.push_back(val3);
 		}
 	}
