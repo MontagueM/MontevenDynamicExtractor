@@ -3,8 +3,18 @@
 bool Dynamic::get()
 {
 	fbxModel = new FbxModel();
+	if (getReferenceFromHash(hash, packagesPath) != "d89a8080")
+	{
+		std::cerr << "Given hash is not a valid dynamic model.";
+		return false;
+	}
 	getData();
 	getDyn3Files();
+	if (!dyn3s.size())
+	{
+		std::cerr << "Dynamic has no model data attached.";
+		return false;
+	}
 	parseDyn3s();
 	if (skeletonHash != "")
 		getSkeleton();
@@ -70,8 +80,7 @@ void Dynamic::getDyn3Files()
 	if (off == 1) dyn2s.pop_back(); // If the array size is 1 just delete the second dyn2
 
 	std::vector<std::string> existingDyn3s = {};
-	int size = dyn2s.size();
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < dyn2s.size(); i++)
 	{
 		File* dyn2 = primFile;
 		// We don't need to reopen the primFile if there isnt a skeleton
@@ -83,6 +92,7 @@ void Dynamic::getDyn3Files()
 			{
 				printf("\nDynamic has no mesh data (B), skipping...");
 				dyn2s.erase(dyn2s.begin() + i);
+				i--;
 				continue;
 			}
 		}
@@ -107,6 +117,7 @@ void Dynamic::getDyn3Files()
 			|| dyn3->getData() == 0)
 		{
 			dyn2s.pop_back();
+			i--;
 			continue;
 		}
 		else

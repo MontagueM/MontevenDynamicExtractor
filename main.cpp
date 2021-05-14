@@ -136,8 +136,16 @@ int main(int argc, char** argv)
 			std::string h = hashes[i];
 			Dynamic dyn(h, hash64Table, pkgsPath, true);
 			dyn.get();
-			dyn.pack(savePath);
-			dyn.save(savePath, fName + "_" + h);
+
+			bool status = dyn.get();
+			if (status)
+			{
+				printf("\n\nFile extraction readied...\n");
+				dyn.pack(savePath);
+				dyn.save(savePath, fName + "_" + h);
+			}
+			else
+				printf("\nDynamic has no mesh data (A), skipping...\n");
 		}
 		printf("API rip done!");
 		return 0;
@@ -154,12 +162,19 @@ int main(int argc, char** argv)
 	printf("\nBeginning to extract model...\n");
 	//std::string reference = getReferenceFromHash("0174", modelHash);
 	Dynamic dyn(modelHash, hash64Table, pkgsPath, bTextures);
-	dyn.get();
-	printf("\n\nFile extraction readied...\n");
-	outputPath += "/" + fileName + "/";
-	dyn.pack(outputPath);
-	dyn.save(outputPath, fileName);
-	std::cout << "\nFile extraction complete! Saved to " << outputPath << "/" << fileName << ".fbx\n";
+
+	bool status = dyn.get();
+	if (status)
+	{
+		printf("\n\nFile extraction readied...\n");
+		outputPath += "/" + fileName + "/";
+		dyn.pack(outputPath);
+		dyn.save(outputPath, fileName);
+		std::cout << "\nFile extraction complete! Saved to " << outputPath << "/" << fileName << ".fbx\n";
+	}
+	else
+		printf("\nDynamic has no mesh data (A), skipping...\n");
+
 	return 0;
 }
 
