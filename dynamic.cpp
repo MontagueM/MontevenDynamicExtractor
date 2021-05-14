@@ -98,11 +98,8 @@ void Dynamic::getDyn3Files()
 		}
 		else
 		{
-			if (i == 1)
-			{
-				dyn2 = dyn2s[i];
-				dyn2->getData();
-			}
+			dyn2 = dyn2s[i];
+			dyn2->getData();
 		}
 
 		memcpy((char*)&off, dyn2->data + 0x18, 4);
@@ -116,7 +113,7 @@ void Dynamic::getDyn3Files()
 		if (std::find(existingDyn3s.begin(), existingDyn3s.end(), dyn3->hash) != existingDyn3s.end()
 			|| dyn3->getData() == 0)
 		{
-			dyn2s.pop_back();
+			dyn2s.erase(dyn2s.begin() + i);
 			i--;
 			continue;
 		}
