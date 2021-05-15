@@ -77,9 +77,11 @@ class Material : public File
 {
 private:
 public:
+	std::unordered_map<std::string, std::vector<std::vector<float_t>>> cbuffers;
 	std::unordered_map<uint8_t, Texture*> textures;
 	Material(std::string x, std::string pkgsPath) : File(x, pkgsPath) {};
 
 	void parseMaterial(std::unordered_map<uint64_t, uint32_t> hash64Table);
 	void exportTextures(std::string fullSavePath, std::string saveFormat);
+	void parseCBuffers();
 };

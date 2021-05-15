@@ -1,4 +1,6 @@
 #include "texture.h"
+//#include <shlwapi.h>
+//#pragma comment(lib, "shlwapi.lib")
 
 void Texture::getHeader(std::string x)
 {
@@ -25,9 +27,34 @@ void Texture::tex2Other(std::string fullSavePath, std::string saveFormat)
     tex2DDS(fullSavePath);
     std::string dxgiFormat;
     dxgiFormat = DXGI_FORMAT[textureFormat];
+
+    /// Code to try and fix texconv not always working from command line, couldn't get it to work
+    //wchar_t exePath[MAX_PATH];
+    //DWORD nSize = 0;
+    //GetModuleFileName(NULL, exePath, MAX_PATH);
+    //std::wstring wPath(exePath);
+    //wPath.erase(wPath.rfind('\\'));
+
+    //std::wstring wFSP(fullSavePath.begin(), fullSavePath.end());
+    //std::wstring wsaveFormat(saveFormat.begin(), saveFormat.end());
+    //std::wstring wdxgiFormat(dxgiFormat.begin(), dxgiFormat.end());
+
+    //std::wstring wPathNoBackslashes = L"";
+
+    //for (auto& c : wPath)
+    //{
+    //    if (c == '\\') wPathNoBackslashes += '/';
+    //    else wPathNoBackslashes += c;
+    //}
+
+    //std::wstring str = L'"' + wPathNoBackslashes + L"/texconv.exe" + L'"' + L" " + wFSP + L"\" -y -ft " + wsaveFormat + L" -f " + wdxgiFormat;
+    //wprintf(str.c_str());
+    //_wsystem(str.c_str());
+   
     std::string str = "texconv.exe \"" + fullSavePath + "\" -y -ft " + saveFormat + " -f " + dxgiFormat;
     printf(str.c_str());
     system(str.c_str());
+
     // Delete dds file if it exists
     std::string newPath = fullSavePath.substr(0, fullSavePath.size() - 3) + saveFormat;
     std::ifstream f(newPath);
@@ -113,6 +140,7 @@ void Material::parseMaterial(std::unordered_map<uint64_t, uint32_t> hash64Table)
     getData();
     uint32_t textureCount;
     uint32_t textureOffset;
+    // Pixel shader textures
     memcpy((char*)&textureCount, data + 0x2A0, 4);
     memcpy((char*)&textureOffset, data + 0x2A8, 4);
     textureOffset += 0x2A8 + 0x10;
@@ -127,6 +155,7 @@ void Material::parseMaterial(std::unordered_map<uint64_t, uint32_t> hash64Table)
         if (h64Check == "ffffffff")
         {
             memcpy((char*)&h64Val, data + i + 0x10, 8);
+            if (h64Val == 0) continue;
             std::string textureHash = getHash64(h64Val, hash64Table);
             if (textureHash != "ffffffff")
             {
@@ -163,4 +192,27 @@ void Material::exportTextures(std::string fullSavePath, std::string saveFormat)
         else tex->tex2Other(actualSavePath, saveFormat);
         free(tex);
     }
+}
+
+void Material::parseCBuffers()
+{
+    /*
+    90008080 stride 16
+    09008080 stride 1
+    3F018080 stride 16 external cbuffers
+    ---
+    vertex 0x68 vertex shader texture offset
+    vertex 0x80 09008080 internal offset
+    vertex 0x90 90008080 internal offset
+    vertex 0xA0 3F018080 internal offset
+    vertex 0xB0 90008080 internal offset
+    pixel 0x2C0 09008080 internal offset
+    pixel 0x2E0 3F018080 internal offset
+    pixel 0x2D0 90008080 internal offset
+    pixel 0x2F0 90008080 internal offset
+    pixel 0x30C external cbuffer hash
+    */
+
+    // 0xB0
+    // 0x2C0
 }
