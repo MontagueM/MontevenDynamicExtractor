@@ -136,10 +136,7 @@ int main(int argc, char** argv)
 			std::string h = hashes[i];
 			if (h == "ffffffff") continue;
 			Dynamic dyn(h, hash64Table, pkgsPath, bTextures);
-			dyn.get();
-
-			bool status = dyn.get();
-			if (status)
+			if (dyn.get())
 			{
 				printf("\n\nFile extraction readied...\n");
 				dyn.pack(savePath);
