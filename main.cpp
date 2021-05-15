@@ -135,7 +135,7 @@ int main(int argc, char** argv)
 			savePath += "/" + fName + "/";
 			std::string h = hashes[i];
 			if (h == "ffffffff") continue;
-			Dynamic dyn(h, hash64Table, pkgsPath, true);
+			Dynamic dyn(h, hash64Table, pkgsPath, bTextures);
 			dyn.get();
 
 			bool status = dyn.get();
