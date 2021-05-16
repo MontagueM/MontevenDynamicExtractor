@@ -1,16 +1,5 @@
 #include "skeleton.h"
 
-//void Skeleton::getSkeletonNames()
-//{
-//	std::ifstream boneNameFile("/bone_names.txt");
-//    int data1;
-//    std::string data2;
-//    while (boneNameFile >> data1 && boneNameFile >> data2)
-//    {
-//        boneNames[data1] = data2;
-//    }
-//}
-
 std::vector<Node*> Skeleton::parseSkeleton()
 {
     getData();
@@ -78,6 +67,20 @@ std::vector<Node*> Skeleton::parseSkeleton()
         j++;
     }
     
+    // Some skeletons are given inverse data in place of non-inverse data, so we need to correct for that
+    if (bDiostOnly)
+    {
+        for (auto& node : nodes)
+        {
+            std::vector<float> invRot = node->dost->rotation;
+            invRot[3] *= -1; // Inverse quat
+            node->dost->location.push_back(0); // Making a pure quaternion [x, y, z, 0]
+            node->dost->location = quatMul(invRot, node->dost->location);
+            node->dost->location = quatMul(node->dost->location, node->dost->rotation);
+            node->dost->location.pop_back();
+        }
+    }
+
     return nodes;
 }
 
@@ -85,4 +88,14 @@ std::vector<Node*> Skeleton::get()
 {
     //getSkeletonNames();
     return parseSkeleton();
+}
+
+std::vector<float> quatMul(std::vector<float> q1, std::vector<float> q2)
+{
+    std::vector<float> ret = { 0, 0, 0, 0 };
+    ret[0] = q1[0] * q2[3] + q1[1] * q2[2] - q1[2] * q2[1] + q1[3] * q2[0];
+    ret[1] = -q1[0] * q2[2] + q1[1] * q2[3] + q1[2] * q2[0] + q1[3] * q2[1];
+    ret[2] = q1[0] * q2[1] - q1[1] * q2[0] + q1[2] * q2[3] + q1[3] * q2[2];
+    ret[3] = -q1[0] * q2[0] - q1[1] * q2[1] - q1[2] * q2[2] + q1[3] * q2[3];
+    return ret;
 }

@@ -59,8 +59,12 @@ void Dynamic::getDyn3Files()
 	memcpy((char*)&off, primFile->data + 0x18, 4);
 	off += 0x18;
 	memcpy((char*)&off, primFile->data + off + 4, 4);
-	if (off == 2155905501) bSkeleton = true;
-
+	// 2155905493 has only inverse data
+	if (off == 2155905501 || off == 2155905493)
+	{
+		if (off == 2155905493) bSkeletonDiostOnly = true;
+		bSkeleton = true;
+	}
 	if (bSkeleton)
 	{
 		skeletonHash = primFile->hash;
@@ -181,7 +185,7 @@ void Dynamic::parseDyn3s()
 		{
 			uint32_t off;
 			DynamicMesh* mesh = new DynamicMesh();
-			memcpy((char*)&off, dyn3->data + j+0x10, 4);
+			memcpy((char*)&off, dyn3->data + j + 0x10, 4);
 			mesh->facesFile = new IndexBufferHeader(uint32ToHexStr(off), packagesPath);
 			memcpy((char*)&off, dyn3->data + j, 4);
 			mesh->vertPosFile = new VertexBufferHeader(uint32ToHexStr(off), packagesPath, VertPrimary);
@@ -342,7 +346,7 @@ void Dynamic::getSubmeshes()
 			else
 			{
 				submesh->faces.reserve(floor((submesh->indexCount) / 3));
-				for (std::size_t i = floor(submesh->indexOffset / 3); i < floor((submesh->indexOffset + submesh->indexCount)/3); ++i) {
+				for (std::size_t i = floor(submesh->indexOffset / 3); i < floor((submesh->indexOffset + submesh->indexCount) / 3); ++i) {
 					submesh->faces.emplace_back(mesh->faces[i].begin(), mesh->faces[i].end());
 				}
 			}
@@ -455,7 +459,7 @@ void Dynamic::addVertColSlots(DynamicMesh* mesh, DynamicSubmesh* submesh)
 
 void Dynamic::getSkeleton()
 {
-	Skeleton* skeleton = new Skeleton(skeletonHash, packagesPath);
+	Skeleton* skeleton = new Skeleton(skeletonHash, packagesPath, bSkeletonDiostOnly);
 	std::vector<Node*> nodes = skeleton->get();
 	if (!nodes.size()) return;
 
@@ -470,7 +474,7 @@ void Dynamic::getSkeleton()
 		if (node->parentNodeIndex != -1)
 		{
 			// To reverse inheritance of location
-			for (int i=0; i<3; i++)
+			for (int i = 0; i < 3; i++)
 				loc[i] = node->dost->location[i] - nodes[node->parentNodeIndex]->dost->location[i];
 		}
 		node->fbxNode->LclTranslation.Set(FbxDouble3(-loc[0] * 100, loc[2] * 100, loc[1] * 100));
@@ -562,7 +566,7 @@ void Dynamic::pack(std::string saveDirectory)
 			{
 				if (meshes.size() == 1) submesh->name = hash + "_" + std::to_string(j);
 				else submesh->name = hash + "_" + std::to_string(i) + "_" + std::to_string(j);
-				
+
 				FbxNode* node = fbxModel->addSubmeshToFbx(submesh, bones, h64Table, saveDirectory, bTextures);
 				nodes.push_back(node);
 			}
@@ -579,8 +583,8 @@ void Dynamic::pack(std::string saveDirectory)
 		}
 
 		if (!externalMaterials.size()) return;
-			// Export unk material textures
-			std::filesystem::create_directories(saveDirectory + "/unk_textures/");
+		// Export unk material textures
+		std::filesystem::create_directories(saveDirectory + "/unk_textures/");
 		for (auto& mat : externalMaterials)
 		{
 			mat->parseMaterial(h64Table);

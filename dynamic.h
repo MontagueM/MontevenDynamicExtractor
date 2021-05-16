@@ -20,6 +20,7 @@ private:
 	std::vector<FbxNode*> nodes;
 	std::vector<Node*> bones;
 	std::string skeletonHash = "";
+	bool bSkeletonDiostOnly = false;
 	std::unordered_map<uint64_t, uint32_t> h64Table;
 	std::vector<Material*> externalMaterials;
 	std::vector<TexturePlateSet*> texplateSets;

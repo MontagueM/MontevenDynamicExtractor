@@ -40,8 +40,12 @@ private:
 
 	//void getSkeletonNames();
 	std::vector<Node*> parseSkeleton();
+	bool bDiostOnly = false;
 public:
-	Skeleton(std::string x, std::string pkgsPath) : File(x, pkgsPath) {};
+	Skeleton(std::string x, std::string pkgsPath, bool bdo) : File(x, pkgsPath)
+	{
+		bDiostOnly = bdo;
+	};
 
 	std::vector<Node*> get();
 
@@ -190,3 +194,6 @@ private:
 		{179750274, "Magazine"},
 	};
 };
+
+
+std::vector<float> quatMul(std::vector<float> q1, std::vector<float> q2);
