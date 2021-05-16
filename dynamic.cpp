@@ -530,7 +530,7 @@ std::vector<std::vector<uint8_t>> Dynamic::trimVertsData(std::vector<std::vector
 }
 
 
-void Dynamic::pack(std::string saveDirectory)
+void Dynamic::pack(std::string saveDirectory, bool bCBuffer)
 {
 	std::filesystem::create_directories(saveDirectory);
 	for (int i = 0; i < meshes.size(); i++)
@@ -567,7 +567,7 @@ void Dynamic::pack(std::string saveDirectory)
 				if (meshes.size() == 1) submesh->name = hash + "_" + std::to_string(j);
 				else submesh->name = hash + "_" + std::to_string(i) + "_" + std::to_string(j);
 
-				FbxNode* node = fbxModel->addSubmeshToFbx(submesh, bones, h64Table, saveDirectory, bTextures);
+				FbxNode* node = fbxModel->addSubmeshToFbx(submesh, bones, h64Table, saveDirectory, bTextures, bCBuffer);
 				nodes.push_back(node);
 			}
 		}
@@ -588,7 +588,7 @@ void Dynamic::pack(std::string saveDirectory)
 		for (auto& mat : externalMaterials)
 		{
 			mat->parseMaterial(h64Table);
-			mat->exportTextures(saveDirectory + "/unk_textures/", "tga");
+			mat->exportTextures(saveDirectory + "/unk_textures/", "png");
 		}
 	}
 }

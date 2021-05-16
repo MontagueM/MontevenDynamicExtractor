@@ -212,7 +212,88 @@ void Material::parseCBuffers()
     pixel 0x2F0 90008080 internal offset
     pixel 0x30C external cbuffer hash
     */
+    std::vector<int> pixelOffsets = { 0x2C0, 0x2D0, 0x2F0 };
+    uint32_t val;
+    uint32_t count;
+    getData();
+    int i = 0;
+    for (auto& offset : pixelOffsets)
+    {
+        memcpy((char*)&val, data + offset, 4);
+        if (val == 0) continue;
+        offset += val;
+        memcpy((char*)&count, data + offset, 4);
+        uint32_t cbType;
+        memcpy((char*)&cbType, data + offset + 8, 4);
+        std::string floats = getCBufferFromOffset(data, offset + 0x10, count, cbType, std::to_string(i));
+        cbuffers.push_back(floats);
+        i++;
+    }
+    memcpy((char*)&val, data + 0x30C, 4);
+    if (val != 4294967295)
+    {
+        File buffer = File(getReferenceFromHash(uint32ToHexStr(val), packagesPath), packagesPath);
+        int fileSize = buffer.getData();
+        std::string pixelExternalFloats = getCBufferFromOffset(buffer.data, 0, fileSize / 16, 1, "pixelExt");
+        cbuffers.push_back(pixelExternalFloats);
+    }
+}
 
-    // 0xB0
-    // 0x2C0
+void Material::writeCBuffers(std::string fullSavePath)
+{
+    parseCBuffers();
+    FILE* cbFile;
+    std::string path = fullSavePath + "/cbuffers.txt";
+    fopen_s(&cbFile, path.c_str(), "a");
+    std::string header = "\n--------\nCBUFFERS FOR MATERIAL " + hash + ":\n--------\n";
+    fwrite(header.c_str(), header.size(), 1, cbFile);
+    for (auto& cbuffer : cbuffers)
+    {
+        fwrite(cbuffer.c_str(), cbuffer.size(), 1, cbFile);
+    }
+    fclose(cbFile);
+}
+
+std::string getCBufferFromOffset(unsigned char* data, int offset, int count, uint32_t cbType, std::string name)
+{
+    if (cbType == 2155872265)
+    {
+        std::string allFloat = "static float cb" + name + '[' + std::to_string(count) + "] = \n{\n  ";
+        allFloat.reserve(count);
+        int8_t val;
+        for (int i = 0; i < count; i++)
+        {
+            memcpy((char*)&val, data + offset + i, 1);
+            std::string floats = std::to_string((float)val/128) + ",";
+            allFloat += floats;
+            if (i % 8 == 0 && i != 0) allFloat += "\n  ";
+        }
+        allFloat += "\n};\n";
+        return allFloat;
+    }
+    else if (cbType == 2155872400 || offset == 0)
+    {
+        std::string allFloat4 = "static float4 cb" + name + '[' + std::to_string(count) + "] = \n{\n";
+        allFloat4.reserve(count);
+        float_t val;
+        for (int i = 0; i < count; i++)
+        {
+            std::string float4 = "  float4(";
+            for (int j = 0; j < 4; j++)
+            {
+                memcpy((char*)&val, data + offset + i * 16 + j * 4, 4);
+                float4 += std::to_string(val);
+                if (j < 3) float4 += ", ";
+                else float4 += "),\n";
+            }
+            allFloat4 += float4;
+        }
+        allFloat4 += "};\n";
+        return allFloat4;
+    }
+    else
+    {
+        std::cerr << "\nUnknown cbuffer class found, exiting...\n";
+        exit(1);
+    }
 }

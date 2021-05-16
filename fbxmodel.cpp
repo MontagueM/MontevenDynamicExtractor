@@ -1,6 +1,6 @@
 #include "fbxmodel.h"
 
-FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> bones, std::unordered_map<uint64_t, uint32_t> hash64Table, std::string fullSavePath, bool bTextures)
+FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> bones, std::unordered_map<uint64_t, uint32_t> hash64Table, std::string fullSavePath, bool bTextures, bool bCBuffer)
 {
 	bool bAddSkeleton = submesh->weights.size() && bones.size();
 
@@ -28,7 +28,7 @@ FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> b
 		FILE* texFile;
 		std::string path = fullSavePath + "/textures/tex.txt";
 		fopen_s(&texFile, path.c_str(), "a");
-		std::string toWrite = submesh->name + ": ";
+		std::string toWrite = submesh->name + ":MAT[" + submesh->material->hash + "]: ";
 		for (auto& tex : submesh->material->textures)
 		{
 			toWrite += tex.second->hash + ", ";
@@ -39,6 +39,12 @@ FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> b
 		fclose(texFile);
 		submesh->material->exportTextures(fullSavePath + "/textures/", "png");
 	}
+	
+	if (submesh->material != nullptr && bCBuffer)
+	{
+		submesh->material->writeCBuffers(fullSavePath);
+	}
+
 	return node;
 }
 
