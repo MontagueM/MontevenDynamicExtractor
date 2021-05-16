@@ -10,6 +10,9 @@ std::vector<std::string> getAPIModelHashes(uint32_t apiHash, std::string package
 	uint32_t tableCount;
 	memcpy((char*)&tableCount, modelTable->data + 8, 4);
 	uint32_t val;
+
+	apiHash = getArtArrangementHash(apiHash, packagesPath);
+
 	for (int i = tableOffset; i < tableOffset + tableCount * 0x20; i += 0x20)
 	{
 		memcpy((char*)&val, modelTable->data + i, 4);
@@ -25,11 +28,46 @@ std::vector<std::string> getAPIModelHashes(uint32_t apiHash, std::string package
 				modelHashes = getAPISingleHashes(val, fHash, packagesPath, hash64Table);
 				bSingle = true;
 			}
+			break;
 		}
 	}
 	delete modelTable;
 	return modelHashes;
 }
+
+uint32_t getArtArrangementHash(uint32_t apiHash, std::string packagesPath)
+{
+	File* dataTable = new File("26FCDD80", packagesPath);
+	dataTable->getData();
+	File* arrangementTable = new File("137AD080", packagesPath);
+	arrangementTable->getData();
+
+	uint32_t tableOffset = 0x30;
+	uint32_t tableCount;
+	uint32_t val;
+	uint32_t val2;
+	memcpy((char*)&tableCount, dataTable->data + 8, 4);
+	for (int i = tableOffset; i < tableOffset + tableCount * 0x20; i += 0x20)
+	{
+		memcpy((char*)&val, dataTable->data + i, 4);
+		if (val == apiHash)
+		{
+			memcpy((char*)&val, dataTable->data + i + 0x10, 4);
+			File dataFile = File(uint32ToHexStr(val), packagesPath);
+			dataFile.getData();
+			memcpy((char*)&val, dataFile.data + 0x88, 4);
+			val += 0x88 + 8;
+			memcpy((char*)&val2, dataFile.data + val, 4);
+			val += val2 + 0x12;
+			memcpy((char*)&val2, dataFile.data + val, 2);
+			memcpy((char*)&val2, arrangementTable->data + val2*4 + 48, 4);
+			delete dataTable;
+			delete arrangementTable;
+			return val2;
+		}
+	}
+}
+
 
 std::vector<std::string> getAPISingleHashes(uint32_t mHash, uint32_t fHash, std::string packagesPath, std::unordered_map<uint64_t, uint32_t> hash64Table)
 {
