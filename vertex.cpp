@@ -174,11 +174,12 @@ void VertexBuffer::getSPSBWeights(DynamicMesh* mesh, int fileSize)
 	int headerOffset = 0;
 	if (bInHeader)
 	{
-		if (fileSize < 32) return;
+		bool doWhile = true;
+		if (fileSize < 32) doWhile = false;
 
 		// Finding header end
 		int i = 0;
-		while (true)
+		while (doWhile)
 		{
 			int32_t comp1, comp2, comp3;
 			memcpy((char*)&comp1, data + i, 2);
@@ -200,7 +201,7 @@ void VertexBuffer::getSPSBWeights(DynamicMesh* mesh, int fileSize)
 				headerOffset = i - 64;
 				break;
 			}
-			if (i >= fileSize) return;
+			if (i >= fileSize) break;
 		}
 	}
 
