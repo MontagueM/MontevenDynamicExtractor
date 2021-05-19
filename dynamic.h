@@ -24,6 +24,7 @@ private:
 	std::unordered_map<uint64_t, uint32_t> h64Table;
 	std::vector<Material*> externalMaterials;
 	std::vector<TexturePlateSet*> texplateSets;
+	int skeletonOverride = -1;
 
 	void getDyn3Files();
 	void parseDyn3s();
@@ -37,13 +38,16 @@ private:
 	void transformPos(DynamicMesh* mesh, unsigned char* data);
 	void transformUV(DynamicMesh* mesh, unsigned char* data);
 	void addVertColSlots(DynamicMesh* mesh, DynamicSubmesh* submesh);
+
+	void considerSkeletonOverride();
 public:
 	std::string packagesPath;
-	Dynamic(std::string x, std::unordered_map<uint64_t, uint32_t> hash64Table, std::string pkgsPath, bool btex) : Model(x, pkgsPath)
+	Dynamic(std::string x, std::unordered_map<uint64_t, uint32_t> hash64Table, std::string pkgsPath, bool btex, int so) : Model(x, pkgsPath)
 	{
 		packagesPath = pkgsPath;
 		h64Table = hash64Table;
 		bTextures = btex;
+		skeletonOverride = so;
 	}
 
 	bool get();

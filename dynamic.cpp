@@ -16,12 +16,35 @@ bool Dynamic::get()
 		return false;
 	}
 	parseDyn3s();
+	considerSkeletonOverride();
 	if (skeletonHash != "")
 		getSkeleton();
 	if (bTextures)
 		getTexturePlates();
 	getSubmeshes();
 	return meshes.size();
+}
+
+void Dynamic::considerSkeletonOverride()
+{
+	if (skeletonOverride != -1)
+	{
+		switch (skeletonOverride)
+		{
+		case 0:
+			printf("Skeleton flag 0, no skeleton will be ripped.");
+			skeletonHash = "";
+			break;
+		case 1:
+			printf("Skeleton flag 1, ripped models will use the default player body rig.");
+			skeletonHash = "8FD3B080";
+			break;
+		case 2:
+			printf("Skeleton flag 2, ripped models will use the default NPC face rig.");
+			skeletonHash = "9E3AAB80";
+			break;
+		}
+	}
 }
 
 void Dynamic::getTexturePlates()

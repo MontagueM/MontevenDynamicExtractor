@@ -32,6 +32,8 @@ The required arguments are -p and one of -i, -b, or -a. Backslashes will not wor
 * -t: enable texture extraction
 * -b [package ID]: will extract every dynamic model given for a package ID. For the package "w64_sr_combatants_01ba_4", the package ID would be "01ba"
 * -a [api hash]: the api hash in numerical form, such as 748485514. Not all API hashes will work since they do not all contain API data
+* -c: enable cbuffer extraction. cbuffers may provide some information about colours for custom shaders
+* -s [override num]: overrides the skeleton of the extracted model. -1 is no override, 0 extracts with no skeleton, 1 with the default NPC body, and 2 with the default NPC head
 
 ## License/Disclaimer
 License/Disclaimer

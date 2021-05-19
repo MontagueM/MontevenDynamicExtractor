@@ -8,5 +8,5 @@
 #include <fstream>
 #include "api.h"
 
-void doBatch(std::string pkgsPath, std::string outputPath, std::string batchPkg, std::unordered_map<uint64_t, uint32_t> hash64Table);
+void doBatch(std::string pkgsPath, std::string outputPath, std::string batchPkg, std::unordered_map<uint64_t, uint32_t> hash64Table, int skeletonOverride);
 void replaceBackslashes(std::string& path);
