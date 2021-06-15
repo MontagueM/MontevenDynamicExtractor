@@ -1,5 +1,49 @@
 #include "api.h"
 
+std::unordered_map<uint32_t, std::string> channelNames =
+{
+	{662199250, "ArmorPlate"},
+	{1367384683, "ArmorSuit"},
+	{218592586, "ArmorCloth"},
+	{1667433279, "Weapon1"},
+	{1667433278, "Weapon2"},
+	{1667433277, "Weapon3"},
+	{3073305669, "ShipUpper"},
+	{3073305668, "ShipDecals"},
+	{3073305671, "ShipLower"},
+	{1971582085, "SparrowUpper"},
+	{1971582084, "SparrowEngine"},
+	{1971582087, "SparrowLower"},
+	{373026848, "GhostMain"},
+	{373026849, "GhostHighlights"},
+	{373026850, "GhostDecals"},
+};
+
+std::vector<std::string> dataNames =
+{
+	"Detail Diffuse Transform",
+	"Detail Normal Transform",
+	"\"spec_aa_transform\"",
+	"Primary Color",
+	"\"primary_emissive_tint_color_and_intensity_bias\"",
+	"\"primary_material_params\"",
+	"\"primary_material_advanced_params\"",
+	"Primary Roughness Remap",
+	"Primary Wear Color",
+	"Primary Wear Remap",
+	"Primary Worn Roughness Remap",
+	"\"primary_worn_material_parameters\"",
+	"Secondary Color",
+	"\"secondary_emissive_tint_color_and_intensity_bias\"",
+	"\"secondary_material_params\"",
+	"\"secondary_material_advanced_params\"",
+	"Secondary Roughness Remap",
+	"Secondary Wear Color",
+	"Secondary Wear Remap",
+	"Secondary Worn Roughness Remap",
+	"\"secondary_worn_material_parameters\"",
+};
+
 std::vector<std::string> getAPIModelHashes(uint32_t apiHash, std::string packagesPath, std::unordered_map<uint64_t, uint32_t> hash64Table, bool& bSingle)
 {
 	std::vector<std::string> modelHashes;
@@ -66,6 +110,238 @@ uint32_t getArtArrangementHash(uint32_t apiHash, std::string packagesPath)
 			return val2;
 		}
 	}
+}
+
+
+void getAPIShader(uint32_t apiHash, std::string outputPath, std::string packagesPath, std::unordered_map<uint64_t, uint32_t> hash64Table)
+{
+	File* dataTable = new File("26FCDD80", packagesPath);
+	dataTable->getData();
+
+	uint32_t tableOffset = 0x30;
+	uint32_t tableCount;
+	uint32_t val;
+	uint32_t val2;
+	std::unordered_map<uint16_t, uint16_t> defaultChannelDyeMap;
+	std::unordered_map<uint16_t, uint16_t> customChannelDyeMap;
+	memcpy((char*)&tableCount, dataTable->data + 8, 4);
+	for (int i = tableOffset; i < tableOffset + tableCount * 0x20; i += 0x20)
+	{
+		memcpy((char*)&val, dataTable->data + i, 4);
+		if (val == apiHash)
+		{
+			memcpy((char*)&val, dataTable->data + i + 0x10, 4);
+			File dataFile = File(uint32ToHexStr(val), packagesPath);
+			dataFile.getData();
+			memcpy((char*)&val, dataFile.data + 0x88, 4);
+			val += 0x88;
+			memcpy((char*)&val2, dataFile.data + val - 4, 4);
+			if (val2 != 2155901815)
+			{
+				printf("Given shader is not valid!\n");
+				return;
+			}
+			uint32_t defaultDyeTableCount;
+			uint32_t defaultDyeTableOffset;
+			uint32_t customDyeTableCount;
+			uint32_t customDyeTableOffset;
+			memcpy((char*)&defaultDyeTableCount, dataFile.data + val + 0x28, 4);
+			memcpy((char*)&defaultDyeTableOffset, dataFile.data + val + 0x30, 4);
+			defaultDyeTableOffset += 0x10 + val + 0x30;
+			memcpy((char*)&customDyeTableCount, dataFile.data + val + 0x38, 4);
+			memcpy((char*)&customDyeTableOffset, dataFile.data + val + 0x40, 4);
+			customDyeTableOffset += 0x10 + val + 0x40;
+			uint16_t channelIndex;
+			uint16_t dyeIndex;
+			for (int j = defaultDyeTableOffset; j < defaultDyeTableOffset + defaultDyeTableCount * 4; j += 4)
+			{
+				memcpy((char*)&channelIndex, dataFile.data + j, 2);
+				memcpy((char*)&dyeIndex, dataFile.data + j + 2, 2);
+				defaultChannelDyeMap[channelIndex] = dyeIndex;
+			}
+			for (int j = customDyeTableOffset; j < customDyeTableOffset + customDyeTableCount * 4; j += 4)
+			{
+				memcpy((char*)&channelIndex, dataFile.data + j, 2);
+				memcpy((char*)&dyeIndex, dataFile.data + j + 2, 2);
+				customChannelDyeMap[channelIndex] = dyeIndex;
+			}
+		}
+	}
+	if (defaultChannelDyeMap.size() == 0) return;
+
+	File* channelTable = new File("C92FCF80", packagesPath);
+	channelTable->getData();
+	File* dyeManifestTable = new File("A77AD080", packagesPath);
+	dyeManifestTable->getData();
+	File* dyeFileTable = new File("BDB2C180", packagesPath);
+	dyeFileTable->getData();
+	uint32_t channelHash;
+	uint32_t dyeManifestHash;
+	std::string dyeFileHash;
+	File* finalDyeFile = nullptr;
+	std::string channelName;
+	// For each pair, find the channel hash to pair it with a name + find the dye file
+
+	std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>> defaultDyes;
+	std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>> customDyes;
+
+	std::unordered_map<std::string, std::unordered_map<std::string, std::string>> defaultTextures;
+	std::unordered_map<std::string, std::unordered_map<std::string, std::string>> customTextures;
+
+	for (int q = 0; q < 2; q++)
+	{
+		auto map = customChannelDyeMap;
+		if (q == 0) auto map = defaultChannelDyeMap;
+
+		for (auto& it : map)
+		{
+			finalDyeFile = nullptr;
+
+			// Get channel name
+			memcpy((char*)&channelHash, channelTable->data + 0x30 + 4 * it.first, 4);
+			channelName = channelNames[channelHash];
+
+			// Get dye file
+			memcpy((char*)&dyeManifestHash, dyeManifestTable->data + 0x30 + 8 * it.second + 4, 4);
+			tableOffset = 0x40;
+			memcpy((char*)&tableCount, dyeFileTable->data + 8, 4);
+			for (int i = tableOffset; i < tableOffset + tableCount * 0x18; i += 0x18)
+			{
+				memcpy((char*)&val, dyeFileTable->data + i, 4);
+				if (val == dyeManifestHash)
+				{
+					memcpy((char*)&val, dyeFileTable->data + i + 0xC, 4);
+					if (val == 1)
+					{
+						uint32_t dyeFileID;
+						memcpy((char*)&dyeFileID, dyeFileTable->data + i + 0x8, 4);
+						dyeFileHash = uint32ToHexStr(dyeFileID);
+					}
+					else
+					{
+						// H64
+						uint64_t h64;
+						memcpy((char*)&h64, dyeFileTable->data + i + 0x10, 8);
+						dyeFileHash = getHash64(h64, hash64Table);
+					}
+
+					File file = File(dyeFileHash, packagesPath);
+					size_t fileSize = file.getData();
+					if (fileSize != 0x18) break;
+					uint32_t dyeFileID;
+					memcpy((char*)&dyeFileID, file.data + 0x8, 4);
+					dyeFileHash = uint32ToHexStr(dyeFileID);
+					file = File(dyeFileHash, packagesPath);
+					fileSize = file.getData();
+					if (fileSize < 0x10) break;
+					memcpy((char*)&dyeFileID, file.data + 0xC, 4);
+					dyeFileHash = uint32ToHexStr(dyeFileID);
+					finalDyeFile = new File(dyeFileHash, packagesPath);
+					finalDyeFile->getData();
+					break;
+				}
+			}
+			// Get dye textures
+			memcpy((char*)&tableCount, finalDyeFile->data + 0x48, 4);
+			memcpy((char*)&tableOffset, finalDyeFile->data + 0x50, 4);
+			tableOffset += 0x60;
+			std::string texHash;
+			std::string diffuseName;
+			std::string normalName;
+			for (int i = tableOffset; i < tableOffset + tableCount * 0x18; i += 0x18)
+			{
+				// H64
+				uint64_t h64;
+				memcpy((char*)&h64, finalDyeFile->data + i + 0x10, 8);
+				texHash = getHash64(h64, hash64Table);
+				uint32_t texID;
+				memcpy((char*)&texID, finalDyeFile->data + i, 4);
+
+				// Save texture
+				Texture tex = Texture(texHash, packagesPath);
+				std::string addString = "dif";
+				if (texID % 2 != 0)
+				{
+					addString = "norm";
+					normalName = channelName + "_" + std::to_string(texID) + "_" + texHash + "_" + addString;
+				}
+				else diffuseName = channelName + "_" + std::to_string(texID) + "_" + texHash + "_" + addString;
+				tex.tex2Other(outputPath + "/" + channelName + "_" + std::to_string(texID) + "_" + texHash + "_" + addString + ".dds", "png");
+			}
+			// Get dye data
+			if (finalDyeFile == nullptr) continue;
+			std::unordered_map<std::string, std::vector<float>> dyeData;
+			std::unordered_map<std::string, std::string> texData;
+			memcpy((char*)&tableCount, finalDyeFile->data + 0x90, 4);
+			memcpy((char*)&tableOffset, finalDyeFile->data + 0x98, 4);
+			tableOffset += 0xA8;
+			float_t fval;
+			int c = 0;
+			for (int i = tableOffset; i < tableOffset + tableCount * 0x10; i += 0x10)
+			{
+				std::vector<float> data;
+				for (int j = 0; j < 4; j++)
+				{
+					memcpy((char*)&fval, finalDyeFile->data + i + j * 4, 4);
+					data.push_back(fval);
+				}
+				dyeData[dataNames[c]] = data;
+				c++;
+			}
+
+
+			if (q == 0)
+			{
+				defaultDyes[channelName] = dyeData;
+				texData["Diffuse"] = diffuseName;
+				texData["Normal"] = normalName;
+				defaultTextures[channelName] = texData;
+			}
+			else
+			{
+				customDyes[channelName] = dyeData;
+				texData["Diffuse"] = diffuseName;
+				texData["Normal"] = normalName;
+				customTextures[channelName] = texData;
+			}
+		}
+	}
+
+	for (int q = 0; q < 2; q++)
+	{
+		if (q == 0) writeShader(defaultDyes, defaultTextures, false, outputPath);
+		else writeShader(customDyes, customTextures, true, outputPath);
+	}
+}
+
+void writeShader(std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>> dyes, std::unordered_map<std::string, std::unordered_map<std::string, std::string>> textures, bool bCustom, std::string outputPath)
+{
+	std::string stringFactoryShader = "";
+	if (!bCustom) stringFactoryShader += "Default dyes:\n";
+	else stringFactoryShader += "Custom dyes:\n";
+	for (auto& it : dyes)
+	{
+		stringFactoryShader += "    " + it.first + ":\n";
+		if (it.first.find("Cloth", 0) != std::string::npos) stringFactoryShader += "		Is cloth: True\n";
+		else stringFactoryShader += "		Is cloth: False\n";
+		stringFactoryShader += "		Properties:\n";
+		for (auto& it2 : it.second)
+		{
+			if (it.first.find("Diffuse", 0) != std::string::npos) break;
+			std::string floatString = "[";
+			for (auto& flt : it2.second) floatString += std::to_string(flt) + ", ";
+			stringFactoryShader += "			" + it2.first + ": " + floatString.substr(0, floatString.size()-2) + "]\n";
+		}
+		stringFactoryShader += "		Diffuse: " + textures[it.first]["Diffuse"] + "\n";
+		stringFactoryShader += "		Normal: " + textures[it.first]["Normal"] + "\n";
+	}
+	stringFactoryShader += "\n";
+
+	FILE* shaderFile;
+	std::string path = outputPath + "/shader.txt";
+	fopen_s(&shaderFile, path.c_str(), "w");
+	fwrite(stringFactoryShader.c_str(), stringFactoryShader.size(), 1, shaderFile);
+	fclose(shaderFile);
 }
 
 

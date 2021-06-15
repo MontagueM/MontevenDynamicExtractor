@@ -32,6 +32,12 @@ std::string getPkgID(std::string hash)
 	return pkgID;
 }
 
+uint16_t getPkgID(uint32_t hash)
+{
+	uint16_t pkgID = floor((hash - 0x80800000) / 8192);
+	return pkgID;
+}
+
 std::string getHash64(uint64_t hash64, std::unordered_map<uint64_t, uint32_t> hash64Table)
 {
 	std::string h64 = "";

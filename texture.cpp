@@ -274,7 +274,6 @@ std::string getCBufferFromOffset(unsigned char* data, int offset, int count, uin
     else if (cbType == 2155872400 || offset == 0)
     {
         std::string allFloat4 = "static float4 cb" + name + '[' + std::to_string(count) + "] = \n{\n";
-        allFloat4.reserve(count);
         float_t val;
         for (int i = 0; i < count; i++)
         {

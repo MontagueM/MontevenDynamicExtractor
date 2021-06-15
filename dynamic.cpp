@@ -133,9 +133,14 @@ void Dynamic::getDyn3Files()
 		if (off + 572 - 4 >= fileSize)
 		{
 			printf("\nDynamic has no mesh data (C), skipping...");
-			return;
+			continue;
 		}
 		memcpy((char*)&off, dyn2->data + off + 572, 4);
+		if (off < 2155872256)
+		{
+			printf("\nDynamic has no mesh data (D), skipping...");
+			continue;
+		}
 		File* dyn3 = new File(uint32ToHexStr(off), packagesPath);
 		if (std::find(existingDyn3s.begin(), existingDyn3s.end(), dyn3->hash) != existingDyn3s.end()
 			|| dyn3->getData() == 0)

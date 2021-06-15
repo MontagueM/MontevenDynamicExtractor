@@ -26,10 +26,10 @@ int main(int argc, char** argv)
 	sarge.setArgument("i", "inputhash", "hash of Dynamic Model Header 1", true);
 	sarge.setArgument("t", "textures", "enables textures", false);
 	sarge.setArgument("b", "batch", "batch with pkg ID", true);
-	sarge.setArgument("h", "help", "help shows arguments", false);
 	sarge.setArgument("a", "api", "api hash", true);
 	sarge.setArgument("s", "skeloverride", "skeleton override", true);
 	sarge.setArgument("c", "cbuffer", "enable cbuffer extraction", false);
+	sarge.setArgument("h", "shader", "shader hash", true);
 	sarge.setDescription("Destiny 2 dynamic model extractor by Monteven.");
 	sarge.setUsage("MontevenDynamicExtractor");
 
@@ -38,12 +38,6 @@ int main(int argc, char** argv)
 		std::cerr << "Couldn't parse arguments..." << std::endl;
 		show_usage();
 		return 1;
-	}
-
-	if (sarge.exists("help"))
-	{
-		show_usage();
-		return 0;
 	}
 
 	std::string pkgsPath;
@@ -56,16 +50,20 @@ int main(int argc, char** argv)
 	int skeletonOverride = -1;
 	std::string batchPkg;
 	std::string apiHashStr = "";
+	std::string shaderHashStr = "";
 	uint32_t apiHash = 0;
+	uint32_t shaderHash = 0;
 	sarge.getFlag("pkgspath", pkgsPath);
 	sarge.getFlag("outputpath", outputPath);
 	sarge.getFlag("filename", fileName);
 	sarge.getFlag("inputhash", modelHash);
 	sarge.getFlag("api", apiHashStr);
+	sarge.getFlag("shader", shaderHashStr);
 	sarge.getFlag("skeloverride", skeletonOverrideStr);
 
 	if (skeletonOverrideStr != "") skeletonOverride = std::stol(skeletonOverrideStr);
 	if (apiHashStr != "") apiHash = std::stoul(apiHashStr);
+	if (shaderHashStr != "") shaderHash = std::stoul(shaderHashStr);
 	bTextures = sarge.exists("textures");
 	bCBuffer = sarge.exists("cbuffer");
 	sarge.getFlag("batch", batchPkg);
@@ -74,12 +72,14 @@ int main(int argc, char** argv)
 	{
 		if (apiHashStr != "")
 			fileName = apiHashStr;
+		if (shaderHashStr != "")
+			fileName = shaderHashStr;
 		else
 			fileName = modelHash;
 	}
 
 	// Checking params are valid
-	if (pkgsPath == "" || outputPath == "" || (modelHash == "" && batchPkg == "" && apiHash == 0))
+	if (pkgsPath == "" || outputPath == "" || (modelHash == "" && batchPkg == "" && apiHash == 0 && shaderHash == 0))
 	{
 		std::cerr << "Invalid parameters, potentially backslashes in paths or paths not given.\n";
 		show_usage();
@@ -114,6 +114,17 @@ int main(int argc, char** argv)
 	{
 		hash64Table = generateH64Table(pkgsPath);
 		saveH64Table(hash64Table);
+	}
+
+	if (shaderHash != 0)
+	{
+		printf("Shader flag found, getting shader data...\n");
+		std::string savePath = outputPath + "/" + std::to_string(shaderHash);
+		std::filesystem::create_directories(savePath);
+		getAPIShader(shaderHash, savePath, pkgsPath, hash64Table);
+
+		printf("Shader rip done!");
+		return 0;
 	}
 
 	if (apiHash != 0)
