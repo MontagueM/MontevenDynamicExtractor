@@ -180,6 +180,7 @@ void getAPIShader(uint32_t apiHash, std::string outputPath, std::string packages
 	std::string dyeFileHash;
 	File* finalDyeFile = nullptr;
 	std::string channelName;
+	std::string channelNameHash;
 	// For each pair, find the channel hash to pair it with a name + find the dye file
 
 	std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>> defaultDyes;
@@ -200,6 +201,7 @@ void getAPIShader(uint32_t apiHash, std::string outputPath, std::string packages
 			// Get channel name
 			memcpy((char*)&channelHash, channelTable->data + 0x30 + 4 * it.first, 4);
 			channelName = channelNames[channelHash];
+			channelNameHash = std::to_string(channelHash);
 
 			// Get dye file
 			memcpy((char*)&dyeManifestHash, dyeManifestTable->data + 0x30 + 8 * it.second + 4, 4);
@@ -292,17 +294,17 @@ void getAPIShader(uint32_t apiHash, std::string outputPath, std::string packages
 
 			if (q == 0)
 			{
-				defaultDyes[channelName] = dyeData;
+				defaultDyes[channelNameHash] = dyeData;
 				texData["Diffuse"] = diffuseName;
 				texData["Normal"] = normalName;
-				defaultTextures[channelName] = texData;
+				defaultTextures[channelNameHash] = texData;
 			}
 			else
 			{
-				customDyes[channelName] = dyeData;
+				customDyes[channelNameHash] = dyeData;
 				texData["Diffuse"] = diffuseName;
 				texData["Normal"] = normalName;
-				customTextures[channelName] = texData;
+				customTextures[channelNameHash] = texData;
 			}
 		}
 	}
@@ -317,17 +319,17 @@ void getAPIShader(uint32_t apiHash, std::string outputPath, std::string packages
 void writeShader(std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>> dyes, std::unordered_map<std::string, std::unordered_map<std::string, std::string>> textures, bool bCustom, std::string outputPath)
 {
 	std::string stringFactoryShader = "{\n";
-	if (!bCustom) stringFactoryShader += "	\"default_dyes\": [\n";
-	else stringFactoryShader += "	\"custom_dyes\": [\n";
+	if (!bCustom) stringFactoryShader += "  \"custom_dyes\": [],\n  \"locked_dyes\": [],\n  \"default_dyes\": [\n";
+	else stringFactoryShader += "  \"default_dyes\": [],\n  \"locked_dyes\": [],\n  \"custom_dyes\": [\n";
 	std::string propertiesString = "";
 	for (auto& it : dyes)
 	{
 		//propertiesString += "    	" + it.first + ":\n";
-		propertiesString += "    	{";
-		propertiesString += "		\"investment_hash\": " + it.first + ",\n";
-		if (it.first.find("Cloth", 0) != std::string::npos) stringFactoryShader += "		\"cloth\": true,\n";
-		else propertiesString += "		\"cloth\": false,\n";
-		propertiesString += "		\"material_properties\": {\n";
+		propertiesString += "    {\n";
+		propertiesString += "      \"investment_hash\": " + it.first + ",\n";
+		if (it.first.find("Cloth", 0) != std::string::npos) propertiesString += "      \"cloth\": true,\n";
+		else propertiesString += "      \"cloth\": false,\n";
+		propertiesString += "      \"material_properties\": {\n";
 		std::string valuesString = "";
 		for (auto& it2 : it.second)
 		{
@@ -335,19 +337,19 @@ void writeShader(std::unordered_map<std::string, std::unordered_map<std::string,
 			std::string floatString = "[";
 			for (auto& flt : it2.second) floatString += std::to_string(flt) + ", ";
 			//stringFactoryShader += "			" + it2.first + ": " + floatString.substr(0, floatString.size()-2) + "],\n";
-			valuesString += "			" + it2.first + ": " + floatString.substr(0, floatString.size()-2) + "],\n";
+			valuesString += "        " + it2.first + ": " + floatString.substr(0, floatString.size()-2) + "],\n";
 		}
-		propertiesString += valuesString.substr(0, floatString.size()-2) + "\n		},\n";
-		propertiesString += "		\"textures\": {\n";
-		propertiesString += "		  \"diffuse\": {\n		    \"name\": \"" + textures[it.first]["Diffuse"] + "\",\n";
-		propertiesString += "		  \"normal\": {\n		    \"name\": \"" + textures[it.first]["Normal"] + "\"\n";
-		propertiesString += "		}\n    	},\n";
+		propertiesString += valuesString.substr(0, valuesString.size()-2) + "\n      },\n";
+		propertiesString += "      \"textures\": {\n";
+		propertiesString += "        \"diffuse\": {\n          \"name\": \"" + textures[it.first]["Diffuse"] + "\"\n        },\n";
+		propertiesString += "        \"normal\": {\n          \"name\": \"" + textures[it.first]["Normal"] + "\"\n        }\n";
+		propertiesString += "      }\n    },\n";
 	}
-	stringFactoryShader += propertiesString.substr(0, floatString.size()-2) + "\n	]\n}";
+	stringFactoryShader += propertiesString.substr(0, propertiesString.size()-2) + "\n  ]\n}";
 	//stringFactoryShader += "\n";
 
 	FILE* shaderFile;
-	std::string path = outputPath + "/shader.txt";
+	std::string path = outputPath + "/shader.json";
 	fopen_s(&shaderFile, path.c_str(), "w");
 	fwrite(stringFactoryShader.c_str(), stringFactoryShader.size(), 1, shaderFile);
 	fclose(shaderFile);
