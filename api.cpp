@@ -21,26 +21,26 @@ std::unordered_map<uint32_t, std::string> channelNames =
 
 std::vector<std::string> dataNames =
 {
-	"Detail Diffuse Transform",
-	"Detail Normal Transform",
+	"\"detail_diffuse_transform\"",
+	"\"detail_normal_transform\"",
 	"\"spec_aa_transform\"",
-	"Primary Color",
+	"\"primary_albedo_tint\"",
 	"\"primary_emissive_tint_color_and_intensity_bias\"",
 	"\"primary_material_params\"",
 	"\"primary_material_advanced_params\"",
-	"Primary Roughness Remap",
-	"Primary Wear Color",
-	"Primary Wear Remap",
-	"Primary Worn Roughness Remap",
+	"\"primary_roughness_remap\"",
+	"\"primary_worn_albedo_tint\"",
+	"\"primary_wear_remap\"",
+	"\"primary_worn_roughness_remap\"",
 	"\"primary_worn_material_parameters\"",
-	"Secondary Color",
+	"\"secondary_albedo_tint\"",
 	"\"secondary_emissive_tint_color_and_intensity_bias\"",
 	"\"secondary_material_params\"",
 	"\"secondary_material_advanced_params\"",
-	"Secondary Roughness Remap",
-	"Secondary Wear Color",
-	"Secondary Wear Remap",
-	"Secondary Worn Roughness Remap",
+	"\"secondary_roughness_remap\"",
+	"\"secondary_worn_albedo_tint\"",
+	"\"secondary_wear_remap\"",
+	"\"secondary_worn_roughness_remap\"",
 	"\"secondary_worn_material_parameters\"",
 };
 
@@ -316,26 +316,35 @@ void getAPIShader(uint32_t apiHash, std::string outputPath, std::string packages
 
 void writeShader(std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>> dyes, std::unordered_map<std::string, std::unordered_map<std::string, std::string>> textures, bool bCustom, std::string outputPath)
 {
-	std::string stringFactoryShader = "";
-	if (!bCustom) stringFactoryShader += "Default dyes:\n";
-	else stringFactoryShader += "Custom dyes:\n";
+	std::string stringFactoryShader = "{\n";
+	if (!bCustom) stringFactoryShader += "	\"default_dyes\": [\n";
+	else stringFactoryShader += "	\"custom_dyes\": [\n";
+	std::string propertiesString = "";
 	for (auto& it : dyes)
 	{
-		stringFactoryShader += "    " + it.first + ":\n";
-		if (it.first.find("Cloth", 0) != std::string::npos) stringFactoryShader += "		Is cloth: True\n";
-		else stringFactoryShader += "		Is cloth: False\n";
-		stringFactoryShader += "		Properties:\n";
+		//propertiesString += "    	" + it.first + ":\n";
+		propertiesString += "    	{";
+		propertiesString += "		\"investment_hash\": " + it.first + ",\n";
+		if (it.first.find("Cloth", 0) != std::string::npos) stringFactoryShader += "		\"cloth\": true,\n";
+		else propertiesString += "		\"cloth\": false,\n";
+		propertiesString += "		\"material_properties\": {\n";
+		std::string valuesString = "";
 		for (auto& it2 : it.second)
 		{
-			if (it.first.find("Diffuse", 0) != std::string::npos) break;
+			if (it.first.find("diffuse", 0) != std::string::npos) break;
 			std::string floatString = "[";
 			for (auto& flt : it2.second) floatString += std::to_string(flt) + ", ";
-			stringFactoryShader += "			" + it2.first + ": " + floatString.substr(0, floatString.size()-2) + "]\n";
+			//stringFactoryShader += "			" + it2.first + ": " + floatString.substr(0, floatString.size()-2) + "],\n";
+			valuesString += "			" + it2.first + ": " + floatString.substr(0, floatString.size()-2) + "],\n";
 		}
-		stringFactoryShader += "		Diffuse: " + textures[it.first]["Diffuse"] + "\n";
-		stringFactoryShader += "		Normal: " + textures[it.first]["Normal"] + "\n";
+		propertiesString += valuesString.substr(0, floatString.size()-2) + "\n		},\n";
+		propertiesString += "		\"textures\": {\n";
+		propertiesString += "		  \"diffuse\": {\n		    \"name\": \"" + textures[it.first]["Diffuse"] + "\",\n";
+		propertiesString += "		  \"normal\": {\n		    \"name\": \"" + textures[it.first]["Normal"] + "\"\n";
+		propertiesString += "		}\n    	},\n";
 	}
-	stringFactoryShader += "\n";
+	stringFactoryShader += propertiesString.substr(0, floatString.size()-2) + "\n	]\n}";
+	//stringFactoryShader += "\n";
 
 	FILE* shaderFile;
 	std::string path = outputPath + "/shader.txt";
