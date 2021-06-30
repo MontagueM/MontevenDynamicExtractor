@@ -113,7 +113,7 @@ uint32_t getArtArrangementHash(uint32_t apiHash, std::string packagesPath)
 }
 
 
-void getAPIShader(uint32_t apiHash, std::string outputPath, std::string packagesPath, std::unordered_map<uint64_t, uint32_t> hash64Table)
+void getAPIShader(uint32_t apiHash, std::string outputPath, std::string packagesPath, std::unordered_map<uint64_t, uint32_t> hash64Table, std::uint32_t dyeManifestHashes[], std::uint32_t dyeManHashesSize)
 {
 	File* dataTable = new File("26FCDD80", packagesPath);
 	dataTable->getData();
@@ -125,49 +125,60 @@ void getAPIShader(uint32_t apiHash, std::string outputPath, std::string packages
 	std::unordered_map<uint16_t, uint16_t> defaultChannelDyeMap;
 	std::unordered_map<uint16_t, uint16_t> customChannelDyeMap;
 	memcpy((char*)&tableCount, dataTable->data + 8, 4);
-	for (int i = tableOffset; i < tableOffset + tableCount * 0x20; i += 0x20)
+	if (!dyeManHashesSize > 0)
 	{
-		memcpy((char*)&val, dataTable->data + i, 4);
-		if (val == apiHash)
+		for (int i = tableOffset; i < tableOffset + tableCount * 0x20; i += 0x20)
 		{
-			memcpy((char*)&val, dataTable->data + i + 0x10, 4);
-			File dataFile = File(uint32ToHexStr(val), packagesPath);
-			dataFile.getData();
-			memcpy((char*)&val, dataFile.data + 0x88, 4);
-			val += 0x88;
-			memcpy((char*)&val2, dataFile.data + val - 4, 4);
-			if (val2 != 2155901815)
+			memcpy((char*)&val, dataTable->data + i, 4);
+			if (val == apiHash)
 			{
-				printf("Given shader is not valid!\n");
-				return;
-			}
-			uint32_t defaultDyeTableCount;
-			uint32_t defaultDyeTableOffset;
-			uint32_t customDyeTableCount;
-			uint32_t customDyeTableOffset;
-			memcpy((char*)&defaultDyeTableCount, dataFile.data + val + 0x28, 4);
-			memcpy((char*)&defaultDyeTableOffset, dataFile.data + val + 0x30, 4);
-			defaultDyeTableOffset += 0x10 + val + 0x30;
-			memcpy((char*)&customDyeTableCount, dataFile.data + val + 0x38, 4);
-			memcpy((char*)&customDyeTableOffset, dataFile.data + val + 0x40, 4);
-			customDyeTableOffset += 0x10 + val + 0x40;
-			uint16_t channelIndex;
-			uint16_t dyeIndex;
-			for (int j = defaultDyeTableOffset; j < defaultDyeTableOffset + defaultDyeTableCount * 4; j += 4)
-			{
-				memcpy((char*)&channelIndex, dataFile.data + j, 2);
-				memcpy((char*)&dyeIndex, dataFile.data + j + 2, 2);
-				defaultChannelDyeMap[channelIndex] = dyeIndex;
-			}
-			for (int j = customDyeTableOffset; j < customDyeTableOffset + customDyeTableCount * 4; j += 4)
-			{
-				memcpy((char*)&channelIndex, dataFile.data + j, 2);
-				memcpy((char*)&dyeIndex, dataFile.data + j + 2, 2);
-				customChannelDyeMap[channelIndex] = dyeIndex;
+				memcpy((char*)&val, dataTable->data + i + 0x10, 4);
+				File dataFile = File(uint32ToHexStr(val), packagesPath);
+				dataFile.getData();
+				memcpy((char*)&val, dataFile.data + 0x88, 4);
+				val += 0x88;
+				memcpy((char*)&val2, dataFile.data + val - 4, 4);
+				if (val2 != 2155901815)
+				{
+					printf("Given shader is not valid!\n");
+					return;
+				}
+				uint32_t defaultDyeTableCount;
+				uint32_t defaultDyeTableOffset;
+				uint32_t customDyeTableCount;
+				uint32_t customDyeTableOffset;
+				memcpy((char*)&defaultDyeTableCount, dataFile.data + val + 0x28, 4);
+				memcpy((char*)&defaultDyeTableOffset, dataFile.data + val + 0x30, 4);
+				defaultDyeTableOffset += 0x10 + val + 0x30;
+				memcpy((char*)&customDyeTableCount, dataFile.data + val + 0x38, 4);
+				memcpy((char*)&customDyeTableOffset, dataFile.data + val + 0x40, 4);
+				customDyeTableOffset += 0x10 + val + 0x40;
+				uint16_t channelIndex;
+				uint16_t dyeIndex;
+				for (int j = defaultDyeTableOffset; j < defaultDyeTableOffset + defaultDyeTableCount * 4; j += 4)
+				{
+					memcpy((char*)&channelIndex, dataFile.data + j, 2);
+					memcpy((char*)&dyeIndex, dataFile.data + j + 2, 2);
+					defaultChannelDyeMap[channelIndex] = dyeIndex;
+				}
+				for (int j = customDyeTableOffset; j < customDyeTableOffset + customDyeTableCount * 4; j += 4)
+				{
+					memcpy((char*)&channelIndex, dataFile.data + j, 2);
+					memcpy((char*)&dyeIndex, dataFile.data + j + 2, 2);
+					customChannelDyeMap[channelIndex] = dyeIndex;
+					printf(std::to_string(channelIndex).c_str());
+					printf("\n");
+				}
 			}
 		}
+		if (defaultChannelDyeMap.size() == 0) return;
 	}
-	if (defaultChannelDyeMap.size() == 0) return;
+	else
+	{
+		customChannelDyeMap[0] = 0;
+		customChannelDyeMap[1] = 1;
+		customChannelDyeMap[2] = 2;
+	}
 
 	File* channelTable = new File("C92FCF80", packagesPath);
 	channelTable->getData();
@@ -204,7 +215,10 @@ void getAPIShader(uint32_t apiHash, std::string outputPath, std::string packages
 			channelNameHash = std::to_string(channelHash);
 
 			// Get dye file
-			memcpy((char*)&dyeManifestHash, dyeManifestTable->data + 0x30 + 8 * it.second + 4, 4);
+			if (!dyeManHashesSize > 0)
+				memcpy((char*)&dyeManifestHash, dyeManifestTable->data + 0x30 + 8 * it.second + 4, 4);
+			else
+				dyeManifestHash = dyeManifestHashes[it.second];
 			tableOffset = 0x40;
 			memcpy((char*)&tableCount, dyeFileTable->data + 8, 4);
 			for (int i = tableOffset; i < tableOffset + tableCount * 0x18; i += 0x18)
