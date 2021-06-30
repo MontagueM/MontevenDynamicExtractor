@@ -30,6 +30,7 @@ int main(int argc, char** argv)
 	sarge.setArgument("s", "skeloverride", "skeleton override", true);
 	sarge.setArgument("c", "cbuffer", "enable cbuffer extraction", false);
 	sarge.setArgument("h", "shader", "shader hash", true);
+	sarge.setArgument("d", "dyemanifesthashes", "shader by individual dyes", true);
 	sarge.setDescription("Destiny 2 dynamic model extractor by Monteven.");
 	sarge.setUsage("MontevenDynamicExtractor");
 
@@ -51,19 +52,36 @@ int main(int argc, char** argv)
 	std::string batchPkg;
 	std::string apiHashStr = "";
 	std::string shaderHashStr = "";
+	std::string dyeHashesStr = "";
 	uint32_t apiHash = 0;
 	uint32_t shaderHash = 0;
+	uint32_t dyeHashes[3] = {};
 	sarge.getFlag("pkgspath", pkgsPath);
 	sarge.getFlag("outputpath", outputPath);
 	sarge.getFlag("filename", fileName);
 	sarge.getFlag("inputhash", modelHash);
 	sarge.getFlag("api", apiHashStr);
 	sarge.getFlag("shader", shaderHashStr);
+	sarge.getFlag("dyemanifesthashes", dyeHashesStr);
 	sarge.getFlag("skeloverride", skeletonOverrideStr);
 
 	if (skeletonOverrideStr != "") skeletonOverride = std::stol(skeletonOverrideStr);
 	if (apiHashStr != "") apiHash = std::stoul(apiHashStr);
 	if (shaderHashStr != "") shaderHash = std::stoul(shaderHashStr);
+	if (dyeHashesStr != "")
+	{
+		shaderHash = 1;
+		size_t pos = 0;
+		std::string token;
+		std::int8_t index = 0;
+		std::string delimiter = " ";
+		dyeHashesStr += " ";
+		while ((pos = dyeHashesStr.find(delimiter)) != std::string::npos) {
+			dyeHashes[index] = stoul(dyeHashesStr.substr(0, pos));
+			dyeHashesStr.erase(0, pos + delimiter.length());
+			index++;
+		}
+	}
 	bTextures = sarge.exists("textures");
 	bCBuffer = sarge.exists("cbuffer");
 	sarge.getFlag("batch", batchPkg);
@@ -119,9 +137,12 @@ int main(int argc, char** argv)
 	if (shaderHash != 0)
 	{
 		printf("Shader flag found, getting shader data...\n");
-		std::string savePath = outputPath + "/" + std::to_string(shaderHash);
+		std::string savePath = outputPath + "/" + fileName;//std::to_string(shaderHash);
 		std::filesystem::create_directories(savePath);
-		getAPIShader(shaderHash, savePath, pkgsPath, hash64Table);
+		if (shaderHash != 1)
+			getAPIShader(shaderHash, savePath, pkgsPath, hash64Table, new std::uint32_t[0]{}, 0);
+		else
+			getAPIShader(shaderHash, savePath, pkgsPath, hash64Table, dyeHashes, sizeof(dyeHashes));
 
 		printf("Shader rip done!");
 		return 0;
