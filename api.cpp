@@ -63,7 +63,7 @@ std::vector<std::string> getAPIModelHashes(uint32_t apiHash, std::string package
 		if (val == apiHash)
 		{
 			memcpy((char*)&val, modelTable->data + i + 0x18, 4);
-			if (val != 0) modelHashes = getAPIMultiHashes(val+i+0x18, modelTable, packagesPath, hash64Table);
+			if (val != 0) modelHashes = getAPIMultiHashes(val + i + 0x18, modelTable, packagesPath, hash64Table);
 			else
 			{
 				uint32_t fHash;
@@ -104,12 +104,16 @@ uint32_t getArtArrangementHash(uint32_t apiHash, std::string packagesPath)
 			memcpy((char*)&val2, dataFile.data + val, 4);
 			val += val2 + 0x12;
 			memcpy((char*)&val2, dataFile.data + val, 2);
-			memcpy((char*)&val2, arrangementTable->data + val2*4 + 48, 4);
+			memcpy((char*)&val2, arrangementTable->data + val2 * 4 + 48, 4);
 			delete dataTable;
 			delete arrangementTable;
 			return val2;
 		}
 	}
+
+	// No art-arrangement hash, let's just try anyway.
+	delete arrangementTable;
+	return apiHash;
 }
 
 
@@ -337,15 +341,15 @@ void writeShader(std::unordered_map<std::string, std::unordered_map<std::string,
 			std::string floatString = "[";
 			for (auto& flt : it2.second) floatString += std::to_string(flt) + ", ";
 			//stringFactoryShader += "			" + it2.first + ": " + floatString.substr(0, floatString.size()-2) + "],\n";
-			valuesString += "        " + it2.first + ": " + floatString.substr(0, floatString.size()-2) + "],\n";
+			valuesString += "        " + it2.first + ": " + floatString.substr(0, floatString.size() - 2) + "],\n";
 		}
-		propertiesString += valuesString.substr(0, valuesString.size()-2) + "\n      },\n";
+		propertiesString += valuesString.substr(0, valuesString.size() - 2) + "\n      },\n";
 		propertiesString += "      \"textures\": {\n";
 		propertiesString += "        \"diffuse\": {\n          \"name\": \"" + textures[it.first]["Diffuse"] + "\"\n        },\n";
 		propertiesString += "        \"normal\": {\n          \"name\": \"" + textures[it.first]["Normal"] + "\"\n        }\n";
 		propertiesString += "      }\n    },\n";
 	}
-	stringFactoryShader += propertiesString.substr(0, propertiesString.size()-2) + "\n  ]\n}";
+	stringFactoryShader += propertiesString.substr(0, propertiesString.size() - 2) + "\n  ]\n}";
 	//stringFactoryShader += "\n";
 
 	FILE* shaderFile;
@@ -380,7 +384,7 @@ std::vector<std::string> getAPISingleHashes(uint32_t mHash, uint32_t fHash, std:
 		}
 		if (h64Files[0] != "" && h64Files[1] != "") break;
 	}
-	
+
 	return getHashesFromH64s(h64Files, packagesPath, hash64Table);;
 }
 

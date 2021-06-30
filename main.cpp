@@ -72,7 +72,7 @@ int main(int argc, char** argv)
 	{
 		if (apiHashStr != "")
 			fileName = apiHashStr;
-		if (shaderHashStr != "")
+		else if (shaderHashStr != "")
 			fileName = shaderHashStr;
 		else
 			fileName = modelHash;

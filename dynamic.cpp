@@ -36,12 +36,12 @@ void Dynamic::considerSkeletonOverride()
 			skeletonHash = "";
 			break;
 		case 1:
-			printf("Skeleton flag 1, ripped models will use the default player body rig.");
-			skeletonHash = "8FD3B080";
+			printf("Skeleton flag 1, ripped models will use the player body rig.");
+			skeletonHash = "F8EEA880";
 			break;
 		case 2:
-			printf("Skeleton flag 2, ripped models will use the default NPC face rig.");
-			skeletonHash = "9E3AAB80";
+			printf("Skeleton flag 2, ripped models will use the player face rig.");
+			skeletonHash = "CC54A280";
 			break;
 		}
 	}
