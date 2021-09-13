@@ -56,11 +56,32 @@ void TexturePlate::parsePlate()
 void TexturePlate::savePlate(std::string fullSavePath)
 {
 	if (!textures.size()) return;
+
 	if (type == "Dyemap")
 	{
 		for (auto& val : dimensions)
 			val /= 2;
 	}
+
+	// See if we need to shrink the texture by half
+	int maxValue = 0;
+	for (auto& tex : textures)
+	{
+		if (tex->offsetX + tex->scaleX > maxValue)
+		{
+			maxValue = tex->offsetX + tex->scaleX;
+		}
+		else if (tex->offsetY + tex->scaleY > maxValue)
+		{
+			maxValue = tex->offsetY + tex->scaleY;
+		}
+	}
+	if (maxValue <= dimensions[0] / 2 && maxValue <= dimensions[1] / 2)
+	{
+		for (auto& val : dimensions)
+			val /= 2;
+	}
+
 	// Extract every image on plate
 	//std::vector<cv::Mat> cvIms;
 	cv::Mat4b res(dimensions[0], dimensions[1], cv::Vec4b(0, 0, 0, 0));
