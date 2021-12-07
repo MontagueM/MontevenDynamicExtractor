@@ -12,7 +12,7 @@
 class Dynamic : public Model
 {
 private:
-	bool bTextures;
+	bool bTextures = false;
 	std::vector<File*> dyn2s;
 	std::vector<File*> dyn3s;
 	FbxModel* fbxModel = nullptr;
@@ -49,9 +49,15 @@ public:
 		bTextures = btex;
 		skeletonOverride = so;
 	}
+	Dynamic(std::string x, std::string pkgsPath) : Model(x, pkgsPath)
+	{
+		packagesPath = pkgsPath;
+	}
 
 	bool get();
 	void pack(std::string saveDirectory, bool bCBuffer);
 	void save(std::string saveDirectory, std::string saveName);
+	bool RequestInfo(int& SubmeshCount, bool& bHasSkeleton);
+	bool RequestSaveDynamicMeshData();
 };
 

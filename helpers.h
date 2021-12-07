@@ -124,6 +124,7 @@ public:
 	VertexBufferHeader* spsbWeightsFile = nullptr;
 };
 
+
 std::string getReferenceFromHash(std::string hash, std::string pkgsPath);
 std::string getHash64(uint64_t hash64, std::unordered_map<uint64_t, uint32_t> hash64Table);
 std::string getPkgID(std::string hash);

@@ -15,6 +15,8 @@ File::File(std::string x, std::string pkgsPath)
 
 int File::getData()
 {
+	if (hash.substr(hash.length() - 2) != "80" || hash.substr(hash.length() - 4) == "8080") return 0;
+
 	if (pkgID == "")
 	{
 		pkgID = getPkgID(hash);
@@ -22,7 +24,7 @@ int File::getData()
 	Package pkg(pkgID, packagesPath);
 	int fileSize;
 	data = pkg.getEntryData(hash, fileSize);
-	if (data == nullptr) return 0;
+	if (data == nullptr || sizeof(data) == 0) return 0;
 	return fileSize;
 }
 

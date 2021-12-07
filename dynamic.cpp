@@ -76,16 +76,16 @@ void Dynamic::getDyn3Files()
 	memcpy((char*)&primFileID, data + 0xB0, 4);
 	File* primFile = new File(uint32ToHexStr(primFileID), packagesPath);
 	fileSize = primFile->getData();
-
+	if (!fileSize) return;
 	// Finding 42868080
 	bool bSkeleton = false;
 	memcpy((char*)&off, primFile->data + 0x18, 4);
 	off += 0x18;
 	memcpy((char*)&off, primFile->data + off + 4, 4);
 	// 2155905493 has only inverse data
-	if (off == 2155905501 || off == 2155905493)
+	if (off == 0x808081DD || off == 0x808081D5)
 	{
-		if (off == 2155905493) bSkeletonDiostOnly = true;
+		if (off == 0x808081D5) bSkeletonDiostOnly = true;
 		bSkeleton = true;
 	}
 	if (bSkeleton)
@@ -126,7 +126,14 @@ void Dynamic::getDyn3Files()
 		else
 		{
 			dyn2 = dyn2s[i];
-			dyn2->getData();
+			fileSize = dyn2->getData();
+			if (fileSize == 0)
+			{
+				printf("\nDynamic has no mesh data (B), skipping...");
+				dyn2s.erase(dyn2s.begin() + i);
+				i--;
+				continue;
+			}
 		}
 
 		memcpy((char*)&off, dyn2->data + 0x18, 4);
@@ -628,4 +635,99 @@ void Dynamic::save(std::string saveDirectory, std::string saveName)
 	for (auto& node : nodes) fbxModel->scene->GetRootNode()->AddChild(node);
 
 	fbxModel->save(saveDirectory + "/" + saveName + ".fbx", false);
+}
+
+bool Dynamic::RequestInfo(int& MeshCount, bool& bHasSkeleton)
+{
+	getData();
+	getDyn3Files();  // Gets skeleton hash if it exists
+	// Manually getting the meshcount of the first dyn3
+	for (int i = 0; i < dyn3s.size(); i++)
+	{
+		File* dyn3 = dyn3s[i];
+		uint32_t count;
+		memcpy((char*)&count, dyn3->data + 0x10, 4);
+		MeshCount += count;
+	}
+	bHasSkeleton = skeletonHash != "";
+
+	return true;
+}
+
+bool Dynamic::RequestSaveDynamicMeshData()
+{
+	getData();
+	getDyn3Files();
+	parseDyn3s();
+	getSubmeshes();
+
+	// Then save
+	FILE* meshFile;
+	std::string path = "msh.tmp";
+	int status = fopen_s(&meshFile, path.c_str(), "wb");
+	if (status || meshFile == NULL) return false;
+
+	for (int i = 0; i < meshes.size(); i++)
+	{
+		DynamicMesh* mesh = meshes[i];
+		for (int j = 0; j < mesh->submeshes.size(); j++)
+		{
+			DynamicSubmesh* submesh = mesh->submeshes[j];
+			bool add = false;
+			bool firstLodCheck = false;
+			for (auto& x : mesh->submeshes)
+			{
+				if (x->lodLevel == 0 && x->lodGroup == submesh->lodGroup)
+				{
+					firstLodCheck = true;
+					break;
+				}
+			}
+			int secondLodCheck = 9999;
+			for (auto& x : mesh->submeshes)
+			{
+				if (x->lodGroup == submesh->lodGroup)
+				{
+					if (x->lodLevel < secondLodCheck) secondLodCheck = x->lodLevel;
+				}
+			}
+			if (firstLodCheck)
+			{
+				if (submesh->lodLevel == 0) add = true;
+			}
+			else if (submesh->lodLevel == secondLodCheck) add = true;
+			if (add && submesh->faces.size() != 0)
+			{
+				// Then we save this data
+
+				// Write vertex count
+				uint32_t s = submesh->vertPos.size();
+				fwrite(&s, 4, 1, meshFile);
+
+				// Write vertices
+				for (auto& vertex : submesh->vertPos)
+				{
+					for (auto& vert : vertex)
+					{
+						fwrite(&vert, 1, sizeof(vert), meshFile);
+					}
+				}
+
+				// Write face count
+				s = submesh->faces.size();
+				fwrite(&s, 4, 1, meshFile);
+
+				// Write faces
+				for (auto& face : submesh->faces)
+				{
+					for (auto& f : face)
+					{
+						fwrite(&f, 4, 1, meshFile);
+					}
+				}
+			}
+		}
+	}
+	fclose(meshFile);
+	return true;
 }
