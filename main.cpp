@@ -12,33 +12,12 @@ static void show_usage()
 	std::cerr << "-a [api hash] extracts the models paired with that given api hash if valid. -i, -b ignored";
 }
 
-bool __stdcall RequestDynamicInformation(const char* DynamicHash, const char* pkgsPath, int& MeshCount, bool& bHasSkeleton)
-{
-	Dynamic* dynamic = new Dynamic(DynamicHash, pkgsPath);
-	MeshCount = 0;
-	bHasSkeleton = false;
-	int status = dynamic->RequestInfo(MeshCount, bHasSkeleton);
-	if (status)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
 
 /*
 Using Sarge https://mayaposch.wordpress.com/2019/03/17/parsing-command-line-arguments-in-c/
 */
 int main(int argc, char** argv)
 {
-	//return 0;
-	int MC;
-	bool bHS;
-	bool sta = RequestDynamicInformation("CE44A380", "I:/SteamLibrary/steamapps/common/Destiny 2/packages/", MC, bHS);
-	exit(0);
-
 	Sarge sarge;
 
 	sarge.setArgument("p", "pkgspath", "pkgs path", true);

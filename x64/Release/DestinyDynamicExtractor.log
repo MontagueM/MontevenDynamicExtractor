@@ -1,4 +1,27 @@
-﻿  phonon.cpp
+﻿  main.cpp
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\Sarge\src\sarge.cpp(188,34): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\utility(193,16): warning C4244: 'initializing': conversion from '_Ty' to '_Ty1', possible loss of data
+          with
+          [
+              _Ty=__int64
+          ]
+          and
+          [
+              _Ty1=const uint32_t
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\skeleton.h(195): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[9],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
+          with
+          [
+              _Other1=__int64,
+              _Other2=const char (&)[9]
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\skeleton.h(54): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[9],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
+          with
+          [
+              _Other1=__int64,
+              _Other2=const char (&)[9]
+          ]
+  phonon.cpp
 C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\utility(193,16): warning C4244: 'initializing': conversion from '_Ty' to '_Ty1', possible loss of data
           with
           [
@@ -22,8 +45,8 @@ C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDyn
           ]
      Creating library C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Release\DestinyDynamicExtractor.lib and object C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Release\DestinyDynamicExtractor.exp
   Generating code
-  1 of 2453 functions (<0.1%) were compiled, the rest were copied from previous compilation.
-    1 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  1552 of 3275 functions (47.4%) were compiled, the rest were copied from previous compilation.
+    2 functions were new in current compilation
+    89 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   DestinyDynamicExtractor.vcxproj -> C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Release\DestinyDynamicExtractor.dll
