@@ -3,7 +3,8 @@
 bool Dynamic::get()
 {
 	fbxModel = new FbxModel();
-	if (getReferenceFromHash(hash, packagesPath) != "d89a8080")
+	auto q = getReferenceFromHash(hash, packagesPath);
+	if (getReferenceFromHash(hash, packagesPath) != "0f9c8080")
 	{
 		std::cerr << "Given hash is not a valid dynamic model.";
 		return false;
@@ -16,55 +17,10 @@ bool Dynamic::get()
 		return false;
 	}
 	parseDyn3s();
-	considerSkeletonOverride();
 	if (skeletonHash != "")
 		getSkeleton();
-	if (bTextures)
-		getTexturePlates();
 	getSubmeshes();
 	return meshes.size();
-}
-
-void Dynamic::considerSkeletonOverride()
-{
-	if (skeletonOverride != -1)
-	{
-		switch (skeletonOverride)
-		{
-		case 0:
-			printf("Skeleton flag 0, no skeleton will be ripped.");
-			skeletonHash = "";
-			break;
-		case 1:
-			printf("Skeleton flag 1, ripped models will use the player body rig.");
-			skeletonHash = "F8EEA880";
-			break;
-		case 2:
-			printf("Skeleton flag 2, ripped models will use the player face rig.");
-			skeletonHash = "CC54A280";
-			break;
-		}
-	}
-}
-
-void Dynamic::getTexturePlates()
-{
-	uint32_t offset;
-	uint32_t fileVal;
-	std::string fileHash;
-	for (auto& dyn2 : dyn2s)
-	{
-		// can optimise by replacing with pointers
-		//dyn2->getData();
-		if (!dyn2->getData()) continue;
-		memcpy((char*)&offset, dyn2->data + 0x18, 4);
-		offset += 712;
-		memcpy((char*)&fileVal, dyn2->data + offset, 4);
-		fileHash = uint32ToHexStr(fileVal);
-		if (fileHash == "ffffffff") continue;
-		TexturePlateSet* texplateSet = new TexturePlateSet(fileHash, packagesPath);
-		texplateSets.push_back(texplateSet);
-	}
 }
 
 void Dynamic::getDyn3Files()
@@ -73,37 +29,37 @@ void Dynamic::getDyn3Files()
 	int fileSize;
 
 	uint32_t primFileID;
-	memcpy((char*)&primFileID, data + 0xB0, 4);
+	memcpy((char*)&primFileID, data + 0xC0, 4);
 	File* primFile = new File(uint32ToHexStr(primFileID), packagesPath);
 	fileSize = primFile->getData();
 	if (!fileSize) return;
-	// Finding 42868080
+
 	bool bSkeleton = false;
 	memcpy((char*)&off, primFile->data + 0x18, 4);
 	off += 0x18;
 	memcpy((char*)&off, primFile->data + off + 4, 4);
-	// 2155905493 has only inverse data
-	if (off == 0x808081DD || off == 0x808081D5)
+
+	if (off == 0x80808545 || off == 0x8080853D || off == 0x80807FAB)
 	{
-		if (off == 0x808081D5) bSkeletonDiostOnly = true;
+		if (off == 0x8080853D || off == 0x80807FAB) bSkeletonDiostOnly = true;
 		bSkeleton = true;
 	}
 	if (bSkeleton)
 	{
 		skeletonHash = primFile->hash;
-		memcpy((char*)&off, data + 0xBC, 4);
+		memcpy((char*)&off, data + 0xCC, 4);
 		dyn2s.push_back(new File(uint32ToHexStr(off), packagesPath));
-		memcpy((char*)&off, data + 0xC8, 4);
+		memcpy((char*)&off, data + 0xD8, 4);
 		dyn2s.push_back(new File(uint32ToHexStr(off), packagesPath));
 	}
 	else
 	{
-		memcpy((char*)&off, data + 0xB0, 4);
+		memcpy((char*)&off, data + 0xC0, 4);
 		dyn2s.push_back(new File(uint32ToHexStr(off), packagesPath));
-		memcpy((char*)&off, data + 0xBC, 4);
+		memcpy((char*)&off, data + 0xCC, 4);
 		dyn2s.push_back(new File(uint32ToHexStr(off), packagesPath));
 	}
-	memcpy((char*)&off, data + 0xA0, 4);
+	memcpy((char*)&off, data + 0xB0, 4);
 	if (off == 1) dyn2s.pop_back(); // If the array size is 1 just delete the second dyn2
 
 	std::vector<std::string> existingDyn3s = {};
@@ -137,13 +93,13 @@ void Dynamic::getDyn3Files()
 		}
 
 		memcpy((char*)&off, dyn2->data + 0x18, 4);
-		if (off + 572 - 4 >= fileSize)
+		if (off + 500 - 4 >= fileSize)
 		{
 			printf("\nDynamic has no mesh data (C), skipping...");
 			continue;
 		}
-		memcpy((char*)&off, dyn2->data + off + 572, 4);
-		if (off < 2155872256)
+		memcpy((char*)&off, dyn2->data + off + 500, 4);
+		if (off < 0x80800000)
 		{
 			printf("\nDynamic has no mesh data (D), skipping...");
 			continue;
@@ -165,21 +121,22 @@ void Dynamic::getDyn3Files()
 		// External material table
 		if (bTextures)
 		{
-			uint32_t extOff = 0;
-			memcpy((char*)&extOff, dyn2->data + 0x48, 4);
-			extOff += 0x48 - 8;
+			uint32_t extOff = fileSize;
 			uint32_t val;
 			bool bFound = false;
 			while (true)
 			{
 				memcpy((char*)&val, dyn2->data + extOff, 4);
-				if (val == 2155872276)
+				if (val == 0x80800014)
 				{
 					bFound = true;
 					extOff -= 8;
 					break;
 				}
-				else if (val == 2155913144) break;
+				else if (val == 0x808072C5 || extOff <= 500)
+				{
+					break;
+				}
 				extOff -= 4;
 			}
 			if (bFound)
@@ -216,7 +173,7 @@ void Dynamic::parseDyn3s()
 		memcpy((char*)&offset, dyn3->data + 0x18, 4);
 		offset += 0x18 + 0x10;
 		memcpy((char*)&count, dyn3->data + 0x10, 4);
-		for (int j = offset; j < offset + count * 0x80; j += 0x80)
+		for (int j = offset; j < offset + count * 0x88; j += 0x88)
 		{
 			uint32_t off;
 			DynamicMesh* mesh = new DynamicMesh();
@@ -231,34 +188,23 @@ void Dynamic::parseDyn3s()
 			{
 				mesh->vertUVFile = new VertexBufferHeader(uvHash, packagesPath, VertSecondary);
 			}
+			// Weights for cloth
 			memcpy((char*)&off, dyn3->data + j + 0x8, 4);
-			std::string oldWeightsHash = uint32ToHexStr(off);
-			if (oldWeightsHash != "ffffffff")
+			std::string wHash = uint32ToHexStr(off);
+			if (wHash != "ffffffff")
 			{
-				mesh->oldWeightsFile = new VertexBufferHeader(oldWeightsHash, packagesPath, OldWeights);
-			}
-			memcpy((char*)&off, dyn3->data + j + 0x14, 4);
-			std::string vcHash = uint32ToHexStr(off);
-			if (vcHash != "ffffffff")
-			{
-				mesh->vertColFile = new VertexBufferHeader(vcHash, packagesPath, VertColour);
-			}
-			memcpy((char*)&off, dyn3->data + j + 0x18, 4);
-			std::string spsbHash = uint32ToHexStr(off);
-			if (spsbHash != "ffffffff")
-			{
-				mesh->spsbWeightsFile = new VertexBufferHeader(spsbHash, packagesPath, SPSBWeights);
+				mesh->vertColFile = new VertexBufferHeader(wHash, packagesPath, OldWeights);
 			}
 
 			uint32_t submeshTableCount;
-			memcpy((char*)&submeshTableCount, dyn3->data + j + 0x20, 4);
+			memcpy((char*)&submeshTableCount, dyn3->data + j + 0x18, 4);
 			uint32_t submeshTableOffset;
-			memcpy((char*)&submeshTableOffset, dyn3->data + j + 0x28, 4);
-			submeshTableOffset += j + 0x28 + 0x10;
+			memcpy((char*)&submeshTableOffset, dyn3->data + j + 0x20, 4);
+			submeshTableOffset += j + 0x20 + 0x10;
 
 			int currentLOD = 999;
 			int lodGroup = 0;
-			for (int k = submeshTableOffset; k < submeshTableOffset + submeshTableCount * 0x24; k += 0x24)
+			for (int k = submeshTableOffset; k < submeshTableOffset + submeshTableCount * 0x20; k += 0x20)
 			{
 				DynamicSubmesh* submesh = new DynamicSubmesh();
 				int val;
@@ -278,6 +224,7 @@ void Dynamic::parseDyn3s()
 				mesh->submeshes.push_back(submesh);
 			}
 
+			if (mesh->submeshes.size() == 0) continue;
 			PrimitiveType primType = mesh->submeshes[0]->primType;
 
 			mesh->vertPosFile->vertexBuffer->getVerts(mesh);
@@ -289,19 +236,9 @@ void Dynamic::parseDyn3s()
 				transformUV(mesh, dyn3->data);
 			}
 
-			if (mesh->oldWeightsFile)
-			{
-				mesh->oldWeightsFile->vertexBuffer->getVerts(mesh);
-			}
-
 			if (mesh->vertColFile)
 			{
 				mesh->vertColFile->vertexBuffer->getVerts(mesh);
-			}
-
-			if (mesh->spsbWeightsFile)
-			{
-				mesh->spsbWeightsFile->vertexBuffer->getVerts(mesh);
 			}
 
 			mesh->facesFile->indexBuffer->getFaces(mesh, primType);
@@ -359,12 +296,10 @@ void Dynamic::getSubmeshes()
 {
 	for (DynamicMesh* mesh : meshes)
 	{
-		//std::vector<uint32_t> existingOffsets;
 		std::unordered_map<uint32_t, int> existingSubmeshes;
 		for (DynamicSubmesh* submesh : mesh->submeshes)
 		{
 			// Removing dupes
-			//if (std::find(existingOffsets.begin(), existingOffsets.end(), submesh->indexOffset) != existingOffsets.end())
 			if (existingSubmeshes.find(submesh->indexOffset) != existingSubmeshes.end())
 			{
 				if (submesh->lodLevel >= existingSubmeshes[submesh->indexOffset]) continue;
@@ -374,14 +309,16 @@ void Dynamic::getSubmeshes()
 			if (submesh->primType == TriangleStrip)
 			{
 				submesh->faces.reserve(mesh->faceMap[submesh->indexOffset + submesh->indexCount + 1] - mesh->faceMap[submesh->indexOffset]);
-				for (std::size_t i = mesh->faceMap[submesh->indexOffset]; i < mesh->faceMap[submesh->indexOffset + submesh->indexCount + 1]; ++i) {
+				for (std::size_t i = mesh->faceMap[submesh->indexOffset]; i < mesh->faceMap[submesh->indexOffset + submesh->indexCount + 1]; ++i)
+				{
 					submesh->faces.emplace_back(mesh->faces[i].begin(), mesh->faces[i].end());
 				}
 			}
 			else
 			{
 				submesh->faces.reserve(floor((submesh->indexCount) / 3));
-				for (std::size_t i = floor(submesh->indexOffset / 3); i < floor((submesh->indexOffset + submesh->indexCount) / 3); ++i) {
+				for (std::size_t i = floor(submesh->indexOffset / 3); i < floor((submesh->indexOffset + submesh->indexCount) / 3); ++i)
+				{
 					submesh->faces.emplace_back(mesh->faces[i].begin(), mesh->faces[i].end());
 				}
 			}
@@ -565,7 +502,7 @@ std::vector<std::vector<uint8_t>> Dynamic::trimVertsData(std::vector<std::vector
 }
 
 
-void Dynamic::pack(std::string saveDirectory, bool bCBuffer)
+void Dynamic::pack(std::string saveDirectory)
 {
 	std::filesystem::create_directories(saveDirectory);
 	for (int i = 0; i < meshes.size(); i++)
@@ -575,34 +512,34 @@ void Dynamic::pack(std::string saveDirectory, bool bCBuffer)
 		{
 			DynamicSubmesh* submesh = mesh->submeshes[j];
 			bool add = false;
-			bool firstLodCheck = false;
-			for (auto& x : mesh->submeshes)
-			{
-				if (x->lodLevel == 0 && x->lodGroup == submesh->lodGroup)
-				{
-					firstLodCheck = true;
-					break;
-				}
-			}
-			int secondLodCheck = 9999;
-			for (auto& x : mesh->submeshes)
-			{
-				if (x->lodGroup == submesh->lodGroup)
-				{
-					if (x->lodLevel < secondLodCheck) secondLodCheck = x->lodLevel;
-				}
-			}
-			if (firstLodCheck)
-			{
-				if (submesh->lodLevel == 0) add = true;
-			}
-			else if (submesh->lodLevel == secondLodCheck) add = true;
+			//bool firstLodCheck = false;
+			//for (auto& x : mesh->submeshes)
+			//{
+			//	if (x->lodLevel == 0 && x->lodGroup == submesh->lodGroup)
+			//	{
+			//		firstLodCheck = true;
+			//		break;
+			//	}
+			//}
+			//int secondLodCheck = 9999;
+			//for (auto& x : mesh->submeshes)
+			//{
+			//	if (x->lodGroup == submesh->lodGroup)
+			//	{
+			//		if (x->lodLevel < secondLodCheck) secondLodCheck = x->lodLevel;
+			//	}
+			//}
+			//if (firstLodCheck)
+			//{
+			if (submesh->lodLevel < 4) add = true;
+			//}
+			//else if (submesh->lodLevel == secondLodCheck) add = true;
 			if (add && submesh->faces.size() != 0)
 			{
 				if (meshes.size() == 1) submesh->name = hash + "_" + std::to_string(j);
 				else submesh->name = hash + "_" + std::to_string(i) + "_" + std::to_string(j);
 
-				FbxNode* node = fbxModel->addSubmeshToFbx(submesh, bones, h64Table, saveDirectory, bTextures, bCBuffer);
+				FbxNode* node = fbxModel->addSubmeshToFbx(submesh, bones, saveDirectory, bTextures);
 				nodes.push_back(node);
 			}
 		}
@@ -622,7 +559,7 @@ void Dynamic::pack(std::string saveDirectory, bool bCBuffer)
 		std::filesystem::create_directories(saveDirectory + "/unk_textures/");
 		for (auto& mat : externalMaterials)
 		{
-			mat->parseMaterial(h64Table);
+			mat->parseMaterial();
 			mat->exportTextures(saveDirectory + "/unk_textures/", "png");
 		}
 	}

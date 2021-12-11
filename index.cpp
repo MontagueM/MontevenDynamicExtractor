@@ -65,7 +65,7 @@ void IndexBuffer::getFaces(Mesh* mesh, PrimitiveType primType)
 		if (primType == Triangles || j % 2 == 0)
 			face = std::vector<uint32_t>(intFacesData.begin() + faceIndex, intFacesData.begin() + faceIndex + 3);
 		else
-			face = {intFacesData[faceIndex + 1], intFacesData[faceIndex], intFacesData[faceIndex + 2] };
+			face = { intFacesData[faceIndex + 1], intFacesData[faceIndex], intFacesData[faceIndex + 2] };
 		mesh->faces.push_back(face);
 		mesh->faceMap[faceIndex] = mesh->faces.size() - 1;
 		faceIndex += increment;

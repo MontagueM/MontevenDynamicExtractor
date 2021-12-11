@@ -63,7 +63,7 @@ private:
 	void writeTexture(std::string fullSavePath);
 	void writeFile(DDSHeader dds, DXT10Header dxt, std::string fullSavePath);
 public:
-	Texture(std::string x, std::string pkgsPath) : Header(x, pkgsPath) 
+	Texture(std::string x, std::string pkgsPath) : Header(x, pkgsPath)
 	{
 		getData();
 		getHeader(x);
@@ -81,10 +81,6 @@ public:
 	std::unordered_map<uint8_t, Texture*> textures;
 	Material(std::string x, std::string pkgsPath) : File(x, pkgsPath) {};
 
-	void parseMaterial(std::unordered_map<uint64_t, uint32_t> hash64Table);
+	void parseMaterial();
 	void exportTextures(std::string fullSavePath, std::string saveFormat);
-	void parseCBuffers();
-	void writeCBuffers(std::string fullSavePath);
 };
-
-std::string getCBufferFromOffset(unsigned char* data, int offset, int count, uint32_t cbType, std::string name);

@@ -5,7 +5,7 @@ std::vector<Node*> Skeleton::parseSkeleton()
     getData();
     uint32_t off;
     memcpy((char*)&off, data + 0x18, 4);
-    off += 0x18 + 144;
+    off += 0x18 + 128;
 
     uint32_t nodeCount;
     memcpy((char*)&nodeCount, data + off, 4);
@@ -53,7 +53,7 @@ std::vector<Node*> Skeleton::parseSkeleton()
         node->dost = new DefaultObjectSpaceTransform();
         node->dost->rotation.reserve(4);
         node->dost->location.reserve(3);
-        for (int k = 0; k < 4; k ++)
+        for (int k = 0; k < 4; k++)
         {
             memcpy((char*)&val, data + i + k * 4, 4);
             node->dost->rotation.push_back(val);
@@ -66,7 +66,7 @@ std::vector<Node*> Skeleton::parseSkeleton()
         memcpy((char*)&node->dost->scale, data + i + 0x1C, 4);
         j++;
     }
-    
+
     // Some skeletons are given inverse data in place of non-inverse data, so we need to correct for that
     if (bDiostOnly)
     {
