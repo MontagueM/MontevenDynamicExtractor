@@ -121,9 +121,15 @@ int main(int argc, char** argv)
 		printf("Shader flag found, getting shader data...\n");
 		std::string savePath = outputPath + "/" + std::to_string(shaderHash);
 		std::filesystem::create_directories(savePath);
-		getAPIShader(shaderHash, savePath, pkgsPath, hash64Table);
-
-		printf("Shader rip done!");
+		bool status = getAPIShader(shaderHash, savePath, pkgsPath, hash64Table);
+		if (status)
+		{
+			printf("Shader rip done!");
+		}
+		else
+		{
+			printf("Shader rip failed!");
+		}
 		return 0;
 	}
 

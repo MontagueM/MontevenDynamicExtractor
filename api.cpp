@@ -117,9 +117,9 @@ uint32_t getArtArrangementHash(uint32_t apiHash, std::string packagesPath)
 }
 
 
-void getAPIShader(uint32_t apiHash, std::string outputPath, std::string packagesPath, std::unordered_map<uint64_t, uint32_t> hash64Table)
+bool getAPIShader(uint32_t apiHash, std::string outputPath, std::string packagesPath, std::unordered_map<uint64_t, uint32_t> hash64Table)
 {
-	File* dataTable = new File("26FCDD80", packagesPath);
+	File* dataTable = new File("AA3FE280", packagesPath);
 	dataTable->getData();
 
 	uint32_t tableOffset = 0x30;
@@ -143,7 +143,7 @@ void getAPIShader(uint32_t apiHash, std::string outputPath, std::string packages
 			if (val2 != 2155901815)
 			{
 				printf("Given shader is not valid!\n");
-				return;
+				return false;
 			}
 			uint32_t defaultDyeTableCount;
 			uint32_t defaultDyeTableOffset;
@@ -171,7 +171,7 @@ void getAPIShader(uint32_t apiHash, std::string outputPath, std::string packages
 			}
 		}
 	}
-	if (defaultChannelDyeMap.size() == 0) return;
+	if (defaultChannelDyeMap.size() == 0) return false;
 
 	File* channelTable = new File("C92FCF80", packagesPath);
 	channelTable->getData();
@@ -318,6 +318,7 @@ void getAPIShader(uint32_t apiHash, std::string outputPath, std::string packages
 		if (q == 0) writeShader(defaultDyes, defaultTextures, false, outputPath);
 		else writeShader(customDyes, customTextures, true, outputPath);
 	}
+	return true;
 }
 
 void writeShader(std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>> dyes, std::unordered_map<std::string, std::unordered_map<std::string, std::string>> textures, bool bCustom, std::string outputPath)

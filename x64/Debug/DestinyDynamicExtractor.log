@@ -1,4 +1,16 @@
-﻿  phonon.cpp
+﻿  api.cpp
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\api.cpp(60,30): warning C4018: '<': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\api.cpp(94,30): warning C4018: '<': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\api.cpp(132,30): warning C4018: '<': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\api.cpp(160,42): warning C4018: '<': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\api.cpp(166,41): warning C4018: '<': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\api.cpp(214,32): warning C4018: '<': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\api.cpp(257,32): warning C4018: '<': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\api.cpp(286,32): warning C4018: '<': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\api.cpp(373,30): warning C4018: '<': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\api.cpp(402,30): warning C4018: '<': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\api.cpp(412,24): warning C4018: '<': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\api.cpp(425,31): warning C4018: '<': signed/unsigned mismatch
 C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\utility(193,16): warning C4244: 'initializing': conversion from '_Ty' to '_Ty1', possible loss of data
           with
           [
@@ -8,20 +20,20 @@ C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.2
           [
               _Ty1=const uint32_t
           ]
-C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\skeleton.h(195): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[9],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\api.cpp(20): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[10],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
           with
           [
               _Other1=__int64,
-              _Other2=const char (&)[9]
+              _Other2=const char (&)[10]
           ]
-C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\skeleton.h(54): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[9],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\api.cpp(3): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[10],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
           with
           [
               _Other1=__int64,
-              _Other2=const char (&)[9]
+              _Other2=const char (&)[10]
           ]
 LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/PROFILE' specification
 package.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:REF' specification
      Creating library C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Debug\DestinyDynamicExtractor.lib and object C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Debug\DestinyDynamicExtractor.exp
 LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-  DestinyDynamicExtractor.vcxproj -> C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Debug\DestinyDynamicExtractor.dll
+  DestinyDynamicExtractor.vcxproj -> C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Debug\DestinyDynamicExtractor.exe
