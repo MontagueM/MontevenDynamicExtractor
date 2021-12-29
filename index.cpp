@@ -45,27 +45,29 @@ void IndexBuffer::getFaces(Mesh* mesh, PrimitiveType primType)
 		}
 		// Check vector break
 		bool bEnd = false;
-		for (int i = 0; i < 3; i++)
+		if (primType == TriangleStrip)
 		{
-			if (intFacesData[faceIndex + i] == 65535 or intFacesData[faceIndex + i] == 4294967295)
+			for (int i = 0; i < 3; i++)
 			{
-				bEnd = true;
-				break;
+				if ((intFacesData[faceIndex + i] == 65535 && stride == 2) || (intFacesData[faceIndex + i] == 4294967295 && stride == 4))
+				{
+					bEnd = true;
+					break;
+				}
+			}
+			if (bEnd)
+			{
+				j = 0;
+				mesh->faceMap[faceIndex] = mesh->faces.size() - 1;
+				faceIndex += increment;
+				continue;
 			}
 		}
-		if (bEnd)
-		{
-			j = 0;
-			mesh->faceMap[faceIndex] = mesh->faces.size() - 1;
-			faceIndex += increment;
-			continue;
-		}
-
 		std::vector<uint32_t> face;
 		if (primType == Triangles || j % 2 == 0)
 			face = std::vector<uint32_t>(intFacesData.begin() + faceIndex, intFacesData.begin() + faceIndex + 3);
 		else
-			face = {intFacesData[faceIndex + 1], intFacesData[faceIndex], intFacesData[faceIndex + 2] };
+			face = { intFacesData[faceIndex + 1], intFacesData[faceIndex], intFacesData[faceIndex + 2] };
 		mesh->faces.push_back(face);
 		mesh->faceMap[faceIndex] = mesh->faces.size() - 1;
 		faceIndex += increment;

@@ -64,7 +64,8 @@ public:
 	std::vector<std::vector<float>> vertUV;
 	std::vector<std::vector<float>> vertCol;
 	std::vector<std::vector<uint32_t>> faces;
-	int lodLevel;
+	int lodLevelA;
+	int lodLevelB;
 	std::string name;
 	Material* material = nullptr;
 	int type;
@@ -126,6 +127,5 @@ public:
 
 
 std::string getReferenceFromHash(std::string hash, std::string pkgsPath);
-std::string getHash64(uint64_t hash64, std::unordered_map<uint64_t, uint32_t> hash64Table);
 std::string getPkgID(std::string hash);
 uint16_t getPkgID(uint32_t hash);

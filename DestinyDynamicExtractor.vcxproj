@@ -46,7 +46,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -153,7 +153,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="api.cpp" />
     <ClCompile Include="dynamic.cpp" />
     <ClCompile Include="fbxmodel.cpp" />
     <ClCompile Include="helpers.cpp" />
@@ -166,7 +165,6 @@
     <ClCompile Include="vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="api.h" />
     <ClInclude Include="dxgiformat.h" />
     <ClInclude Include="dynamic.h" />
     <ClInclude Include="fbxmodel.h" />

@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-p "I:/SteamLibrary/steamapps/common/Destiny 2/packages" -o "C:/Users/monta/OneDrive/Destiny 2 Datamining/CPP/DestinyDataminingCPP/x64/Debug" -t -h  4198761575</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-p "P:/D1/packages" -o "C:/Users/monta/OneDrive/Destiny 2 Datamining/CPP/DestinyDataminingCPP/x64/Release" -t -i 23E47981</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-p "I:/SteamLibrary/steamapps/common/Destiny 2/packages" -o "C:/Users/monta/OneDrive/Destiny 2 Datamining/CPP/DestinyDataminingCPP/x64/Release" -t -h  1046971209</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-p "P:/D1/packages" -o "C:/Users/monta/OneDrive/Destiny 2 Datamining/CPP/DestinyDataminingCPP/x64/Release" -t -i 23E47981</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

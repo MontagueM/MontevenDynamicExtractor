@@ -15,7 +15,7 @@ File::File(std::string x, std::string pkgsPath)
 
 int File::getData()
 {
-	if (hash.substr(hash.length() - 2) != "80" || hash.substr(hash.length() - 4) == "8080") return 0;
+	if ((hash.substr(hash.length() - 2) != "80" && hash.substr(hash.length() - 2) != "81") || hash.substr(hash.length() - 4) == "8080") return 0;
 
 	if (pkgID == "")
 	{
@@ -30,7 +30,7 @@ int File::getData()
 
 std::string getPkgID(std::string hash)
 {
-	std::string pkgID = uint16ToHexStr(floor((hexStrToUint32(hash) - 0x80800000)/8192));
+	std::string pkgID = uint16ToHexStr(floor((hexStrToUint32(hash) - 0x80800000) / 8192));
 	return pkgID;
 }
 
@@ -38,22 +38,4 @@ uint16_t getPkgID(uint32_t hash)
 {
 	uint16_t pkgID = floor((hash - 0x80800000) / 8192);
 	return pkgID;
-}
-
-std::string getHash64(uint64_t hash64, std::unordered_map<uint64_t, uint32_t> hash64Table)
-{
-	std::string h64 = "";
-	try
-	{
-		h64 = uint32ToHexStr(hash64Table[hash64]);
-		if (h64 == "00000000")
-			throw h64;
-	}
-	catch (std::string err)
-	{
-		std::cerr << "H64 file is out-of-date. Please delete and retry.\n";
-		exit(1);
-	}
-	
-	return h64;
 }

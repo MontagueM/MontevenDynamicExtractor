@@ -21,10 +21,8 @@ private:
 	std::vector<Node*> bones;
 	std::string skeletonHash = "";
 	bool bSkeletonDiostOnly = false;
-	std::unordered_map<uint64_t, uint32_t> h64Table;
 	std::vector<Material*> externalMaterials;
 	std::vector<TexturePlateSet*> texplateSets;
-	int skeletonOverride = -1;
 
 	void getDyn3Files();
 	void parseDyn3s();
@@ -39,15 +37,12 @@ private:
 	void transformUV(DynamicMesh* mesh, unsigned char* data);
 	void addVertColSlots(DynamicMesh* mesh, DynamicSubmesh* submesh);
 
-	void considerSkeletonOverride();
 public:
 	std::string packagesPath;
-	Dynamic(std::string x, std::unordered_map<uint64_t, uint32_t> hash64Table, std::string pkgsPath, bool btex, int so) : Model(x, pkgsPath)
+	Dynamic(std::string x, std::string pkgsPath, bool btex) : Model(x, pkgsPath)
 	{
 		packagesPath = pkgsPath;
-		h64Table = hash64Table;
 		bTextures = btex;
-		skeletonOverride = so;
 	}
 	Dynamic(std::string x, std::string pkgsPath) : Model(x, pkgsPath)
 	{
@@ -55,7 +50,7 @@ public:
 	}
 
 	bool get();
-	void pack(std::string saveDirectory, bool bCBuffer);
+	void pack(std::string saveDirectory);
 	void save(std::string saveDirectory, std::string saveName);
 	bool RequestInfo(int& SubmeshCount, bool& bHasSkeleton);
 	bool RequestSaveDynamicMeshData();
