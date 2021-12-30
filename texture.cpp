@@ -78,9 +78,9 @@ void Texture::tex2Other(std::string fullSavePath, std::string saveFormat)
     system(str.c_str());
 
     // Delete dds file if it exists
-    //std::string newPath = fullSavePath.substr(0, fullSavePath.size() - 3) + saveFormat;
-    //std::ifstream f(newPath);
-    //if (f) std::remove(fullSavePath.c_str());
+    std::string newPath = fullSavePath.substr(0, fullSavePath.size() - 3) + saveFormat;
+    std::ifstream f(newPath);
+    if (f) std::remove(fullSavePath.c_str());
 }
 
 void Texture::writeTexture(std::string fullSavePath, std::string dxgiFormat, bool bCompressed)

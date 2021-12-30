@@ -214,7 +214,7 @@ void Dynamic::parseDyn3s()
 				int val;
 				memcpy((char*)&val, dyn3->data + k, 4);
 				std::string materialHash = uint32ToHexStr(val);
-				if (materialHash != "ffffffff")
+				if (materialHash != "ffffffff" && getReferenceFromHash(materialHash, packagesPath) == "d71a8080")
 					submesh->material = new Material(materialHash, packagesPath);
 
 
@@ -232,6 +232,7 @@ void Dynamic::parseDyn3s()
 			PrimitiveType primType = mesh->submeshes[0]->primType;
 
 			mesh->vertPosFile->vertexBuffer->getVerts(mesh);
+			if (mesh->vertPos.size() == 0) continue;
 			transformPos(mesh, dyn3->data);
 
 			if (mesh->vertUVFile)
@@ -240,9 +241,9 @@ void Dynamic::parseDyn3s()
 				transformUV(mesh, dyn3->data);
 			}
 
-			if (mesh->vertColFile)
+			if (mesh->oldWeightsFile)
 			{
-				mesh->vertColFile->vertexBuffer->getVerts(mesh);
+				mesh->oldWeightsFile->vertexBuffer->getVerts(mesh);
 			}
 
 			mesh->facesFile->indexBuffer->getFaces(mesh, primType);

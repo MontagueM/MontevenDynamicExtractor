@@ -10,6 +10,10 @@ void VertexBuffer::getVerts(DynamicMesh* mesh)
 	// TODO implement stride 48 float32, normals
 	int fileSize = getData();
 	int s = stride;
+	if (s == 0 || s % 2 != 0 || s > 50)
+	{
+		return;
+	}
 	int16_t num;
 	bool bIsWeights = false;
 	if (type == VertPrimary)
