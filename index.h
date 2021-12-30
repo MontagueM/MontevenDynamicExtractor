@@ -30,7 +30,8 @@ public:
 	{
 		if (x != "")
 		{
-			getData();
+			int fileSize = getData();
+			if (!fileSize) return;
 			getHeader(x);
 			indexBuffer = new IndexBuffer(getReferenceFromHash(x, pkgsPath), pkgsPath, stride);
 		}

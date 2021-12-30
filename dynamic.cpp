@@ -181,6 +181,7 @@ void Dynamic::parseDyn3s()
 			DynamicMesh* mesh = new DynamicMesh();
 			memcpy((char*)&off, dyn3->data + j + 0x40, 4);
 			mesh->facesFile = new IndexBufferHeader(uint32ToHexStr(off), packagesPath);
+			if (mesh->facesFile->indexBuffer == nullptr) continue;
 			memcpy((char*)&off, dyn3->data + j + 0x30, 4);
 			mesh->vertPosFile = new VertexBufferHeader(uint32ToHexStr(off), packagesPath, VertPrimary);
 			// UV
