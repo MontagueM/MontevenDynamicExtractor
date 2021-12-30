@@ -147,7 +147,8 @@ void VertexBuffer::getVerts(DynamicMesh* mesh)
 					}
 					else
 					{
-						exit(64);
+						readUV(mesh, i, data);
+						readNormal(mesh, i + 0x4, data);
 					}
 					// 20 is just tangent as well
 				}

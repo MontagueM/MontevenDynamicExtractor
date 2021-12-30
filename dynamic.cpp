@@ -38,11 +38,13 @@ void Dynamic::getDyn3Files()
 	bool bSkeleton = false;
 	memcpy((char*)&off, primFile->data + 0x18, 4);
 	off += 0x18 + 0xF0;
-	memcpy((char*)&off, primFile->data + off, 4);
-
-	if (off == 0x808004F4)
+	if (off + 4 < fileSize)
 	{
-		bSkeleton = true;
+		memcpy((char*)&off, primFile->data + off, 4);
+		if (off == 0x808004F4)
+		{
+			bSkeleton = true;
+		}
 	}
 	if (bSkeleton)
 	{
@@ -193,7 +195,8 @@ void Dynamic::parseDyn3s()
 			std::string wHash = uint32ToHexStr(off);
 			if (wHash != "ffffffff")
 			{
-				mesh->vertColFile = new VertexBufferHeader(wHash, packagesPath, OldWeights);
+				//mesh->vertColFile = new VertexBufferHeader(wHash, packagesPath, OldWeights);
+				mesh->oldWeightsFile = new VertexBufferHeader(wHash, packagesPath, OldWeights);
 			}
 
 			uint32_t submeshTableCount;
