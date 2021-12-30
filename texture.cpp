@@ -4,68 +4,87 @@
 
 void Texture::getHeader(std::string x)
 {
-    memcpy((char*)&textureFormat, data + 4, 2);
-    memcpy((char*)&width, data + 0x0E, 2);
-    memcpy((char*)&height, data + 0x10, 2);
-    memcpy((char*)&arraySize, data + 0x14, 2);
-    uint32_t val;
-    memcpy((char*)&val, data + 0x24, 4);
-    largeHash = uint32ToHexStr(val);
+    memcpy((char*)&textureFormat, data + 6, 1);
+    memcpy((char*)&width, data + 0x28, 2);
+    memcpy((char*)&height, data + 0x2A, 2);
+    memcpy((char*)&arraySize, data + 0x2E, 2);
 }
 
 void Texture::tex2DDS(std::string fullSavePath)
 {
+    dataFile = new File(getReferenceFromHash(hash, packagesPath), packagesPath);
+    // Convert type to DXGI_FORMAT format
+    bool bCompressed = true;
+    switch (textureFormat)
+    {
+    case 0x30:
+        dxgiFormat = "BC1_UNORM";
+        bytesPerPixel = 8;
+        pixelBlockSize = 4;
+        break;
+    case 0x40:
+        dxgiFormat = "BC2_UNORM";
+        bytesPerPixel = 16;
+        pixelBlockSize = 4;
+        break;
+    case 0x50:
+        dxgiFormat = "BC3_UNORM";
+        bytesPerPixel = 16;
+        pixelBlockSize = 4;
+        break;
+    case 0x60:
+        dxgiFormat = "BC4_UNORM";
+        bytesPerPixel = 8;
+        pixelBlockSize = 4;
+        break;
+    case 0x70:
+        dxgiFormat = "BC5_UNORM";
+        bytesPerPixel = 16;
+        pixelBlockSize = 4;
+        break;
+    case 0xA0:
+        dxgiFormat = "R8G8B8A8_UNORM";
+        bytesPerPixel = 4;
+        pixelBlockSize = 1;
+        bCompressed = false;
+        break;
+    default:
+        dxgiFormat = "R8G8B8A8_UNORM";
+        bytesPerPixel = 4;
+        pixelBlockSize = 1;
+        bCompressed = false;
+        break;
+    }
+    auto itr = std::find(DXGI_FORMAT.begin(), DXGI_FORMAT.end(), dxgiFormat);
+    textureFormat = std::distance(DXGI_FORMAT.begin(), itr);
+
+    // Large hash
+    std::string finalHash = getReferenceFromHash(hash, packagesPath);
+    std::string largeHash = getReferenceFromHash(finalHash, packagesPath);
     if (largeHash != "ffffffff" && largeHash != "")
         dataFile = new File(largeHash, packagesPath);
     else
-        dataFile = new File(getReferenceFromHash(hash, packagesPath), packagesPath);
-    writeTexture(fullSavePath);
+        dataFile = new File(finalHash, packagesPath);
+
+    writeTexture(fullSavePath, dxgiFormat, bCompressed);
 }
 
 void Texture::tex2Other(std::string fullSavePath, std::string saveFormat)
 {
     tex2DDS(fullSavePath);
-    std::string dxgiFormat;
-    dxgiFormat = DXGI_FORMAT[textureFormat];
-
-    /// Code to try and fix texconv not always working from command line, couldn't get it to work
-    //wchar_t exePath[MAX_PATH];
-    //DWORD nSize = 0;
-    //GetModuleFileName(NULL, exePath, MAX_PATH);
-    //std::wstring wPath(exePath);
-    //wPath.erase(wPath.rfind('\\'));
-
-    //std::wstring wFSP(fullSavePath.begin(), fullSavePath.end());
-    //std::wstring wsaveFormat(saveFormat.begin(), saveFormat.end());
-    //std::wstring wdxgiFormat(dxgiFormat.begin(), dxgiFormat.end());
-
-    //std::wstring wPathNoBackslashes = L"";
-
-    //for (auto& c : wPath)
-    //{
-    //    if (c == '\\') wPathNoBackslashes += '/';
-    //    else wPathNoBackslashes += c;
-    //}
-
-    //std::wstring str = L'"' + wPathNoBackslashes + L"/texconv.exe" + L'"' + L" " + wFSP + L"\" -y -ft " + wsaveFormat + L" -f " + wdxgiFormat;
-    //wprintf(str.c_str());
-    //_wsystem(str.c_str());
 
     std::string str = "texconv.exe \"" + fullSavePath + "\" -y -ft " + saveFormat + " -f " + dxgiFormat;
     printf(str.c_str());
     system(str.c_str());
 
     // Delete dds file if it exists
-    std::string newPath = fullSavePath.substr(0, fullSavePath.size() - 3) + saveFormat;
-    std::ifstream f(newPath);
-    if (f) std::remove(fullSavePath.c_str());
+    //std::string newPath = fullSavePath.substr(0, fullSavePath.size() - 3) + saveFormat;
+    //std::ifstream f(newPath);
+    //if (f) std::remove(fullSavePath.c_str());
 }
 
-void Texture::writeTexture(std::string fullSavePath)
+void Texture::writeTexture(std::string fullSavePath, std::string dxgiFormat, bool bCompressed)
 {
-    bool bCompressed = false;
-    if (70 < textureFormat < 99) bCompressed = true;
-
     DDSHeader dds;
     DXT10Header dxt;
     dds.MagicNumber = 542327876;
@@ -121,6 +140,63 @@ void Texture::writeTexture(std::string fullSavePath)
     writeFile(dds, dxt, fullSavePath);
 }
 
+int Morton2D(int t, int sx, int sy)
+{
+    int num2 = 0;
+    int num = num2 = 1;
+    int num3 = t;
+    int num4 = sx;
+    int num5 = sy;
+    int num6 = 0;
+    int num7 = 0;
+    while (num4 > 1 || num5 > 1)
+    {
+        if (num4 > 1)
+        {
+            num6 += num2 * (num3 & 1);
+        }
+        num3 >>= 1;
+        num2 *= 2;
+        num4 >>= 1;
+        if (num5 > 1)
+        {
+            num7 += num * (num3 & 1);
+        }
+        num3 >>= 1;
+        num *= 2;
+        num5 >>= 1;
+    }
+    return num7 * sx + num6;
+}
+
+unsigned char* Texture::considerDoSwizzle(unsigned char* data, int fs, int width, int height)
+{
+        unsigned char* outData = new unsigned char[fs];
+        int ptr = 0;
+        int tHeight = height / pixelBlockSize;
+        int tWidth = width / pixelBlockSize;
+        for (int y = 0; y < (tHeight + 7) / 8; y++)
+        {
+            for (int x = 0; x < (tWidth + 7) / 8; x++)
+            {
+                for (int k = 0; k < 64; k++)
+                {
+                    int pixelIndex = Morton2D(k, 8, 8);
+                    int xOffset = (x * 8) + (pixelIndex % 8);
+                    int yOffset = (y * 8) + (pixelIndex / 8);
+                    if (xOffset < tWidth && yOffset < tHeight)
+                    {
+                        int idx = bytesPerPixel * (yOffset * tWidth + xOffset);
+                        memcpy(outData + idx, data + ptr, bytesPerPixel);
+                        ptr += bytesPerPixel;
+                    }
+
+                }
+            }
+        }
+        return outData;
+}
+
 void Texture::writeFile(DDSHeader dds, DXT10Header dxt, std::string fullSavePath)
 {
     FILE* outputFile;
@@ -130,7 +206,7 @@ void Texture::writeFile(DDSHeader dds, DXT10Header dxt, std::string fullSavePath
         fwrite(&dds, sizeof(struct DDSHeader), 1, outputFile);
         fwrite(&dxt, sizeof(struct DXT10Header), 1, outputFile);
         int fileSize = dataFile->getData();
-        fwrite(dataFile->data, fileSize, 1, outputFile);
+        fwrite(considerDoSwizzle(dataFile->data, fileSize, width, height), fileSize, 1, outputFile);
         fclose(outputFile);
     }
 }
@@ -141,13 +217,11 @@ void Material::parseMaterial()
     uint32_t textureCount;
     uint32_t textureOffset;
     // Pixel shader textures
-    memcpy((char*)&textureCount, data + 0x2D0, 4);
-    memcpy((char*)&textureOffset, data + 0x2D8, 4);
-    textureOffset += 0x2D8 + 0x10;;
+    memcpy((char*)&textureCount, data + 0x2B8, 4);
+    memcpy((char*)&textureOffset, data + 0x2C0, 4);
+    textureOffset += 0x2C0 + 0x10;;
     for (int i = textureOffset; i < textureOffset + textureCount * 0x8; i += 0x8)
     {
-        // TODO support textures from materials
-        break;
         uint8_t textureIndex;
         memcpy((char*)&textureIndex, data + i, 1);
         uint32_t val;

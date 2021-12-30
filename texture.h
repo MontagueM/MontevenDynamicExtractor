@@ -53,6 +53,9 @@ class Texture : public Header
 private:
 	File* dataFile = nullptr;
 	int textureFormat;
+	int bytesPerPixel;
+	int pixelBlockSize;
+	std::string dxgiFormat;
 	uint16_t width;
 	uint16_t height;
 	uint16_t arraySize;
@@ -60,8 +63,9 @@ private:
 	std::string fullSavePath;
 
 	void getHeader(std::string x);
-	void writeTexture(std::string fullSavePath);
+	void writeTexture(std::string fullSavePath, std::string dxgiFormat, bool bCompressed);
 	void writeFile(DDSHeader dds, DXT10Header dxt, std::string fullSavePath);
+	unsigned char* considerDoSwizzle(unsigned char* data, int fs, int width, int height);
 public:
 	Texture(std::string x, std::string pkgsPath) : Header(x, pkgsPath)
 	{
