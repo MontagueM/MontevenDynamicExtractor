@@ -15,7 +15,7 @@ void VertexBuffer::getVerts(DynamicMesh* mesh)
 	if (type == VertPrimary)
 	{
 		// Read position data float16
-		if (s == 8 || s == 12 || s == 16 || s == 28 || s == 32)
+		if (s == 8 || s == 12 || s == 16 || s == 24 || s == 28 || s == 32)
 		{
 			if (s == 12)
 			{
@@ -60,6 +60,11 @@ void VertexBuffer::getVerts(DynamicMesh* mesh)
 				else if (s == 16)
 				{
 					readWeights4(mesh, i + 0x8, data);
+				}
+				else if (s == 24)
+				{
+					// No clue, UV
+					readUV(mesh, i + 0x14, data);
 				}
 				else if (s == 28)
 				{
@@ -111,7 +116,7 @@ void VertexBuffer::getVerts(DynamicMesh* mesh)
 	{
 		bool bUVExists = mesh->vertUV.size() != 0;
 		// UV data
-		if (s == 4 || s == 8 || s == 12 || s == 16 || s == 20 || s == 24)
+		if (s == 4 || s == 8 || s == 12 || s == 16 || s == 20 || s == 24 || s == 28)
 		{
 			for (int i = 0; i < fileSize; i += s)
 			{
@@ -123,7 +128,7 @@ void VertexBuffer::getVerts(DynamicMesh* mesh)
 				{
 					readNormal(mesh, i, data);
 				}
-				else
+				else if (s == 4)
 				{
 					readUV(mesh, i, data);
 				}
@@ -154,9 +159,16 @@ void VertexBuffer::getVerts(DynamicMesh* mesh)
 				}
 				else if (s == 24)
 				{
-					// Normal, tangent, vertex colour
+					// UV, normal, tangent, vertex colour
+					readUV(mesh, i, data);
 					readNormal(mesh, i + 0x4, data);
 					readVertexColour(mesh, i + 0x14, data);
+				}
+				else if (s == 28)
+				{
+					// UV, normal, tangent, unk
+					readUV(mesh, i, data);
+					readNormal(mesh, i + 0x4, data);
 				}
 			}
 		}
@@ -183,6 +195,7 @@ void VertexBuffer::getVerts(DynamicMesh* mesh)
 	else
 	{
 		printf("Implement more vert types dumbo");
+		exit(14);
 	}
 }
 
