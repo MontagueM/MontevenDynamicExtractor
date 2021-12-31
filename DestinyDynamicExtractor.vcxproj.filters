@@ -45,6 +45,9 @@
     <ClCompile Include="phonon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="d1map.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -75,6 +78,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="texplate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="d1map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

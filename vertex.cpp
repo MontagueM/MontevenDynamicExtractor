@@ -1,8 +1,76 @@
 #include "vertex.h"
+#include "d1map.h"
 
 void VertexBufferHeader::getHeader(std::string x)
 {
 	memcpy((char*)&stride, data + 4, 2);
+}
+
+void VertexBuffer::getVerts(Static* mesh)
+{
+	int fileSize = getData();
+	int s = stride;
+	if (type == VertPrimary)
+	{
+		for (int i = 0; i < fileSize; i += s)
+		{
+			if (s == 8)
+			{
+				readPosition(mesh, i, data);
+			}
+			else if (s == 12)
+			{
+				readPosition(mesh, i, data);
+				readUV(mesh, i + 8, data);
+			}
+			else if (s == 32)
+			{
+				readPosition(mesh, i, data);
+				// Normal is in here somewhere but idk where
+				//readNormal(mesh, i + 8, data);
+				readVertexColour(mesh, i + 0x1A, data);
+			}
+			else if (s == 28)
+			{
+				readPosition(mesh, i, data);
+				readNormal(mesh, i + 0xC, data);
+			}
+		}
+		if (mesh->vertPos.size() == 0)
+		{
+			exit(111);
+		}
+	}
+	else if (type == VertSecondary)
+	{
+		for (int i = 0; i < fileSize; i += s)
+		{
+			if (s == 20)
+			{
+				readUV(mesh, i, data);
+				readNormal(mesh, i + 4, data);
+			}
+			else if (s == 16)
+			{
+				readNormal(mesh, i, data);
+			}
+			else if (s == 24)
+			{
+				// Not completely sure what gaps are for
+				readUV(mesh, i, data);
+				readNormal(mesh, i + 6, data);
+			}
+			else if (s == 12)
+			{
+				readUV(mesh, i, data);
+				readNormal(mesh, i + 4, data);
+			}
+		}
+		if (mesh->vertUV.size() == 0)
+		{
+			exit(112);
+		}
+	}
 }
 
 void VertexBuffer::getVerts(DynamicMesh* mesh)
@@ -204,7 +272,7 @@ void VertexBuffer::getVerts(DynamicMesh* mesh)
 }
 
 
-void VertexBuffer::readPosition(DynamicMesh* mesh, int i, unsigned char* data)
+void VertexBuffer::readPosition(Mesh* mesh, int i, unsigned char* data)
 {
 	std::vector<float> vertex;
 	vertex.reserve(3);
@@ -217,7 +285,7 @@ void VertexBuffer::readPosition(DynamicMesh* mesh, int i, unsigned char* data)
 	mesh->vertPos.push_back(vertex);
 }
 
-void VertexBuffer::readUV(DynamicMesh* mesh, int i, unsigned char* data)
+void VertexBuffer::readUV(Mesh* mesh, int i, unsigned char* data)
 {
 	std::vector<float> vertex;
 	vertex.reserve(2);
@@ -230,7 +298,7 @@ void VertexBuffer::readUV(DynamicMesh* mesh, int i, unsigned char* data)
 	mesh->vertUV.push_back(vertex);
 }
 
-void VertexBuffer::readNormal(DynamicMesh* mesh, int i, unsigned char* data)
+void VertexBuffer::readNormal(Mesh* mesh, int i, unsigned char* data)
 {
 	std::vector<float> norm;
 	norm.reserve(3);
@@ -303,7 +371,7 @@ void VertexBuffer::readWeights4(DynamicMesh* mesh, int i, unsigned char* data)
 	mesh->weights.push_back(w);
 }
 
-void VertexBuffer::readVertexColour(DynamicMesh* mesh, int i, unsigned char* data)
+void VertexBuffer::readVertexColour(Mesh* mesh, int i, unsigned char* data)
 {
 	uint8_t val;
 	std::vector<float> vc;

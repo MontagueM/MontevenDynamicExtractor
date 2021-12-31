@@ -5,13 +5,13 @@
 class VertexBuffer : public File
 {
 private:
-	void readVertexColour(DynamicMesh* mesh, int i, unsigned char* data);
+	void readVertexColour(Mesh* mesh, int i, unsigned char* data);
 	void readWeights4(DynamicMesh* mesh, int i, unsigned char* data);
 	void readWeights2(DynamicMesh* mesh, int i, unsigned char* data);
 	void readWeights1(DynamicMesh* mesh, int i, unsigned char* data);
-	void readNormal(DynamicMesh* mesh, int i, unsigned char* data);
-	void readUV(DynamicMesh* mesh, int i, unsigned char* data);
-	void readPosition(DynamicMesh* mesh, int i, unsigned char* data);
+	void readNormal(Mesh* mesh, int i, unsigned char* data);
+	void readUV(Mesh* mesh, int i, unsigned char* data);
+	void readPosition(Mesh* mesh, int i, unsigned char* data);
 
 public:
 	uint16_t stride;
@@ -22,6 +22,8 @@ public:
 		stride = s;
 		type = t;
 	}
+
+	void getVerts(class Static* mesh);
 
 	void getVerts(DynamicMesh* mesh);
 };

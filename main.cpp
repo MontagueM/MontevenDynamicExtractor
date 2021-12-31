@@ -2,7 +2,7 @@
 #include "dynamic.h"
 #include "helpers.h"
 #include "texture.h"
-
+#include "d1map.h"
 
 /*
 Using Sarge https://mayaposch.wordpress.com/2019/03/17/parsing-command-line-arguments-in-c/
@@ -48,6 +48,10 @@ int main(int argc, char** argv)
 	{
 		fileName = modelHash;
 	}
+
+	D1Map* d1map = new D1Map("5882c980", pkgsPath);
+	d1map->Get();
+	exit(0);
 
 	// Checking params are valid
 	if (pkgsPath == "" || outputPath == "" || (modelHash == "" && batchPkg == ""))
