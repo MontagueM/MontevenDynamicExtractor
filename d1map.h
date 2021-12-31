@@ -3,6 +3,7 @@
 #include "texture.h"
 #include "vertex.h"
 #include "index.h"
+#include "fbxmodel.h"
 
 class Static : public Mesh
 {
@@ -53,12 +54,20 @@ public:
 	std::vector<std::vector<float>> Rotations;
 	std::vector<std::vector<float>> UVTransforms;
 	std::vector<std::vector<float>> Scales;
+	bool bTextures = false;
 	//std::unordered_map<std::string, Materials;
+	class FbxModel* fbxModel = nullptr;
 
-	D1Map(std::string x, std::string pkgsPath) : File(x, pkgsPath)
+	D1Map(std::string x, std::string pkgsPath, bool bExportTextures) : File(x, pkgsPath)
 	{
+		bTextures = bExportTextures;
 	}
 	void Get();
 	void ParseBakedRegionsTable();
 	void GetDataTable();
+	void CreateMap(std::string Path);
+	void ExportTextures(Static* Sta, std::string Path);
+	void TransformUV(Static* Sta, std::vector<float> UVTransform);
+	FbxMesh* AddToMap(int CopyIndex, Static* Sta, FbxMesh* mesh, std::string Path);
+	void Extract(std::string Path);
 };

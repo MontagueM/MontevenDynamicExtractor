@@ -1,5 +1,26 @@
 ﻿  d1map.cpp
-C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\d1map.cpp(153,35): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\d1map.cpp(157,35): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\utility(193,16): warning C4244: 'initializing': conversion from '_Ty' to '_Ty1', possible loss of data
+          with
+          [
+              _Ty=__int64
+          ]
+          and
+          [
+              _Ty1=const uint32_t
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\skeleton.h(195): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[9],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
+          with
+          [
+              _Other1=__int64,
+              _Other2=const char (&)[9]
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\skeleton.h(54): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[9],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
+          with
+          [
+              _Other1=__int64,
+              _Other2=const char (&)[9]
+          ]
 LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/PROFILE' specification
 package.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:REF' specification
      Creating library C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Debug\DestinyDynamicExtractor.lib and object C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Debug\DestinyDynamicExtractor.exp

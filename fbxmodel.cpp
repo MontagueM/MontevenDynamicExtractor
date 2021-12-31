@@ -1,4 +1,5 @@
 #include "fbxmodel.h"
+#include "d1map.h"
 
 FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> bones, std::string fullSavePath, bool bTextures)
 {
@@ -11,8 +12,8 @@ FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> b
 	node->SetNodeAttribute(mesh);
 	node->LclScaling.Set(FbxDouble3(100, 100, 100));
 	if (submesh->vertNorm.size()) addNorm(mesh, submesh, layer);
-	if (submesh->vertUV.size()) addUV(mesh, submesh, layer);
-	if (submesh->vertCol.size()) addVC(mesh, submesh, layer);
+	if (submesh->vertUV.size()) addUV<Submesh>(mesh, submesh, layer);
+	if (submesh->vertCol.size()) addVC<Submesh>(mesh, submesh, layer);
 	if (submesh->vertColSlots.size())
 	{
 		mesh->CreateLayer();
@@ -41,42 +42,6 @@ FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> b
 	}
 
 	return node;
-}
-
-void FbxModel::addNorm(FbxMesh* mesh, Submesh* submesh, FbxLayer* layer)
-{
-	FbxLayerElementNormal* normLayerElement = FbxLayerElementNormal::Create(mesh, "norm");
-	normLayerElement->SetMappingMode(FbxLayerElement::eByControlPoint);
-	normLayerElement->SetReferenceMode(FbxLayerElement::eDirect);
-	for (auto& vert : submesh->vertNorm)
-	{
-		normLayerElement->GetDirectArray().Add(FbxVector4(-vert[0], vert[2], vert[1]));
-	}
-	layer->SetNormals(normLayerElement);
-}
-
-void FbxModel::addUV(FbxMesh* mesh, Submesh* submesh, FbxLayer* layer)
-{
-	FbxLayerElementUV* uvLayerElement = FbxLayerElementUV::Create(mesh, "uv");
-	uvLayerElement->SetMappingMode(FbxLayerElement::eByControlPoint);
-	uvLayerElement->SetReferenceMode(FbxLayerElement::eDirect);
-	for (auto& vert : submesh->vertUV)
-	{
-		uvLayerElement->GetDirectArray().Add(FbxVector2(vert[0], vert[1]));
-	}
-	layer->SetUVs(uvLayerElement, FbxLayerElement::eTextureDiffuse);
-}
-
-void FbxModel::addVC(FbxMesh* mesh, Submesh* submesh, FbxLayer* layer)
-{
-	FbxLayerElementVertexColor* vcLayerElement = FbxLayerElementVertexColor::Create(mesh, "vc");
-	vcLayerElement->SetMappingMode(FbxLayerElement::eByControlPoint);
-	vcLayerElement->SetReferenceMode(FbxLayerElement::eDirect);
-	for (auto& vert : submesh->vertCol)
-	{
-		vcLayerElement->GetDirectArray().Add(FbxColor(vert[0], vert[1], vert[2], vert[3]));
-	}
-	layer->SetVertexColors(vcLayerElement);
 }
 
 void FbxModel::addVCSlots(FbxMesh* mesh, DynamicSubmesh* submesh, FbxLayer* layer)
@@ -148,6 +113,49 @@ FbxMesh* FbxModel::createMesh(Submesh* submesh, bool bAddSkeleton)
 		mesh->EndPolygon();
 	}
 	return mesh;
+}
+
+FbxMesh* FbxModel::createMesh(Static* mesh)
+{
+	FbxMesh* fbxMesh = FbxMesh::Create(manager, mesh->Name.c_str());
+	for (int i = 0; i < mesh->vertPos.size(); i++)
+	{
+		std::vector<float_t> v = mesh->vertPos[i];
+		fbxMesh->SetControlPointAt(FbxVector4(v[0], v[1], v[2]), i);
+	}
+	for (auto& face : mesh->faces)
+	{
+		fbxMesh->BeginPolygon();
+		fbxMesh->AddPolygon(face[0]);
+		fbxMesh->AddPolygon(face[1]);
+		fbxMesh->AddPolygon(face[2]);
+		fbxMesh->EndPolygon();
+	}
+	return fbxMesh;
+}
+
+void FbxModel::addNorm(FbxMesh* mesh, Submesh* smesh, FbxLayer* layer)
+{
+	FbxLayerElementNormal* normLayerElement = FbxLayerElementNormal::Create(mesh, "norm");
+	normLayerElement->SetMappingMode(FbxLayerElement::eByControlPoint);
+	normLayerElement->SetReferenceMode(FbxLayerElement::eDirect);
+	for (auto& vert : smesh->vertNorm)
+	{
+		normLayerElement->GetDirectArray().Add(FbxVector4(-vert[0], vert[2], vert[1]));
+	}
+	layer->SetNormals(normLayerElement);
+}
+
+void FbxModel::addNorm(FbxMesh* mesh, Static* smesh, FbxLayer* layer)
+{
+	FbxLayerElementNormal* normLayerElement = FbxLayerElementNormal::Create(mesh, "norm");
+	normLayerElement->SetMappingMode(FbxLayerElement::eByControlPoint);
+	normLayerElement->SetReferenceMode(FbxLayerElement::eDirect);
+	for (auto& vert : smesh->vertNorm)
+	{
+		normLayerElement->GetDirectArray().Add(FbxVector4(vert[0], vert[1], vert[2]));
+	}
+	layer->SetNormals(normLayerElement);
 }
 
 void FbxModel::save(std::string savePath, bool ascii)

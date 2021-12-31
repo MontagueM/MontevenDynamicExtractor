@@ -72,12 +72,16 @@ void BakedRegion::ParseInfoTable()
 		Static* NewStatic = Statics[StaticID];
 		NewStatic->ID = StaticID;
 		memcpy((char*)&NewStatic->CopyCount, data + i, 1);
-		memcpy((char*)&NewStatic->MaterialIndex, data + i + 0x4, 4);
+		memcpy((char*)&NewStatic->MaterialIndex, data + i + 0x4, 2);
+		if (NewStatic->vertPosFile->hash == "80e29380")
+		{
+			auto a = 0;
+		}
 		if (Materials.size() > NewStatic->MaterialIndex)
 		{
 			NewStatic->material = Materials[NewStatic->MaterialIndex];
 		}
-		memcpy((char*)&NewStatic->TransformIndex, data + i + 0xA, 4);
+		memcpy((char*)&NewStatic->TransformIndex, data + i + 0xA, 2);
 	}
 }
 
@@ -100,10 +104,10 @@ void Static::ParseVertsAndFaces()
 
 void D1Map::Get()
 {
+	fbxModel = new FbxModel();
 	getData();
 	ParseBakedRegionsTable();
 	GetDataTable();
-	//CreateMap();
 }
 
 void D1Map::ParseBakedRegionsTable()
@@ -229,4 +233,118 @@ void D1Map::GetDataTable()
 		}
 		UVTransforms.push_back(UVTransform);
 	}
+}
+
+void D1Map::CreateMap(std::string Path)
+{
+	std::unordered_map<std::string, BakedRegion*> BRM;
+	for (auto& BR : BakedRegions)
+	{
+		for (auto& Sta : BR->Statics)
+		{
+			std::string StaticName = Sta->Name;
+			if (BRM.find(StaticName) != BRM.end())
+			{
+				if (BRM[StaticName] != Sta->ParentBakedRegion) continue;
+			}
+			if (Sta->LODType == 1 || Sta->LODType == 2 || Sta->LODType == 0)
+			{
+				FbxMesh* mesh = nullptr;
+				for (int i = 0; i < Sta->CopyCount; i++)
+				{
+					Sta->Name = StaticName + "_" + std::to_string(i) + "_" + std::to_string(Sta->ID) + "_" + std::to_string(Sta->TransformIndex);
+					mesh = AddToMap(i, Sta, mesh, Path);
+					if (mesh == nullptr) break;
+				}
+				if (mesh)
+				{
+					BRM[StaticName] = Sta->ParentBakedRegion;
+				}
+			}
+		}
+	}
+}
+
+void D1Map::ExportTextures(Static* Sta, std::string Path)
+{
+	Material* Mat = Sta->material;
+	Mat->parseMaterial();
+	if (Sta->vertPosFile->hash == "80e29380")
+	{
+		auto a = 0;
+	}
+	if (Mat->textures.size() >= 1)
+	{
+		Sta->Diffuse = Mat->textures[0]->hash;
+		if (bTextures)
+		{
+			Mat->exportTextures(Path, "png");
+		}
+	}
+}
+
+void D1Map::TransformUV(Static* Sta, std::vector<float> UVTransform)
+{
+	float Scale = UVTransform[0];
+	float TranslateX = UVTransform[1];
+	float TranslateY = UVTransform[2];
+	for (auto& v : Sta->vertUV)
+	{
+		v[0] *= Scale;
+		v[1] *= Scale;
+
+		v[0] += TranslateX;
+		v[1] += 1 - TranslateY;
+	}
+}
+
+FbxMesh* D1Map::AddToMap(int CopyIndex, Static* Sta, FbxMesh* mesh, std::string Path)
+{
+	if (CopyIndex == 0)
+	{
+		if (Sta->material)
+		{
+			if (Sta->material->hash != "ffffffff" && Sta->material->hash != "")
+			{
+				ExportTextures(Sta, Path);
+			}
+		}
+		if (Sta->Diffuse == "") return nullptr;
+
+		mesh = fbxModel->createMesh(Sta);
+		if (!mesh->GetLayer(0)) mesh->CreateLayer();
+		FbxLayer* layer = mesh->GetLayer(0);
+
+		//if (Sta->vertNorm.size()) fbxModel->addNorm(mesh, Sta, layer);
+		if (Sta->vertUV.size())
+		{
+			TransformUV(Sta, UVTransforms[Sta->TransformIndex + CopyIndex]);
+			fbxModel->addUV<Static>(mesh, Sta, layer);
+		}
+		if (Sta->vertCol.size()) fbxModel->addVC<Static>(mesh, Sta, layer);
+	}
+
+
+	FbxNode* node = FbxNode::Create(fbxModel->manager, Sta->Name.c_str());
+	node->SetNodeAttribute(mesh);
+	node->LclScaling.Set(FbxDouble3(100, 100, 100));
+
+
+	std::vector<float> Translation = Translations[Sta->TransformIndex + CopyIndex];
+	std::vector<float> Rotation = Rotations[Sta->TransformIndex + CopyIndex];
+	std::vector<float> Scale = Scales[Sta->TransformIndex + CopyIndex];
+
+	node->SetGeometricRotation(FbxNode::eSourcePivot, FbxVector4(Rotation[0], Rotation[1], Rotation[2]));
+	node->SetGeometricTranslation(FbxNode::eSourcePivot, FbxVector4(Translation[0], Translation[1], Translation[2]));
+	node->SetGeometricScaling(FbxNode::eSourcePivot, FbxVector4(Scale[0], Scale[1], Scale[2]));
+
+	node->LclRotation.Set(FbxDouble3(-90, 180, 0));
+	fbxModel->scene->GetRootNode()->AddChild(node);
+	return mesh;
+}
+
+void D1Map::Extract(std::string Path)
+{
+	CreateMap(Path);
+	fbxModel->save(Path + hash + ".fbx", false);
 }
