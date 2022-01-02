@@ -25,4 +25,4 @@ LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/PROFILE' specification
 package.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:REF' specification
      Creating library C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Debug\DestinyDynamicExtractor.lib and object C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Debug\DestinyDynamicExtractor.exp
 LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-  DestinyDynamicExtractor.vcxproj -> C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Debug\DestinyDynamicExtractor.exe
+  DestinyDynamicExtractor.vcxproj -> C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Debug\DestinyDynamicExtractor.dll

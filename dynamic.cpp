@@ -606,10 +606,10 @@ bool Dynamic::RequestSaveDynamicMeshData()
 	getSubmeshes();
 
 	// Then save
-	FILE* meshFile;
+	FILE* meshFile = nullptr;
 	std::string path = "msh.tmp";
-	int status = fopen_s(&meshFile, path.c_str(), "wb");
-	if (status || meshFile == NULL) return false;
+	meshFile = _fsopen(path.c_str(), "wb", _SH_DENYNO);
+	if (meshFile == nullptr) return false;
 
 	for (int i = 0; i < meshes.size(); i++)
 	{

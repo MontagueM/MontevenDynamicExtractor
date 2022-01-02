@@ -51,7 +51,7 @@ int main(int argc, char** argv)
 
 	D1Map* d1map = new D1Map("5882c980", pkgsPath, false);
 	d1map->Get();
-	d1map->Extract("C:/Users/monta/Downloads/d1maps/");
+	d1map->Extract("C:/Users/monta/Downloads/d1maps/", "");
 	exit(0);
 
 	// Checking params are valid

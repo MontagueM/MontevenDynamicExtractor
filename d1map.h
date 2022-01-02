@@ -62,12 +62,12 @@ public:
 	{
 		bTextures = bExportTextures;
 	}
-	void Get();
+	bool Get();
 	void ParseBakedRegionsTable();
 	void GetDataTable();
 	void CreateMap(std::string Path);
 	void ExportTextures(Static* Sta, std::string Path);
 	void TransformUV(Static* Sta, std::vector<float> UVTransform);
 	FbxMesh* AddToMap(int CopyIndex, Static* Sta, FbxMesh* mesh, std::string Path);
-	void Extract(std::string Path);
+	void Extract(std::string Path, std::string ExportName);
 };

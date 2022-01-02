@@ -201,7 +201,7 @@ void Texture::writeFile(DDSHeader dds, DXT10Header dxt, std::string fullSavePath
 {
     FILE* outputFile;
 
-    fopen_s(&outputFile, fullSavePath.c_str(), "wb");
+    outputFile = _fsopen(fullSavePath.c_str(), "wb", _SH_DENYNO);
     if (outputFile != NULL) {
         fwrite(&dds, sizeof(struct DDSHeader), 1, outputFile);
         fwrite(&dxt, sizeof(struct DXT10Header), 1, outputFile);
@@ -235,6 +235,9 @@ void Material::parseMaterial()
 
 void Material::exportTextures(std::string fullSavePath, std::string saveFormat)
 {
+    // Make sure save directory exists
+    std::filesystem::create_directories(fullSavePath);
+
     std::string actualSavePath;
     std::string newPath;
     for (auto& element : textures)

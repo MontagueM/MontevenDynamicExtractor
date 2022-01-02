@@ -102,12 +102,12 @@ void Static::ParseVertsAndFaces()
 	facesFile->indexBuffer->getFaces(this, Triangles);
 }
 
-void D1Map::Get()
+bool D1Map::Get()
 {
-	fbxModel = new FbxModel();
 	getData();
 	ParseBakedRegionsTable();
 	GetDataTable();
+	return true;
 }
 
 void D1Map::ParseBakedRegionsTable()
@@ -269,13 +269,18 @@ void D1Map::ExportTextures(Static* Sta, std::string Path)
 {
 	Material* Mat = Sta->material;
 	Mat->parseMaterial();
-	if (Sta->vertPosFile->hash == "80e29380")
-	{
-		auto a = 0;
-	}
 	if (Mat->textures.size() >= 1)
 	{
-		Sta->Diffuse = Mat->textures[0]->hash;
+		for (int i = 0; i < Mat->textures.size(); i++)
+		{
+			if (Mat->textures[i])
+			{
+				Sta->Diffuse = Mat->textures[i]->hash;
+				break;
+			}
+
+		}
+
 		if (bTextures)
 		{
 			Mat->exportTextures(Path, "png");
@@ -291,7 +296,7 @@ void D1Map::TransformUV(Static* Sta, std::vector<float> UVTransform)
 	for (auto& v : Sta->vertUV)
 	{
 		v[0] *= Scale;
-		v[1] *= Scale;
+		v[1] *= -Scale;
 
 		v[0] += TranslateX;
 		v[1] += 1 - TranslateY;
@@ -343,8 +348,10 @@ FbxMesh* D1Map::AddToMap(int CopyIndex, Static* Sta, FbxMesh* mesh, std::string 
 	return mesh;
 }
 
-void D1Map::Extract(std::string Path)
+void D1Map::Extract(std::string Path, std::string ExportName)
 {
-	CreateMap(Path);
-	fbxModel->save(Path + hash + ".fbx", false);
+	fbxModel = new FbxModel();
+	if (ExportName == "") ExportName = hash;
+	CreateMap(Path + "/" + ExportName + "_" + hash + "_Textures/");
+	fbxModel->save(Path + ExportName + "_" + hash + ".fbx", false);
 }
