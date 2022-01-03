@@ -47,6 +47,25 @@ void BakedRegion::ParseStaticsTable()
 	}
 }
 
+std::vector<std::vector<float_t>> trimVertsData(std::vector<std::vector<float_t>> verts, std::set<int> dsort, bool bVertCol)
+{
+	std::vector<std::vector<float_t>> newVec;
+	std::vector<float_t> zeroVec = { 0, 0, 0, 0 };
+	for (auto& val : dsort)
+	{
+		if (bVertCol)
+		{
+			if (val >= verts.size()) newVec.push_back(zeroVec);
+			else newVec.push_back(verts[val]);
+		}
+		else
+		{
+			newVec.push_back(verts[val]);
+		}
+	}
+	return newVec;
+}
+
 void BakedRegion::GetStaticData()
 {
 	for (auto& s : Statics)
@@ -54,6 +73,44 @@ void BakedRegion::GetStaticData()
 		if (s->LODType == 1 || s->LODType == 2 || s->LODType == 0)
 		{
 			s->ParseVertsAndFaces();
+			// Trim faces
+			s->faces.reserve(floor((s->IndexCount) / 3));
+			std::vector<std::vector<uint32_t>> NewFaces;
+			for (std::size_t i = floor(s->IndexStart / 3); i < floor((s->IndexStart + s->IndexCount) / 3); ++i)
+			{
+				NewFaces.emplace_back(s->faces[i].begin(), s->faces[i].end());
+			}
+			s->faces = NewFaces;
+			// Code to move faces down to zero
+			std::set<int> dsort;
+			for (auto& face : s->faces)
+			{
+				for (auto& f : face)
+				{
+					dsort.insert(f);
+				}
+			}
+			if (!dsort.size()) continue;
+
+			std::unordered_map<int, int> d;
+			int i = 0;
+			for (auto& val : dsort)
+			{
+				d[val] = i;
+				i++;
+			}
+			for (auto& face : s->faces)
+			{
+				for (auto& f : face)
+				{
+					f = d[f];
+				}
+			}
+			// Trim verts
+			s->vertPos = trimVertsData(s->vertPos, dsort, false);
+			if (s->vertNorm.size()) s->vertNorm = trimVertsData(s->vertNorm, dsort, false);
+			if (s->vertUV.size()) s->vertUV = trimVertsData(s->vertUV, dsort, false);
+			if (s->vertCol.size()) s->vertCol = trimVertsData(s->vertCol, dsort, true);
 		}
 	}
 }
@@ -155,9 +212,9 @@ std::vector<float> rotationMatrixToEulerAngles(std::vector<std::vector<float>> R
 {
 	std::vector<float> Rotation;
 	float pi = 3.14159265358979323846;
-	float sy = sqrt(R[0][0] * R[0][0] + R[1][0] * R[1][0]);
+	float sy = sqrt(R[2][1] * R[2][1] + R[2][2] * R[2][2]);
 	Rotation.push_back(atan2(R[2][1], R[2][2]) * 180 / pi);
-	Rotation.push_back(atan2(R[2][0], sy) * 180 / pi);
+	Rotation.push_back(atan2(-R[2][0], sy) * 180 / pi);
 	Rotation.push_back(atan2(R[1][0], R[0][0]) * 180 / pi);
 
 	return Rotation;
@@ -222,7 +279,8 @@ void D1Map::GetDataTable()
 			RotationMatrix.push_back(V);
 		}
 		// Rotation matrix to euler angle in degrees
-		Rotations.push_back(rotationMatrixToEulerAngles(RotationMatrix));
+		std::vector<float> EulerRotation = rotationMatrixToEulerAngles(RotationMatrix);
+		Rotations.push_back(EulerRotation);
 
 		// UV transforms
 		std::vector<float> UVTransform;

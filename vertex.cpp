@@ -25,8 +25,9 @@ void VertexBuffer::getVerts(Static* mesh)
 			}
 			else if (s == 32)
 			{
+				// Position, UV, normal, tangent, VC
 				readPosition(mesh, i, data);
-				// Normal is in here somewhere but idk where
+				readUV(mesh, i + 8, data);
 				//readNormal(mesh, i + 8, data);
 				readVertexColour(mesh, i + 0x1A, data);
 			}
