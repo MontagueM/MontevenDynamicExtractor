@@ -55,7 +55,7 @@ public:
 	std::vector<std::vector<float>> UVTransforms;
 	std::vector<std::vector<float>> Scales;
 	bool bTextures = false;
-	//std::unordered_map<std::string, Materials;
+	std::unordered_map<std::string, FbxSurfacePhong*> FbxMaterials;
 	class FbxModel* fbxModel = nullptr;
 
 	D1Map(std::string x, std::string pkgsPath, bool bExportTextures) : File(x, pkgsPath)
@@ -69,5 +69,6 @@ public:
 	void ExportTextures(Static* Sta, std::string Path);
 	void TransformUV(Static* Sta, std::vector<float> UVTransform);
 	FbxMesh* AddToMap(int CopyIndex, Static* Sta, FbxMesh* mesh, std::string Path);
+	void applyMaterial(FbxModel* fbxModel, Static* Sta, FbxNode* node);
 	void Extract(std::string Path, std::string ExportName);
 };

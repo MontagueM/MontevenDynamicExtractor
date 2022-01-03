@@ -1,4 +1,5 @@
 #include "d1map.h"
+#include <execution>
 
 void BakedRegion::ParseMaterialTable()
 {
@@ -68,51 +69,52 @@ std::vector<std::vector<float_t>> trimVertsData(std::vector<std::vector<float_t>
 
 void BakedRegion::GetStaticData()
 {
-	for (auto& s : Statics)
-	{
-		if (s->LODType == 1 || s->LODType == 2 || s->LODType == 0)
+	//for (auto& s : Statics)
+	std::for_each(std::execution::par_unseq, Statics.begin(), Statics.end(), [](auto&& s)
 		{
-			s->ParseVertsAndFaces();
-			// Trim faces
-			s->faces.reserve(floor((s->IndexCount) / 3));
-			std::vector<std::vector<uint32_t>> NewFaces;
-			for (std::size_t i = floor(s->IndexStart / 3); i < floor((s->IndexStart + s->IndexCount) / 3); ++i)
+			if (s->LODType == 1 || s->LODType == 2 || s->LODType == 0)
 			{
-				NewFaces.emplace_back(s->faces[i].begin(), s->faces[i].end());
-			}
-			s->faces = NewFaces;
-			// Code to move faces down to zero
-			std::set<int> dsort;
-			for (auto& face : s->faces)
-			{
-				for (auto& f : face)
+				s->ParseVertsAndFaces();
+				// Trim faces
+				s->faces.reserve(floor((s->IndexCount) / 3));
+				std::vector<std::vector<uint32_t>> NewFaces;
+				for (std::size_t i = floor(s->IndexStart / 3); i < floor((s->IndexStart + s->IndexCount) / 3); ++i)
 				{
-					dsort.insert(f);
+					NewFaces.emplace_back(s->faces[i].begin(), s->faces[i].end());
 				}
-			}
-			if (!dsort.size()) continue;
+				s->faces = NewFaces;
+				// Code to move faces down to zero
+				std::set<int> dsort;
+				for (auto& face : s->faces)
+				{
+					for (auto& f : face)
+					{
+						dsort.insert(f);
+					}
+				}
+				if (!dsort.size()) return;
 
-			std::unordered_map<int, int> d;
-			int i = 0;
-			for (auto& val : dsort)
-			{
-				d[val] = i;
-				i++;
-			}
-			for (auto& face : s->faces)
-			{
-				for (auto& f : face)
+				std::unordered_map<int, int> d;
+				int i = 0;
+				for (auto& val : dsort)
 				{
-					f = d[f];
+					d[val] = i;
+					i++;
 				}
+				for (auto& face : s->faces)
+				{
+					for (auto& f : face)
+					{
+						f = d[f];
+					}
+				}
+				// Trim verts
+				s->vertPos = trimVertsData(s->vertPos, dsort, false);
+				if (s->vertNorm.size()) s->vertNorm = trimVertsData(s->vertNorm, dsort, false);
+				if (s->vertUV.size()) s->vertUV = trimVertsData(s->vertUV, dsort, false);
+				if (s->vertCol.size()) s->vertCol = trimVertsData(s->vertCol, dsort, true);
 			}
-			// Trim verts
-			s->vertPos = trimVertsData(s->vertPos, dsort, false);
-			if (s->vertNorm.size()) s->vertNorm = trimVertsData(s->vertNorm, dsort, false);
-			if (s->vertUV.size()) s->vertUV = trimVertsData(s->vertUV, dsort, false);
-			if (s->vertCol.size()) s->vertCol = trimVertsData(s->vertCol, dsort, true);
-		}
-	}
+		});
 }
 
 void BakedRegion::ParseInfoTable()
@@ -403,7 +405,23 @@ FbxMesh* D1Map::AddToMap(int CopyIndex, Static* Sta, FbxMesh* mesh, std::string 
 
 	node->LclRotation.Set(FbxDouble3(-90, 180, 0));
 	fbxModel->scene->GetRootNode()->AddChild(node);
+
+	applyMaterial(fbxModel, Sta, node);
 	return mesh;
+}
+
+void D1Map::applyMaterial(FbxModel* fbxModel, Static* Sta, FbxNode* node)
+{
+	std::string MaterialName = Sta->material->hash;
+	if (FbxMaterials.find(MaterialName) != FbxMaterials.end())
+	{
+		node->AddMaterial(FbxMaterials[MaterialName]);
+		return;
+	}
+	FbxSurfacePhong* NewMat = FbxSurfacePhong::Create(fbxModel->scene, MaterialName.c_str());
+	NewMat->ShadingModel.Set("Phong");
+	node->AddMaterial(NewMat);
+	FbxMaterials[MaterialName] = NewMat;
 }
 
 void D1Map::Extract(std::string Path, std::string ExportName)
