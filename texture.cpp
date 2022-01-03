@@ -235,15 +235,13 @@ void Material::parseMaterial()
 
 void Material::exportTextures(std::string fullSavePath, std::string saveFormat)
 {
-    // Make sure save directory exists
-    std::filesystem::create_directories(fullSavePath);
-
     std::string actualSavePath;
     std::string newPath;
     for (auto& element : textures)
     {
         uint8_t texID = element.first;
         Texture* tex = element.second;
+        if (!tex) continue;
         actualSavePath = fullSavePath + "/" + tex->hash + ".dds";
         newPath = fullSavePath + "/" + tex->hash + "." + saveFormat;
         std::ifstream f(newPath);

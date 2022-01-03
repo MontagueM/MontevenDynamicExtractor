@@ -343,6 +343,21 @@ void D1Map::ExportTextures(Static* Sta, std::string Path)
 
 		if (bTextures)
 		{
+			// Make sure save directory exists
+			std::filesystem::create_directories(Path);
+			FILE* TexFile = nullptr;
+			std::string TexFilePath = Path + "/tex.txt";
+			TexFile = _fsopen(TexFilePath.c_str(), "a", _SH_DENYNO);
+			std::string s = Mat->hash + ": ";
+			fwrite(s.c_str(), strlen(s.c_str()), 1, TexFile);
+			for (auto& tex : Mat->textures)
+			{
+				if (!tex.second) continue;
+				s = tex.second->hash + ";";
+				fwrite(s.c_str(), strlen(s.c_str()), 1, TexFile);
+			}
+			fwrite("\n", 1, 1, TexFile);
+			fclose(TexFile);
 			Mat->exportTextures(Path, "png");
 		}
 	}

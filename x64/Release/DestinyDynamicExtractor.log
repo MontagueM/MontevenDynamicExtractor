@@ -38,10 +38,13 @@ C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDyn
               _Fn=BakedRegion::GetStaticData::<lambda_30b1d596d9657a189540fa570c6bc7e1>
           ]
 C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\d1map.cpp(81,24): warning C4244: 'initializing': conversion from 'double' to 'size_t', possible loss of data
+  texture.cpp
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\texture.cpp(59,34): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\texture.cpp(223,35): warning C4018: '<': signed/unsigned mismatch
      Creating library C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Release\DestinyDynamicExtractor.lib and object C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Release\DestinyDynamicExtractor.exp
   Generating code
-  458 of 3372 functions (13.6%) were compiled, the rest were copied from previous compilation.
-    45 functions were new in current compilation
-    142 functions had inline decision re-evaluated but remain unchanged
+  5 of 3372 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    6 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   DestinyDynamicExtractor.vcxproj -> C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Release\DestinyDynamicExtractor.dll
