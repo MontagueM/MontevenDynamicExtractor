@@ -33,7 +33,9 @@ void VertexBuffer::getVerts(Static* mesh)
 			}
 			else if (s == 28)
 			{
+				// Position, UV, normal, tangent
 				readPosition(mesh, i, data);
+				readUV(mesh, i + 8, data);
 				readNormal(mesh, i + 0xC, data);
 			}
 		}
