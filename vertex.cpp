@@ -10,6 +10,7 @@ void VertexBuffer::getVerts(Static* mesh)
 {
 	int fileSize = getData();
 	int s = stride;
+	bool bUVAlreadyExists = mesh->vertUV.size() > 0;
 	if (type == VertPrimary)
 	{
 		for (int i = 0; i < fileSize; i += s)
@@ -50,8 +51,16 @@ void VertexBuffer::getVerts(Static* mesh)
 		{
 			if (s == 20)
 			{
-				readUV(mesh, i, data);
-				readNormal(mesh, i + 4, data);
+				if (bUVAlreadyExists)
+				{
+					readNormal(mesh, i, data);
+					readVertexColour(mesh, i + 0x10, data);
+				}
+				else
+				{
+					readUV(mesh, i, data);
+					readNormal(mesh, i + 4, data);
+				}
 			}
 			else if (s == 16)
 			{
