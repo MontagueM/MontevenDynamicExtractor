@@ -81,7 +81,7 @@ void FbxModel::addWeights(FbxMesh* mesh, DynamicSubmesh* submesh, std::vector <N
 			if (boneCluster.size() < indices[j])
 			{
 				printf("Bone index longer than bone clusters, could not add weights!");
-				exit(1);
+				exit(444);
 			}
 			boneCluster[indices[j]]->AddControlPointIndex(i, weights[j]);
 		}

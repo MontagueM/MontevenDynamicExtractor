@@ -1,6 +1,6 @@
 #pragma once
 
-static const std::vector<std::string> DXGI_FORMAT = {
+static const std::vector<std::string> DXGI_FORMATS = {
 	"UNKNOWN",
 	"R32G32B32A32_TYPELESS",
 	"R32G32B32A32_FLOAT",

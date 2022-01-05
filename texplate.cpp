@@ -8,19 +8,15 @@ bool TexturePlateSet::parse()
 	memcpy((char*)&val, data + 0x18, 4);
 	dimensionFlag = (val == 4);
 	TexturePlate* texplate = nullptr;
-	// can iterate enum?
-	memcpy((char*)&val, data + 0x28, 4);
+
+	memcpy((char*)&val, data + 0x24, 4);
 	texplate = new TexturePlate(uint32ToHexStr(val), packagesPath, "Diffuse");
 	texplates.push_back(texplate);
-	memcpy((char*)&val, data + 0x2C, 4);
+	memcpy((char*)&val, data + 0x28, 4);
 	texplate = new TexturePlate(uint32ToHexStr(val), packagesPath, "Normal");
 	texplates.push_back(texplate);
-	memcpy((char*)&val, data + 0x30, 4);
+	memcpy((char*)&val, data + 0x2C, 4);
 	texplate = new TexturePlate(uint32ToHexStr(val), packagesPath, "GStack");
-	texplates.push_back(texplate);
-	memcpy((char*)&val, data + 0x34, 4);
-	// Check to see if we should bother extracting dyemap or not
-	texplate = new TexturePlate(uint32ToHexStr(val), packagesPath, "Dyemap");
 	texplates.push_back(texplate);
 	return true;
 }
@@ -57,12 +53,6 @@ void TexturePlate::savePlate(std::string fullSavePath)
 {
 	if (!textures.size()) return;
 
-	if (type == "Dyemap")
-	{
-		for (auto& val : dimensions)
-			val /= 2;
-	}
-
 	// See if we need to shrink the texture by half
 	int maxValue = 0;
 	for (auto& tex : textures)
@@ -76,28 +66,36 @@ void TexturePlate::savePlate(std::string fullSavePath)
 			maxValue = tex->offsetY + tex->scaleY;
 		}
 	}
-	if (maxValue <= dimensions[0] / 2 && maxValue <= dimensions[1] / 2)
+	if (maxValue <= dimensions[0] / 4 && maxValue <= dimensions[1] / 4)
+	{
+		for (auto& val : dimensions)
+			val /= 4;
+	}
+	else if (maxValue <= dimensions[0] / 2 && maxValue <= dimensions[1] / 2)
 	{
 		for (auto& val : dimensions)
 			val /= 2;
 	}
 
+
 	// Extract every image on plate
-	//std::vector<cv::Mat> cvIms;
-	cv::Mat4b res(dimensions[0], dimensions[1], cv::Vec4b(0, 0, 0, 0));
+	DirectX::ScratchImage OutputPlate;
+	OutputPlate.Initialize2D(DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM, dimensions[0], dimensions[1], 1, 0);
 	for (auto& tex : textures)
 	{
-		std::string save = fullSavePath + tex->hash + ".PNG";
-		tex->tex2Other(fullSavePath + tex->hash + ".dds", "png");
-		cv::Mat cvIm = cv::imread(save, cv::IMREAD_UNCHANGED);
-		if (cvIm.empty())
-		{
-			printf("Tex not written!");
-			exit(1);
-		}
-		cvIm.copyTo(res(cv::Rect(tex->offsetX, tex->offsetY, tex->scaleX, tex->scaleY)));
-		remove(save.c_str());
+		tex->Get();
+		DirectX::Rect ImageRect(0, 0, tex->width, tex->height);
+		DirectX::ScratchImage DSResizedImage;
+		// Do scaling as the copy does not scale
+		DirectX::Resize(*tex->DSImage.GetImage(0, 0, 0), tex->scaleX, tex->scaleY, DirectX::TEX_FILTER_FLAGS::TEX_FILTER_DEFAULT, DSResizedImage);
+		DirectX::CopyRectangle(*DSResizedImage.GetImage(0, 0, 0), ImageRect, *OutputPlate.GetImage(0, 0, 0), DirectX::TEX_FILTER_FLAGS::TEX_FILTER_DEFAULT, tex->offsetX, tex->offsetY);
 		free(tex);
 	}
-	cv::imwrite(fullSavePath + hash + "_" + type + ".png", res);
+	std::string FileName = fullSavePath + hash + "_" + type + ".TGA";
+	std::wstring widestr = std::wstring(FileName.begin(), FileName.end());
+	const wchar_t* widecstr = widestr.c_str();
+	//DirectX::SaveToWICFile(OutputPlate.GetImage(0, 0, 0), 1, DirectX::WIC_FLAGS_NONE, GetWICCodec(DirectX::WIC_CODEC_PNG), widecstr);
+	DirectX::SaveToTGAFile(*OutputPlate.GetImage(0, 0, 0), widecstr);
+
+	int a = 0;
 }

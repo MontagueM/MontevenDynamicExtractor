@@ -1,6 +1,7 @@
 #pragma once
 #include "helpers.h"
 #include "dxgiformat.h"
+#include "vcpkg/packages/directxtex_x64-windows/include/DirectXTex.h"
 #include <fstream>
 
 
@@ -11,6 +12,7 @@ struct TexHeader
 	uint16_t Height;
 	uint16_t ArraySize;
 	uint32_t LargeTextureHash;
+	uint8_t  flag;
 };
 
 struct DDSHeader
@@ -51,30 +53,32 @@ struct DXT10Header
 class Texture : public Header
 {
 private:
-	File* dataFile = nullptr;
-	int textureFormat;
+
 	int bytesPerPixel;
 	int pixelBlockSize;
-	std::string dxgiFormat;
-	uint16_t width;
-	uint16_t height;
+
 	uint16_t arraySize;
+	uint8_t  flag;
 	std::string largeHash;
 	std::string fullSavePath;
 
 	void getHeader(std::string x);
-	void writeTexture(std::string fullSavePath, std::string dxgiFormat, bool bCompressed);
-	void writeFile(DDSHeader dds, DXT10Header dxt, std::string fullSavePath);
 	unsigned char* considerDoSwizzle(unsigned char* data, int fs, int width, int height);
 public:
+	File* dataFile = nullptr;
+	DXGI_FORMAT dxgiFormat;
+	int textureFormat;
+	uint16_t width;
+	uint16_t height;
+	DirectX::ScratchImage DSImage;
+
 	Texture(std::string x, std::string pkgsPath) : Header(x, pkgsPath)
 	{
 		getData();
 		getHeader(x);
 	}
-
-	void tex2DDS(std::string fullSavePath);
-	void tex2Other(std::string fullSavePath, std::string saveFormat);
+	void Get();
+	bool Save(std::string fullSavePath);
 };
 
 class Material : public File

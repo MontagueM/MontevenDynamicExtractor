@@ -38,13 +38,237 @@ C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDyn
               _Fn=BakedRegion::GetStaticData::<lambda_30b1d596d9657a189540fa570c6bc7e1>
           ]
 C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\d1map.cpp(81,24): warning C4244: 'initializing': conversion from 'double' to 'size_t', possible loss of data
+  dynamic.cpp
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(43,14): warning C4018: '<': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(100,21): warning C4018: '>=': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(152,28): warning C4018: '<': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(31,11): warning C4101: 'off2': unreferenced local variable
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(180,26): warning C4018: '<': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(213,39): warning C4018: '<': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(171,6): warning C4101: 'fileSize': unreferenced local variable
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(328,33): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(329,24): warning C4244: 'initializing': conversion from 'double' to 'size_t', possible loss of data
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(386,17): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(389,17): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(392,17): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(395,17): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(398,17): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(401,17): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(417,18): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(420,18): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(423,18): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(426,18): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(429,18): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(432,18): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(674,41): warning C4267: 'initializing': conversion from 'size_t' to 'uint32_t', possible loss of data
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\dynamic.cpp(687,30): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\utility(193,16): warning C4244: 'initializing': conversion from '_Ty' to '_Ty1', possible loss of data
+          with
+          [
+              _Ty=__int64
+          ]
+          and
+          [
+              _Ty1=const uint32_t
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\skeleton.h(195): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[9],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
+          with
+          [
+              _Other1=__int64,
+              _Other2=const char (&)[9]
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\skeleton.h(54): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[9],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
+          with
+          [
+              _Other1=__int64,
+              _Other2=const char (&)[9]
+          ]
+  fbxmodel.cpp
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\utility(193,16): warning C4244: 'initializing': conversion from '_Ty' to '_Ty1', possible loss of data
+          with
+          [
+              _Ty=__int64
+          ]
+          and
+          [
+              _Ty1=const uint32_t
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\skeleton.h(195): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[9],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
+          with
+          [
+              _Other1=__int64,
+              _Other2=const char (&)[9]
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\skeleton.h(54): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[9],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
+          with
+          [
+              _Other1=__int64,
+              _Other2=const char (&)[9]
+          ]
+  helpers.cpp
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\helpers.cpp(33,42): warning C4244: 'argument': conversion from 'double' to 'uint16_t', possible loss of data
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\helpers.cpp(39,17): warning C4244: 'initializing': conversion from 'double' to 'uint16_t', possible loss of data
+  index.cpp
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\index.cpp(16,29): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\index.cpp(32,53): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\index.cpp(35,58): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\index.cpp(43,53): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\index.cpp(61,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\index.cpp(72,52): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+  main.cpp
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\Sarge\src\sarge.cpp(188,34): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\utility(193,16): warning C4244: 'initializing': conversion from '_Ty' to '_Ty1', possible loss of data
+          with
+          [
+              _Ty=__int64
+          ]
+          and
+          [
+              _Ty1=const uint32_t
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\skeleton.h(195): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[9],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
+          with
+          [
+              _Other1=__int64,
+              _Other2=const char (&)[9]
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\skeleton.h(54): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[9],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
+          with
+          [
+              _Other1=__int64,
+              _Other2=const char (&)[9]
+          ]
+  phonon.cpp
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\utility(193,16): warning C4244: 'initializing': conversion from '_Ty' to '_Ty1', possible loss of data
+          with
+          [
+              _Ty=__int64
+          ]
+          and
+          [
+              _Ty1=const uint32_t
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\skeleton.h(195): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[9],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
+          with
+          [
+              _Other1=__int64,
+              _Other2=const char (&)[9]
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\skeleton.h(54): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[9],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
+          with
+          [
+              _Other1=__int64,
+              _Other2=const char (&)[9]
+          ]
+  skeleton.cpp
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\skeleton.cpp(30,32): warning C4018: '<': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\skeleton.cpp(49,32): warning C4018: '<': signed/unsigned mismatch
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\utility(193,16): warning C4244: 'initializing': conversion from '_Ty' to '_Ty1', possible loss of data
+          with
+          [
+              _Ty=__int64
+          ]
+          and
+          [
+              _Ty1=const uint32_t
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\skeleton.h(195): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[9],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
+          with
+          [
+              _Other1=__int64,
+              _Other2=const char (&)[9]
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\skeleton.h(54): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[9],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
+          with
+          [
+              _Other1=__int64,
+              _Other2=const char (&)[9]
+          ]
+  texplate.cpp
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\texplate.cpp(40,23): warning C4018: '<': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\texplate.cpp(60,34): warning C4018: '>': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\texplate.cpp(64,39): warning C4018: '>': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\texplate.cpp(69,15): warning C4018: '<=': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\texplate.cpp(69,48): warning C4018: '<=': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\texplate.cpp(74,20): warning C4018: '<=': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\texplate.cpp(74,53): warning C4018: '<=': signed/unsigned mismatch
   texture.cpp
-C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\texture.cpp(59,34): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
-C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\texture.cpp(223,35): warning C4018: '<': signed/unsigned mismatch
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\texture.cpp(78,72): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\texture.cpp(173,35): warning C4018: '<': signed/unsigned mismatch
+  vertex.cpp
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\utility(193,16): warning C4244: 'initializing': conversion from '_Ty' to '_Ty1', possible loss of data
+          with
+          [
+              _Ty=__int64
+          ]
+          and
+          [
+              _Ty1=const uint32_t
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\skeleton.h(195): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[9],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
+          with
+          [
+              _Other1=__int64,
+              _Other2=const char (&)[9]
+          ]
+C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\DestinyDynamicExtractor\skeleton.h(54): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[9],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
+          with
+          [
+              _Other1=__int64,
+              _Other2=const char (&)[9]
+          ]
      Creating library C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Release\DestinyDynamicExtractor.lib and object C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Release\DestinyDynamicExtractor.exp
   Generating code
-  5 of 3372 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    6 functions had inline decision re-evaluated but remain unchanged
+  1007 of 3273 functions (30.8%) were compiled, the rest were copied from previous compilation.
+    29 functions were new in current compilation
+    281 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   DestinyDynamicExtractor.vcxproj -> C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Release\DestinyDynamicExtractor.dll

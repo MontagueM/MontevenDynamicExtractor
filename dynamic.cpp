@@ -19,6 +19,8 @@ bool Dynamic::get()
 	parseDyn3s();
 	if (skeletonHash != "")
 		getSkeleton();
+	if (bTextures)
+		getTexturePlates();
 	getSubmeshes();
 	return meshes.size();
 }
@@ -476,6 +478,30 @@ void Dynamic::getSkeleton()
 		}
 		if (root != nullptr)
 			fbxModel->scene->GetRootNode()->AddChild(root);
+	}
+}
+
+void Dynamic::getTexturePlates()
+{
+	uint32_t offset;
+	uint32_t offset2;
+	uint32_t fileVal;
+	std::string fileHash;
+	for (auto& dyn2 : dyn2s)
+	{
+		if (!dyn2->getData()) continue;
+		memcpy((char*)&offset, dyn2->data + 0x18, 4);
+		offset += 432 + 0x18;
+		memcpy((char*)&fileVal, dyn2->data + offset - 436, 4);
+		if (fileVal != 0x80801a9c) continue;
+		memcpy((char*)&offset2, dyn2->data + offset, 4);
+		offset2 += offset + 56;
+		memcpy((char*)&fileVal, dyn2->data + offset2, 4);
+		fileHash = uint32ToHexStr(fileVal);
+		if (getReferenceFromHash(fileHash, packagesPath) != "3c1c8080") continue;
+		if (fileHash == "ffffffff") continue;
+		TexturePlateSet* texplateSet = new TexturePlateSet(fileHash, packagesPath);
+		texplateSets.push_back(texplateSet);
 	}
 }
 

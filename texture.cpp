@@ -1,6 +1,5 @@
 #include "texture.h"
 //#include <shlwapi.h>
-//#pragma comment(lib, "shlwapi.lib")
 
 void Texture::getHeader(std::string x)
 {
@@ -8,9 +7,10 @@ void Texture::getHeader(std::string x)
     memcpy((char*)&width, data + 0x28, 2);
     memcpy((char*)&height, data + 0x2A, 2);
     memcpy((char*)&arraySize, data + 0x2E, 2);
+    memcpy((char*)&flag, data + 0x34, 1);
 }
 
-void Texture::tex2DDS(std::string fullSavePath)
+void Texture::Get()
 {
     dataFile = new File(getReferenceFromHash(hash, packagesPath), packagesPath);
     // Convert type to DXGI_FORMAT format
@@ -18,45 +18,43 @@ void Texture::tex2DDS(std::string fullSavePath)
     switch (textureFormat)
     {
     case 0x30:
-        dxgiFormat = "BC1_UNORM";
+        dxgiFormat = DXGI_FORMAT::DXGI_FORMAT_BC1_UNORM;
         bytesPerPixel = 8;
         pixelBlockSize = 4;
         break;
     case 0x40:
-        dxgiFormat = "BC2_UNORM";
+        dxgiFormat = DXGI_FORMAT::DXGI_FORMAT_BC2_UNORM;
         bytesPerPixel = 16;
         pixelBlockSize = 4;
         break;
     case 0x50:
-        dxgiFormat = "BC3_UNORM";
+        dxgiFormat = DXGI_FORMAT::DXGI_FORMAT_BC3_UNORM;
         bytesPerPixel = 16;
         pixelBlockSize = 4;
         break;
     case 0x60:
-        dxgiFormat = "BC4_UNORM";
+        dxgiFormat = DXGI_FORMAT::DXGI_FORMAT_BC4_UNORM;
         bytesPerPixel = 8;
         pixelBlockSize = 4;
         break;
     case 0x70:
-        dxgiFormat = "BC5_UNORM";
+        dxgiFormat = DXGI_FORMAT::DXGI_FORMAT_BC5_UNORM;
         bytesPerPixel = 16;
         pixelBlockSize = 4;
         break;
     case 0xA0:
-        dxgiFormat = "R8G8B8A8_UNORM";
+        dxgiFormat = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
         bytesPerPixel = 4;
         pixelBlockSize = 1;
         bCompressed = false;
         break;
     default:
-        dxgiFormat = "R8G8B8A8_UNORM";
+        dxgiFormat = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
         bytesPerPixel = 4;
         pixelBlockSize = 1;
         bCompressed = false;
         break;
     }
-    auto itr = std::find(DXGI_FORMAT.begin(), DXGI_FORMAT.end(), dxgiFormat);
-    textureFormat = std::distance(DXGI_FORMAT.begin(), itr);
 
     // Large hash
     std::string finalHash = getReferenceFromHash(hash, packagesPath);
@@ -66,81 +64,29 @@ void Texture::tex2DDS(std::string fullSavePath)
     else
         dataFile = new File(finalHash, packagesPath);
 
-    writeTexture(fullSavePath, dxgiFormat, bCompressed);
-}
-
-void Texture::tex2Other(std::string fullSavePath, std::string saveFormat)
-{
-    tex2DDS(fullSavePath);
-
-    std::string str = "texconv.exe \"" + fullSavePath + "\" -y -ft " + saveFormat + " -f " + dxgiFormat;
-    printf(str.c_str());
-    system(str.c_str());
-
-    // Delete dds file if it exists
-    std::string newPath = fullSavePath.substr(0, fullSavePath.size() - 3) + saveFormat;
-    std::ifstream f(newPath);
-    if (f) std::remove(fullSavePath.c_str());
-}
-
-void Texture::writeTexture(std::string fullSavePath, std::string dxgiFormat, bool bCompressed)
-{
-    DDSHeader dds;
-    DXT10Header dxt;
-    dds.MagicNumber = 542327876;
-    dds.dwSize = 124;
-    dds.dwFlags = (0x1 + 0x2 + 0x4 + 0x1000) + 0x8;
-    dds.dwHeight = height;
-    dds.dwWidth = width;
-    dds.dwPitchOrLinearSize = 0;
-    dds.dwDepth = 0;
-    dds.dwMipMapCount = 0;
-    dds.dwReserved1 = std::array<uint32_t, 11>();
-    dds.dwPFSize = 32;
-    dds.dwPFRGBBitCount = 0;
-    dds.dwPFRGBBitCount = 32;
-    dds.dwPFRBitMask = 0xFF;
-    dds.dwPFGBitMask = 0xFF00;
-    dds.dwPFBBitMask = 0xFF0000;
-    dds.dwPFABitMask = 0xFF000000;
-    dds.dwCaps = 0x1000;
-    dds.dwCaps2 = 0;
-    dds.dwCaps3 = 0;
-    dds.dwCaps4 = 0;
-    dds.dwReserved2 = 0;
+    // Get DirectX uncompressed image
+    DirectX::Image DImage;
+    DImage.width = width;
+    DImage.height = height;
+    DImage.format = dxgiFormat;
+    size_t rowPitch;
+    size_t slicePitch;
+    DirectX::ComputePitch(dxgiFormat, width, height, rowPitch, slicePitch);
+    DImage.rowPitch = rowPitch;
+    DImage.slicePitch = slicePitch;
+    size_t fs = dataFile->getData();
+    DImage.pixels = considerDoSwizzle(dataFile->data, fs, width, height);
     if (bCompressed)
     {
-        dds.dwPFFlags = 0x1 + 0x4;  // contains alpha data + contains compressed RGB data
-        dds.dwPFFourCC = 808540228;
-        dxt.dxgiFormat = textureFormat;
-        dxt.resourceDimension = 3;  // DDS_DIMENSION_TEXTURE2D
-        if (arraySize % 6 == 0)
-        {
-            // Compressed cubemap
-            dxt.miscFlag = 4;
-            dxt.arraySize = arraySize / 6;
-        }
-        else
-        {
-            // Compressed BCn
-            dxt.miscFlag = 0;
-            dxt.arraySize = 1;
-        }
+        DirectX::Decompress(DImage, DXGI_FORMAT::DXGI_FORMAT_UNKNOWN, DSImage);
     }
     else
     {
-        // Uncompressed
-        dds.dwPFFlags = 0x1 + 0x40;  // contains alpha data + contains uncompressed RGB data
-        dds.dwPFFourCC = 0;
-        dxt.miscFlag = 0;
-        dxt.arraySize = 1;
-        dxt.miscFlags2 = 0x1;
+        DSImage.InitializeFromImage(DImage);
     }
-
-    writeFile(dds, dxt, fullSavePath);
 }
 
-int Morton2D(int t, int sx, int sy)
+static int Morton2D(int t, int sx, int sy)
 {
     int num2 = 0;
     int num = num2 = 1;
@@ -171,7 +117,10 @@ int Morton2D(int t, int sx, int sy)
 
 unsigned char* Texture::considerDoSwizzle(unsigned char* data, int fs, int width, int height)
 {
-        unsigned char* outData = new unsigned char[fs];
+    unsigned char* outData = nullptr;
+    if (flag & 0x1)
+    {
+        outData = new unsigned char[fs];
         int ptr = 0;
         int tHeight = height / pixelBlockSize;
         int tWidth = width / pixelBlockSize;
@@ -194,21 +143,22 @@ unsigned char* Texture::considerDoSwizzle(unsigned char* data, int fs, int width
                 }
             }
         }
-        return outData;
+    }
+    else
+    {
+        outData = data;
+    }
+    return outData;
 }
 
-void Texture::writeFile(DDSHeader dds, DXT10Header dxt, std::string fullSavePath)
+bool Texture::Save(std::string fullSavePath)
 {
-    FILE* outputFile;
-
-    outputFile = _fsopen(fullSavePath.c_str(), "wb", _SH_DENYNO);
-    if (outputFile != NULL) {
-        fwrite(&dds, sizeof(struct DDSHeader), 1, outputFile);
-        fwrite(&dxt, sizeof(struct DXT10Header), 1, outputFile);
-        int fileSize = dataFile->getData();
-        fwrite(considerDoSwizzle(dataFile->data, fileSize, width, height), fileSize, 1, outputFile);
-        fclose(outputFile);
-    }
+    DirectX::Image DImage = *DSImage.GetImage(0, 0, 0);
+    if (!DImage.width) return false;
+    std::string FileName = fullSavePath + hash + ".TGA";
+    std::wstring widestr = std::wstring(FileName.begin(), FileName.end());
+    const wchar_t* widecstr = widestr.c_str();
+    return DirectX::SaveToTGAFile(DImage, widecstr);
 }
 
 void Material::parseMaterial()
@@ -242,7 +192,6 @@ void Material::exportTextures(std::string fullSavePath, std::string saveFormat)
         uint8_t texID = element.first;
         Texture* tex = element.second;
         if (!tex) continue;
-        actualSavePath = fullSavePath + "/" + tex->hash + ".dds";
         newPath = fullSavePath + "/" + tex->hash + "." + saveFormat;
         std::ifstream f(newPath);
         std::ifstream q(actualSavePath);
@@ -251,8 +200,8 @@ void Material::exportTextures(std::string fullSavePath, std::string saveFormat)
             free(tex);
             continue;
         }
-        if (saveFormat == "dds") tex->tex2DDS(actualSavePath);
-        else tex->tex2Other(actualSavePath, saveFormat);
+        tex->Get();
+        tex->Save(fullSavePath);
         free(tex);
     }
 }

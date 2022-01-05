@@ -9,6 +9,8 @@ Using Sarge https://mayaposch.wordpress.com/2019/03/17/parsing-command-line-argu
 */
 int main(int argc, char** argv)
 {
+	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+
 	Sarge sarge;
 
 	sarge.setArgument("p", "pkgspath", "pkgs path", true);
