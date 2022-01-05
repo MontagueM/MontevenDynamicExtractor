@@ -42,7 +42,7 @@ public:
 		layer->SetVertexColors(vcLayerElement);
 	}
 	void addVCSlots(FbxMesh* mesh, DynamicSubmesh* submesh, FbxLayer* layer);
-	FbxNode* addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> bones, std::string fullSavePath, bool bTextures);
+	FbxNode* addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> bones, std::string fullSavePath, eTextureFormat TextureFormat);
 	void save(std::string savePath, bool ascii);
 
 	FbxManager* manager = FbxManager::Create();

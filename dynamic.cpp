@@ -19,7 +19,7 @@ bool Dynamic::get()
 	parseDyn3s();
 	if (skeletonHash != "")
 		getSkeleton();
-	if (bTextures)
+	if (TextureFormat != eTextureFormat::None)
 		getTexturePlates();
 	getSubmeshes();
 	return meshes.size();
@@ -123,7 +123,7 @@ void Dynamic::getDyn3Files()
 		}
 
 		// External material table
-		if (bTextures)
+		if (TextureFormat != eTextureFormat::None)
 		{
 			uint32_t extOff = fileSize;
 			uint32_t val;
@@ -572,19 +572,19 @@ void Dynamic::pack(std::string saveDirectory)
 				if (meshes.size() == 1) submesh->name = hash + "_" + std::to_string(j);
 				else submesh->name = hash + "_" + std::to_string(i) + "_" + std::to_string(j);
 
-				FbxNode* node = fbxModel->addSubmeshToFbx(submesh, bones, saveDirectory, bTextures);
+				FbxNode* node = fbxModel->addSubmeshToFbx(submesh, bones, saveDirectory, TextureFormat);
 				nodes.push_back(node);
 			}
 		}
 	}
-	if (bTextures)
+	if (TextureFormat != eTextureFormat::None)
 	{
 		// Export texplates
 		for (auto& texplateSet : texplateSets)
 		{
 			bool status = texplateSet->parse();
 			if (!status) continue;
-			texplateSet->saveTexturePlateSet(saveDirectory + "/textures/");
+			texplateSet->saveTexturePlateSet(saveDirectory + "/textures/", TextureFormat);
 		}
 
 		if (!externalMaterials.size()) return;
@@ -593,7 +593,7 @@ void Dynamic::pack(std::string saveDirectory)
 		for (auto& mat : externalMaterials)
 		{
 			mat->parseMaterial();
-			mat->exportTextures(saveDirectory + "/unk_textures/", "png");
+			mat->exportTextures(saveDirectory + "/unk_textures/", TextureFormat);
 		}
 	}
 }

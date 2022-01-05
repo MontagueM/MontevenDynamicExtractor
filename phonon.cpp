@@ -3,6 +3,8 @@
 #include "d1map.h"
 extern "C"
 {
+
+
 	__declspec(dllexport) bool __stdcall RequestDynamicInformation(const char* DynamicHash, const char* pkgsPath, int& MeshCount, bool& bHasSkeleton)
 	{
 		Dynamic dynamic = Dynamic(DynamicHash, pkgsPath);
@@ -31,9 +33,9 @@ extern "C"
 		}
 	}
 
-	__declspec(dllexport) bool __stdcall RequestExportDynamic(const char* DynamicHash, const char* pkgsPath, const char* ExportPath, const char* ExportName, bool bTextures)
+	__declspec(dllexport) bool __stdcall RequestExportDynamic(const char* DynamicHash, const char* pkgsPath, const char* ExportPath, const char* ExportName, int TextureFormat)
 	{
-		Dynamic dynamic = Dynamic(DynamicHash, pkgsPath, bTextures);
+		Dynamic dynamic = Dynamic(DynamicHash, pkgsPath, eTextureFormat(TextureFormat));
 		int status = dynamic.get();
 		if (status)
 		{
@@ -47,9 +49,9 @@ extern "C"
 		}
 	}
 
-	__declspec(dllexport) bool __stdcall RequestExportD1Map(const char* MapHash, const char* pkgsPath, const char* ExportPath, const char* ExportName, bool bTextures)
+	__declspec(dllexport) bool __stdcall RequestExportD1Map(const char* MapHash, const char* pkgsPath, const char* ExportPath, const char* ExportName, int TextureFormat)
 	{
-		D1Map d1map = D1Map(MapHash, pkgsPath, bTextures);
+		D1Map d1map = D1Map(MapHash, pkgsPath, eTextureFormat(TextureFormat));
 		int status = d1map.Get();
 		if (status)
 		{

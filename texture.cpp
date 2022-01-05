@@ -151,14 +151,33 @@ unsigned char* Texture::considerDoSwizzle(unsigned char* data, int fs, int width
     return outData;
 }
 
-bool Texture::Save(std::string fullSavePath)
+bool Texture::Save(std::string fullSavePath, eTextureFormat TextureFormat)
 {
     DirectX::Image DImage = *DSImage.GetImage(0, 0, 0);
     if (!DImage.width) return false;
-    std::string FileName = fullSavePath + hash + ".TGA";
-    std::wstring widestr = std::wstring(FileName.begin(), FileName.end());
-    const wchar_t* widecstr = widestr.c_str();
-    return DirectX::SaveToTGAFile(DImage, widecstr);
+    std::string FileName;
+    std::wstring widestr;
+    const wchar_t* widecstr;
+    switch (TextureFormat)
+    {
+    case eTextureFormat::None:
+        return false;
+    case eTextureFormat::DDS:
+        FileName = fullSavePath + hash + ".DDS";
+        widestr = std::wstring(FileName.begin(), FileName.end());
+        widecstr = widestr.c_str();
+        return DirectX::SaveToDDSFile(DImage, DirectX::DDS_FLAGS::DDS_FLAGS_NONE, widecstr);
+    case eTextureFormat::TGA:
+        FileName = fullSavePath + hash + ".TGA";
+        widestr = std::wstring(FileName.begin(), FileName.end());
+        widecstr = widestr.c_str();
+        return DirectX::SaveToTGAFile(DImage, widecstr);
+    case eTextureFormat::PNG:
+        FileName = fullSavePath + hash + ".PNG";
+        widestr = std::wstring(FileName.begin(), FileName.end());
+        widecstr = widestr.c_str();
+        return DirectX::SaveToWICFile(DImage, DirectX::WIC_FLAGS::WIC_FLAGS_NONE, GetWICCodec(DirectX::WIC_CODEC_PNG), widecstr);
+    }
 }
 
 void Material::parseMaterial()
@@ -183,7 +202,7 @@ void Material::parseMaterial()
     }
 }
 
-void Material::exportTextures(std::string fullSavePath, std::string saveFormat)
+void Material::exportTextures(std::string fullSavePath, eTextureFormat TextureFormat)
 {
     std::string actualSavePath;
     std::string newPath;
@@ -192,16 +211,8 @@ void Material::exportTextures(std::string fullSavePath, std::string saveFormat)
         uint8_t texID = element.first;
         Texture* tex = element.second;
         if (!tex) continue;
-        newPath = fullSavePath + "/" + tex->hash + "." + saveFormat;
-        std::ifstream f(newPath);
-        std::ifstream q(actualSavePath);
-        if (f || q)
-        {
-            free(tex);
-            continue;
-        }
         tex->Get();
-        tex->Save(fullSavePath);
+        tex->Save(fullSavePath, TextureFormat);
         free(tex);
     }
 }

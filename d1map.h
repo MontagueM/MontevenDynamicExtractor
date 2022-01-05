@@ -54,13 +54,13 @@ public:
 	std::vector<std::vector<float>> Rotations;
 	std::vector<std::vector<float>> UVTransforms;
 	std::vector<std::vector<float>> Scales;
-	bool bTextures = false;
+	eTextureFormat TextureFormat = eTextureFormat::None;
 	std::unordered_map<std::string, FbxSurfacePhong*> FbxMaterials;
 	class FbxModel* fbxModel = nullptr;
 
-	D1Map(std::string x, std::string pkgsPath, bool bExportTextures) : File(x, pkgsPath)
+	D1Map(std::string x, std::string pkgsPath, eTextureFormat InTextureFormat) : File(x, pkgsPath)
 	{
-		bTextures = bExportTextures;
+		TextureFormat = InTextureFormat;
 	}
 	bool Get();
 	void ParseBakedRegionsTable();

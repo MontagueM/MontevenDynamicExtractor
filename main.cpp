@@ -79,7 +79,7 @@ int main(int argc, char** argv)
 
 	printf("\nBeginning to extract model...\n");
 	//std::string reference = getReferenceFromHash("0174", modelHash);
-	Dynamic dyn(modelHash, pkgsPath, bTextures);
+	Dynamic dyn(modelHash, pkgsPath, eTextureFormat::TGA);
 
 	bool status = dyn.get();
 	if (status)
@@ -105,7 +105,7 @@ void doBatch(std::string pkgsPath, std::string outputPath, std::string batchPkg)
 	std::cout << "\nNumber of files to batch extract: " << hashes.size() << "\n";
 	for (auto& hash : hashes)
 	{
-		Dynamic dyn(hash, pkgsPath, false);
+		Dynamic dyn(hash, pkgsPath, eTextureFormat::None);
 		bool status = dyn.get();
 		if (status)
 		{

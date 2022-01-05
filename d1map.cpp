@@ -341,7 +341,7 @@ void D1Map::ExportTextures(Static* Sta, std::string Path)
 
 		}
 
-		if (bTextures)
+		if (TextureFormat != eTextureFormat::None)
 		{
 			// Make sure save directory exists
 			std::filesystem::create_directories(Path);
@@ -358,7 +358,7 @@ void D1Map::ExportTextures(Static* Sta, std::string Path)
 			}
 			fwrite("\n", 1, 1, TexFile);
 			fclose(TexFile);
-			Mat->exportTextures(Path, "png");
+			Mat->exportTextures(Path, TextureFormat);
 		}
 	}
 }

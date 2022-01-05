@@ -25,7 +25,7 @@ private:
 public:
 
 	void parsePlate();
-	void savePlate(std::string fullSavePath);
+	void savePlate(std::string fullSavePath, eTextureFormat TextureFormat);
 	std::vector<TexplateTexture*> textures;
 	TexturePlate(std::string x, std::string pkgsPath, std::string t) : File(x, pkgsPath)
 	{
@@ -42,5 +42,5 @@ private:
 public:
 	TexturePlateSet(std::string x, std::string pkgsPath) : File(x, pkgsPath) {};
 	bool parse();
-	void saveTexturePlateSet(std::string fullSavePath);
+	void saveTexturePlateSet(std::string fullSavePath, eTextureFormat TextureFormat);
 };

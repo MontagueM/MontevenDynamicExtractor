@@ -12,7 +12,7 @@
 class Dynamic : public Model
 {
 private:
-	bool bTextures = false;
+	eTextureFormat TextureFormat = eTextureFormat::None;
 	std::vector<File*> dyn2s;
 	std::vector<File*> dyn3s;
 	FbxModel* fbxModel = nullptr;
@@ -39,10 +39,10 @@ private:
 
 public:
 	std::string packagesPath;
-	Dynamic(std::string x, std::string pkgsPath, bool btex) : Model(x, pkgsPath)
+	Dynamic(std::string x, std::string pkgsPath, eTextureFormat InTextureFormat) : Model(x, pkgsPath)
 	{
 		packagesPath = pkgsPath;
-		bTextures = btex;
+		TextureFormat = InTextureFormat;
 	}
 	Dynamic(std::string x, std::string pkgsPath) : Model(x, pkgsPath)
 	{

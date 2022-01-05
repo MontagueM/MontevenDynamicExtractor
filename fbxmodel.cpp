@@ -1,7 +1,7 @@
 #include "fbxmodel.h"
 #include "d1map.h"
 
-FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> bones, std::string fullSavePath, bool bTextures)
+FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> bones, std::string fullSavePath, eTextureFormat TextureFormat)
 {
 	bool bAddSkeleton = submesh->weights.size() && bones.size();
 
@@ -21,7 +21,7 @@ FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> b
 		addVCSlots(mesh, submesh, layerVC);
 	}
 	if (bAddSkeleton) addWeights(mesh, submesh, bones);
-	if (submesh->material != nullptr && bTextures)
+	if (submesh->material != nullptr && TextureFormat != eTextureFormat::None)
 	{
 		std::filesystem::create_directories(fullSavePath + "/textures/");
 
@@ -38,7 +38,7 @@ FbxNode* FbxModel::addSubmeshToFbx(DynamicSubmesh* submesh, std::vector<Node*> b
 		toWrite += "\n";
 		fwrite(toWrite.c_str(), toWrite.size(), 1, texFile);
 		fclose(texFile);
-		submesh->material->exportTextures(fullSavePath + "/textures/", "png");
+		submesh->material->exportTextures(fullSavePath + "/textures/", TextureFormat);
 	}
 
 	return node;

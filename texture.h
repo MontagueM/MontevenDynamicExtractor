@@ -4,6 +4,13 @@
 #include "vcpkg/packages/directxtex_x64-windows/include/DirectXTex.h"
 #include <fstream>
 
+enum eTextureFormat
+{
+	None,
+	DDS,
+	TGA,
+	PNG
+};
 
 struct TexHeader
 {
@@ -78,7 +85,7 @@ public:
 		getHeader(x);
 	}
 	void Get();
-	bool Save(std::string fullSavePath);
+	bool Save(std::string fullSavePath, eTextureFormat TextureFormat);
 };
 
 class Material : public File
@@ -90,5 +97,5 @@ public:
 	Material(std::string x, std::string pkgsPath) : File(x, pkgsPath) {};
 
 	void parseMaterial();
-	void exportTextures(std::string fullSavePath, std::string saveFormat);
+	void exportTextures(std::string fullSavePath, eTextureFormat TextureFormat);
 };

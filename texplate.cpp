@@ -21,11 +21,11 @@ bool TexturePlateSet::parse()
 	return true;
 }
 
-void TexturePlateSet::saveTexturePlateSet(std::string fullSavePath)
+void TexturePlateSet::saveTexturePlateSet(std::string fullSavePath, eTextureFormat TextureFormat)
 {
 	for (auto& plate : texplates)
 	{
-		plate->savePlate(fullSavePath);
+		plate->savePlate(fullSavePath, TextureFormat);
 	}
 }
 
@@ -49,7 +49,7 @@ void TexturePlate::parsePlate()
 	}
 }
 
-void TexturePlate::savePlate(std::string fullSavePath)
+void TexturePlate::savePlate(std::string fullSavePath, eTextureFormat TextureFormat)
 {
 	if (!textures.size()) return;
 
@@ -91,11 +91,31 @@ void TexturePlate::savePlate(std::string fullSavePath)
 		DirectX::CopyRectangle(*DSResizedImage.GetImage(0, 0, 0), ImageRect, *OutputPlate.GetImage(0, 0, 0), DirectX::TEX_FILTER_FLAGS::TEX_FILTER_DEFAULT, tex->offsetX, tex->offsetY);
 		free(tex);
 	}
-	std::string FileName = fullSavePath + hash + "_" + type + ".TGA";
-	std::wstring widestr = std::wstring(FileName.begin(), FileName.end());
-	const wchar_t* widecstr = widestr.c_str();
-	//DirectX::SaveToWICFile(OutputPlate.GetImage(0, 0, 0), 1, DirectX::WIC_FLAGS_NONE, GetWICCodec(DirectX::WIC_CODEC_PNG), widecstr);
-	DirectX::SaveToTGAFile(*OutputPlate.GetImage(0, 0, 0), widecstr);
 
-	int a = 0;
+	std::string FileName;
+	std::wstring widestr;
+	const wchar_t* widecstr;
+	switch (TextureFormat)
+	{
+	case eTextureFormat::None:
+		break;
+	case eTextureFormat::DDS:
+		FileName = fullSavePath + hash + "_" + type + ".DDS";
+		widestr = std::wstring(FileName.begin(), FileName.end());
+		widecstr = widestr.c_str();
+		DirectX::SaveToDDSFile(*OutputPlate.GetImage(0, 0, 0), DirectX::DDS_FLAGS::DDS_FLAGS_NONE, widecstr);
+		break;
+	case eTextureFormat::TGA:
+		FileName = fullSavePath + hash + "_" + type + ".TGA";
+		widestr = std::wstring(FileName.begin(), FileName.end());
+		widecstr = widestr.c_str();
+		DirectX::SaveToTGAFile(*OutputPlate.GetImage(0, 0, 0), widecstr);
+		break;
+	case eTextureFormat::PNG:
+		FileName = fullSavePath + hash + "_" + type + ".PNG";
+		widestr = std::wstring(FileName.begin(), FileName.end());
+		widecstr = widestr.c_str();
+		DirectX::SaveToWICFile(*OutputPlate.GetImage(0, 0, 0), DirectX::WIC_FLAGS::WIC_FLAGS_NONE, GetWICCodec(DirectX::WIC_CODEC_PNG), widecstr);
+		break;
+	}
 }
