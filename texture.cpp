@@ -75,15 +75,17 @@ void Texture::Get()
     DImage.rowPitch = rowPitch;
     DImage.slicePitch = slicePitch;
     size_t fs = dataFile->getData();
-    DImage.pixels = considerDoSwizzle(dataFile->data, fs, width, height);
+    considerDoSwizzle(dataFile->data, fs, width, height);
+    DImage.pixels = dataFile->data;
     if (bCompressed)
     {
-        DirectX::Decompress(DImage, DXGI_FORMAT::DXGI_FORMAT_UNKNOWN, DSImage);
+        DirectX::Decompress(DImage, DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM, DSImage);
     }
     else
     {
         DSImage.InitializeFromImage(DImage);
     }
+    delete dataFile->data;
 }
 
 static int Morton2D(int t, int sx, int sy)
@@ -115,12 +117,11 @@ static int Morton2D(int t, int sx, int sy)
     return num7 * sx + num6;
 }
 
-unsigned char* Texture::considerDoSwizzle(unsigned char* data, int fs, int width, int height)
+void Texture::considerDoSwizzle(unsigned char* data, int fs, int width, int height)
 {
-    unsigned char* outData = nullptr;
     if (flag & 0x1)
     {
-        outData = new unsigned char[fs];
+        unsigned char* outData = new unsigned char[fs];
         int ptr = 0;
         int tHeight = height / pixelBlockSize;
         int tWidth = width / pixelBlockSize;
@@ -143,12 +144,9 @@ unsigned char* Texture::considerDoSwizzle(unsigned char* data, int fs, int width
                 }
             }
         }
+        memcpy(data, outData, fs);
+        delete outData;
     }
-    else
-    {
-        outData = data;
-    }
-    return outData;
 }
 
 bool Texture::Save(std::string fullSavePath, eTextureFormat TextureFormat)
@@ -213,6 +211,7 @@ void Material::exportTextures(std::string fullSavePath, eTextureFormat TextureFo
         if (!tex) continue;
         tex->Get();
         tex->Save(fullSavePath, TextureFormat);
+        tex->DSImage.Release();
         free(tex);
     }
 }

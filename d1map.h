@@ -26,6 +26,14 @@ public:
 	void ParseVertsAndFaces();
 };
 
+class DynamicPoint
+{
+private:
+public:
+	std::string Name;
+	std::vector<float> Translation;
+};
+
 class BakedRegion : public File
 {
 private:
@@ -71,4 +79,17 @@ public:
 	FbxMesh* AddToMap(int CopyIndex, Static* Sta, FbxMesh* mesh, std::string Path);
 	void applyMaterial(FbxModel* fbxModel, Static* Sta, FbxNode* node);
 	void Extract(std::string Path, std::string ExportName);
+};
+
+class D1DynMap : public File
+{
+private:
+public:
+	std::vector<DynamicPoint*> Dynamics;
+	void ParseTable();
+	bool Get();
+	bool Extract(std::string Path, std::string ExportName);
+	D1DynMap(std::string x, std::string pkgsPath) : File(x, pkgsPath)
+	{
+	}
 };

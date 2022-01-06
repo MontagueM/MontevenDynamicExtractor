@@ -11,6 +11,10 @@ int main(int argc, char** argv)
 {
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
+	D1Map dm = D1Map("D226C280", "P:/D1/packages/", eTextureFormat::TGA);
+	dm.Get();
+	dm.Extract("C:/Users/monta/Downloads/phonond1maps/", "test_map");
+	exit(2313);
 	Sarge sarge;
 
 	sarge.setArgument("p", "pkgspath", "pkgs path", true);

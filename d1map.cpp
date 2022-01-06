@@ -297,7 +297,7 @@ void D1Map::GetDataTable()
 
 void D1Map::CreateMap(std::string Path)
 {
-	std::unordered_map<std::string, BakedRegion*> BRM;
+	std::unordered_map<std::string, std::string> BRM;
 	for (auto& BR : BakedRegions)
 	{
 		for (auto& Sta : BR->Statics)
@@ -305,7 +305,7 @@ void D1Map::CreateMap(std::string Path)
 			std::string StaticName = Sta->Name;
 			if (BRM.find(StaticName) != BRM.end())
 			{
-				if (BRM[StaticName] != Sta->ParentBakedRegion) continue;
+				if (BRM[StaticName] != Sta->ParentBakedRegion->hash) continue;
 			}
 			if (Sta->LODType == 1 || Sta->LODType == 2 || Sta->LODType == 0)
 			{
@@ -318,10 +318,12 @@ void D1Map::CreateMap(std::string Path)
 				}
 				if (mesh)
 				{
-					BRM[StaticName] = Sta->ParentBakedRegion;
+					BRM[StaticName] = Sta->ParentBakedRegion->hash;
 				}
 			}
+			delete Sta;
 		}
+		delete BR;
 	}
 }
 
@@ -444,5 +446,56 @@ void D1Map::Extract(std::string Path, std::string ExportName)
 	fbxModel = new FbxModel();
 	if (ExportName == "") ExportName = hash;
 	CreateMap(Path + "/" + ExportName + "_" + hash + "_Textures/");
-	fbxModel->save(Path + ExportName + "_" + hash + ".fbx", false);
+	fbxModel->save(Path + "/" + ExportName + "_" + hash + ".fbx", false);
+}
+
+void D1DynMap::ParseTable()
+{
+	int Count;
+	int Value;
+	float fVal;
+	uint32_t Hash;
+	memcpy((char*)&Count, data + 0x40, 4);
+	for (int i = 0x50; i < 0x50 + Count * 0x80; i += 0x80)
+	{
+		DynamicPoint* DynPoint = new DynamicPoint();
+		memcpy((char*)&Value, data + i, 4);
+		if (Value != 0x80)
+		{
+			exit(5325);
+		}
+		for (int j = 0; j < 3; j++)
+		{
+			memcpy((char*)&fVal, data + i + 0x70 + j * 4, 4);
+			DynPoint->Translation.push_back(fVal);
+		}
+		memcpy((char*)&Value, data + i + 0x30, 4);
+		Value += i + 0x30 + 0x10;
+		memcpy((char*)&Hash, data + Value, 4);
+		DynPoint->Name = uint32ToHexStr(Hash);
+		Dynamics.push_back(DynPoint);
+	}
+}
+
+bool D1DynMap::Extract(std::string Path, std::string ExportName)
+{
+	FbxModel* fbxModel = new FbxModel();
+	for (auto& dyn : Dynamics)
+	{
+		FbxMesh* mesh = FbxMesh::Create(fbxModel->manager, dyn->Name.c_str());
+		mesh->SetControlPointAt(FbxVector4(-dyn->Translation[0] * 100, dyn->Translation[2] * 100, dyn->Translation[1] * 100), 0);
+		FbxNode* node = FbxNode::Create(fbxModel->manager, dyn->Name.c_str());
+		node->SetNodeAttribute(mesh);
+		fbxModel->scene->GetRootNode()->AddChild(node);
+	}
+	fbxModel->save(Path + "/" + ExportName + "_Dyn_" + hash + ".fbx", false);
+	return true;
+}
+
+bool D1DynMap::Get()
+{
+	getData();
+	std::vector<DynamicPoint*> Dynamics = std::vector<DynamicPoint*>();
+	ParseTable();
+	return true;
 }

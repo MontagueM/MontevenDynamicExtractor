@@ -89,6 +89,8 @@ void TexturePlate::savePlate(std::string fullSavePath, eTextureFormat TextureFor
 		// Do scaling as the copy does not scale
 		DirectX::Resize(*tex->DSImage.GetImage(0, 0, 0), tex->scaleX, tex->scaleY, DirectX::TEX_FILTER_FLAGS::TEX_FILTER_DEFAULT, DSResizedImage);
 		DirectX::CopyRectangle(*DSResizedImage.GetImage(0, 0, 0), ImageRect, *OutputPlate.GetImage(0, 0, 0), DirectX::TEX_FILTER_FLAGS::TEX_FILTER_DEFAULT, tex->offsetX, tex->offsetY);
+		tex->DSImage.Release();
+		DSResizedImage.Release();
 		free(tex);
 	}
 
@@ -118,4 +120,5 @@ void TexturePlate::savePlate(std::string fullSavePath, eTextureFormat TextureFor
 		DirectX::SaveToWICFile(*OutputPlate.GetImage(0, 0, 0), DirectX::WIC_FLAGS::WIC_FLAGS_NONE, GetWICCodec(DirectX::WIC_CODEC_PNG), widecstr);
 		break;
 	}
+	OutputPlate.Release();
 }
