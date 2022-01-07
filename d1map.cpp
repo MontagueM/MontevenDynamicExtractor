@@ -1,4 +1,4 @@
-#include "d1map.h"
+﻿#include "d1map.h"
 #include <execution>
 
 void BakedRegion::ParseMaterialTable()
@@ -164,8 +164,8 @@ void Static::ParseVertsAndFaces()
 bool D1Map::Get()
 {
 	getData();
-	ParseBakedRegionsTable();
 	GetDataTable();
+	ParseBakedRegionsTable();
 	return true;
 }
 
@@ -212,14 +212,93 @@ void D1Map::ParseBakedRegionsTable()
 
 std::vector<float> rotationMatrixToEulerAngles(std::vector<std::vector<float>> R)
 {
-	std::vector<float> Rotation;
-	float pi = 3.14159265358979323846;
-	float sy = sqrt(R[2][1] * R[2][1] + R[2][2] * R[2][2]);
-	Rotation.push_back(atan2(R[2][1], R[2][2]) * 180 / pi);
-	Rotation.push_back(atan2(-R[2][0], sy) * 180 / pi);
-	Rotation.push_back(atan2(R[1][0], R[0][0]) * 180 / pi);
+	std::vector<float> Quaternion{ 0, 0, 0, 0 };
+	const float pi = 3.14159265358979323846;
 
-	return Rotation;
+	// Convert mat -> quat, from numpy source
+	//std::vector<float> DecisionVec{ 0, 0, 0, 0 };
+	//DecisionVec[0] = R[0][0];
+	//DecisionVec[1] = R[1][1];
+	//DecisionVec[2] = R[2][2];
+	//DecisionVec[3] = DecisionVec[0] + DecisionVec[1] + DecisionVec[2];
+	//int MaxIndex = std::distance(DecisionVec.begin(), std::max_element(DecisionVec.begin(), DecisionVec.end()));
+	//if (MaxIndex != 3)
+	//{
+	//	int i = MaxIndex;
+	//	int j = (i + 1) % 3;
+	//	int k = (j + 1) % 3;
+	//	Quaternion[i] = 1 - DecisionVec[3] + 2 * R[i][i];
+	//	Quaternion[j] = R[j][i] + R[i][j];
+	//	Quaternion[k] = R[k][i] + R[i][k];
+	//	Quaternion[3] = R[k][j] - R[j][k];
+	//}
+	//else
+	//{
+	//	Quaternion[0] = R[2][1] - R[1][2];
+	//	Quaternion[1] = R[0][2] - R[2][0];
+	//	Quaternion[2] = R[1][0] - R[0][1];
+	//	Quaternion[3] = 1 + DecisionVec[3];
+	//}
+
+	//float size = sqrt(Quaternion[0] * Quaternion[0] + Quaternion[1] * Quaternion[1] + Quaternion[2] * Quaternion[2] + Quaternion[3] * Quaternion[3]);
+	//Quaternion[0] /= size;
+	//Quaternion[1] /= size;
+	//Quaternion[2] /= size;
+	//Quaternion[3] /= size;
+
+	// Convert quat -> euler from numpy
+	auto MatTransform = R;
+	MatTransform[0][0] = R[1][1];
+	MatTransform[0][1] = R[1][2];
+	MatTransform[0][2] = R[1][0];
+	MatTransform[1][0] = -R[0][1];
+	MatTransform[1][1] = -R[0][2];
+	MatTransform[1][2] = -R[0][0];
+	MatTransform[2][0] = R[2][1];
+	MatTransform[2][1] = R[2][2];
+	MatTransform[2][2] = R[2][0];
+
+	bool bPositiveUnity = MatTransform[2][2] > 1.f;
+	bool bNegativeUnity = MatTransform[2][2] < -1.f;
+	if (bPositiveUnity) MatTransform[2][2] = 1;
+	if (bNegativeUnity) MatTransform[2][2] = -1;
+	std::vector<float> Angles{ -1, 0, 0 };
+	Angles[1] = acos(MatTransform[2][2]);
+
+	float eps = 1e-7;
+	bool bSafe1 = abs(Angles[1]) >= eps;
+	bool bSafe2 = abs(Angles[1] - pi) >= eps;
+	bool bSafeMask = bSafe1 & bSafe2;
+
+	Angles[1] += -pi / 2;
+
+	if (bSafeMask)
+	{
+		Angles[0] = atan2(MatTransform[0][2], -MatTransform[1][2]);
+		Angles[2] = atan2(MatTransform[2][0], MatTransform[2][1]);
+	}
+	else
+	{
+		Angles[0] = 0;
+		if (!bSafe1) Angles[2] = atan2(MatTransform[1][0] - MatTransform[0][1], MatTransform[0][0] + MatTransform[1][1]);
+		if (!bSafe2) Angles[2] = -atan2(MatTransform[1][0] + MatTransform[0][1], MatTransform[0][0] - MatTransform[1][1]);
+	}
+
+	bool bAdjustMask = (Angles[1] < -pi / 2 | Angles[1] > pi / 2) & bSafeMask;
+
+	if (bAdjustMask)
+	{
+		Angles[0] += pi;
+		Angles[1] = -pi - Angles[1];
+		Angles[2] -= pi;
+	}
+
+	float tmp = Angles[0];
+	Angles[0] = Angles[2] * 180 / pi;
+	Angles[1] *= 180 / pi;
+	Angles[2] = tmp * 180 / pi;
+
+	return Angles;
 }
 
 void D1Map::GetDataTable()
@@ -268,6 +347,10 @@ void D1Map::GetDataTable()
 		}
 		Scales.push_back(Scale);
 
+		if (Rotations.size() == 168 + 19)
+		{
+			auto a = 0;
+		}
 
 		// Rotation
 		std::vector<std::vector<float>> RotationMatrix;
@@ -292,6 +375,11 @@ void D1Map::GetDataTable()
 			UVTransform.push_back(fval);
 		}
 		UVTransforms.push_back(UVTransform);
+
+		if (Rotations.size() == 168 + 19 + 1)
+		{
+			auto a = 0;
+		}
 	}
 }
 
@@ -313,6 +401,7 @@ void D1Map::CreateMap(std::string Path)
 				for (int i = 0; i < Sta->CopyCount; i++)
 				{
 					Sta->Name = StaticName + "_" + std::to_string(i) + "_" + std::to_string(Sta->ID) + "_" + std::to_string(Sta->TransformIndex);
+					
 					mesh = AddToMap(i, Sta, mesh, Path);
 					if (mesh == nullptr) break;
 				}
@@ -455,24 +544,17 @@ void D1DynMap::ParseTable()
 	int Value;
 	float fVal;
 	uint32_t Hash;
-	memcpy((char*)&Count, data + 0x40, 4);
-	for (int i = 0x50; i < 0x50 + Count * 0x80; i += 0x80)
+	memcpy((char*)&Count, data + 0x20, 4);
+	for (int i = 0x30; i < 0x30 + Count * 0x90; i += 0x90)
 	{
 		DynamicPoint* DynPoint = new DynamicPoint();
-		memcpy((char*)&Value, data + i, 4);
-		if (Value != 0x80)
-		{
-			exit(5325);
-		}
 		for (int j = 0; j < 3; j++)
 		{
-			memcpy((char*)&fVal, data + i + 0x70 + j * 4, 4);
+			memcpy((char*)&fVal, data + i + 0x30 + j * 4, 4);
 			DynPoint->Translation.push_back(fVal);
 		}
-		memcpy((char*)&Value, data + i + 0x30, 4);
-		Value += i + 0x30 + 0x10;
-		memcpy((char*)&Hash, data + Value, 4);
-		DynPoint->Name = uint32ToHexStr(Hash);
+		memcpy((char*)&Hash, data + i, 4);
+		DynPoint->Name = "DynPoint_" + uint32ToHexStr(Hash);
 		Dynamics.push_back(DynPoint);
 	}
 }

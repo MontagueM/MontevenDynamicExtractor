@@ -11,7 +11,7 @@ int main(int argc, char** argv)
 {
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
-	D1Map dm = D1Map("D226C280", "P:/D1/packages/", eTextureFormat::TGA);
+	D1Map dm = D1Map("6CBACE80", "P:/D1/packages/", eTextureFormat::None);
 	dm.Get();
 	dm.Extract("C:/Users/monta/Downloads/phonond1maps/", "test_map");
 	exit(2313);
