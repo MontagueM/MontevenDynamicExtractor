@@ -11,7 +11,13 @@ int main(int argc, char** argv)
 {
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
-	D1Map dm = D1Map("6CBACE80", "P:/D1/packages/", eTextureFormat::None);
+	Dynamic dynamic = Dynamic("5b82a780", "P:/D1/packages/", eTextureFormat::DDS, "b227ad80");
+	dynamic.get();
+	dynamic.pack("C:/Users/monta/Downloads/phonond1maps/");
+	dynamic.save("C:/Users/monta/Downloads/phonond1maps/", "test_model");
+ 	exit(2222);
+
+	D1Map dm = D1Map("74449881", "P:/D1/packages/", eTextureFormat::DDS);
 	dm.Get();
 	dm.Extract("C:/Users/monta/Downloads/phonond1maps/", "test_map");
 	exit(2313);
@@ -83,7 +89,7 @@ int main(int argc, char** argv)
 
 	printf("\nBeginning to extract model...\n");
 	//std::string reference = getReferenceFromHash("0174", modelHash);
-	Dynamic dyn(modelHash, pkgsPath, eTextureFormat::TGA);
+	Dynamic dyn(modelHash, pkgsPath, eTextureFormat::TGA, "");
 
 	bool status = dyn.get();
 	if (status)
@@ -109,7 +115,7 @@ void doBatch(std::string pkgsPath, std::string outputPath, std::string batchPkg)
 	std::cout << "\nNumber of files to batch extract: " << hashes.size() << "\n";
 	for (auto& hash : hashes)
 	{
-		Dynamic dyn(hash, pkgsPath, eTextureFormat::None);
+		Dynamic dyn(hash, pkgsPath, eTextureFormat::None, "");
 		bool status = dyn.get();
 		if (status)
 		{

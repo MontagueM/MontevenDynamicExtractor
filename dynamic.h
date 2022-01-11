@@ -39,10 +39,11 @@ private:
 
 public:
 	std::string packagesPath;
-	Dynamic(std::string x, std::string pkgsPath, eTextureFormat InTextureFormat) : Model(x, pkgsPath)
+	Dynamic(std::string x, std::string pkgsPath, eTextureFormat InTextureFormat, std::string InSkeletonOverwriteHash) : Model(x, pkgsPath)
 	{
 		packagesPath = pkgsPath;
 		TextureFormat = InTextureFormat;
+		skeletonHash = InSkeletonOverwriteHash;
 	}
 	Dynamic(std::string x, std::string pkgsPath) : Model(x, pkgsPath)
 	{

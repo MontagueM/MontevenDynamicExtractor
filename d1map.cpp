@@ -215,38 +215,7 @@ std::vector<float> rotationMatrixToEulerAngles(std::vector<std::vector<float>> R
 	std::vector<float> Quaternion{ 0, 0, 0, 0 };
 	const float pi = 3.14159265358979323846;
 
-	// Convert mat -> quat, from numpy source
-	//std::vector<float> DecisionVec{ 0, 0, 0, 0 };
-	//DecisionVec[0] = R[0][0];
-	//DecisionVec[1] = R[1][1];
-	//DecisionVec[2] = R[2][2];
-	//DecisionVec[3] = DecisionVec[0] + DecisionVec[1] + DecisionVec[2];
-	//int MaxIndex = std::distance(DecisionVec.begin(), std::max_element(DecisionVec.begin(), DecisionVec.end()));
-	//if (MaxIndex != 3)
-	//{
-	//	int i = MaxIndex;
-	//	int j = (i + 1) % 3;
-	//	int k = (j + 1) % 3;
-	//	Quaternion[i] = 1 - DecisionVec[3] + 2 * R[i][i];
-	//	Quaternion[j] = R[j][i] + R[i][j];
-	//	Quaternion[k] = R[k][i] + R[i][k];
-	//	Quaternion[3] = R[k][j] - R[j][k];
-	//}
-	//else
-	//{
-	//	Quaternion[0] = R[2][1] - R[1][2];
-	//	Quaternion[1] = R[0][2] - R[2][0];
-	//	Quaternion[2] = R[1][0] - R[0][1];
-	//	Quaternion[3] = 1 + DecisionVec[3];
-	//}
-
-	//float size = sqrt(Quaternion[0] * Quaternion[0] + Quaternion[1] * Quaternion[1] + Quaternion[2] * Quaternion[2] + Quaternion[3] * Quaternion[3]);
-	//Quaternion[0] /= size;
-	//Quaternion[1] /= size;
-	//Quaternion[2] /= size;
-	//Quaternion[3] /= size;
-
-	// Convert quat -> euler from numpy
+	// from numpy
 	auto MatTransform = R;
 	MatTransform[0][0] = R[1][1];
 	MatTransform[0][1] = R[1][2];
@@ -347,11 +316,6 @@ void D1Map::GetDataTable()
 		}
 		Scales.push_back(Scale);
 
-		if (Rotations.size() == 168 + 19)
-		{
-			auto a = 0;
-		}
-
 		// Rotation
 		std::vector<std::vector<float>> RotationMatrix;
 		for (int j = 0; j < 3; j++)
@@ -375,11 +339,6 @@ void D1Map::GetDataTable()
 			UVTransform.push_back(fval);
 		}
 		UVTransforms.push_back(UVTransform);
-
-		if (Rotations.size() == 168 + 19 + 1)
-		{
-			auto a = 0;
-		}
 	}
 }
 

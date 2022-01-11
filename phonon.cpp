@@ -37,7 +37,7 @@ extern "C"
 
 	__declspec(dllexport) bool __stdcall RequestExportDynamic(const char* DynamicHash, const char* pkgsPath, const char* ExportPath, const char* ExportName, int TextureFormat)
 	{
-		Dynamic* dynamic = new Dynamic(DynamicHash, pkgsPath, eTextureFormat(TextureFormat));
+		Dynamic* dynamic = new Dynamic(DynamicHash, pkgsPath, eTextureFormat(TextureFormat), "b227ad80");
 		int status = dynamic->get();
 		if (status)
 		{

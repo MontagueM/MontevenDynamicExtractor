@@ -244,9 +244,17 @@ void VertexBuffer::getVerts(DynamicMesh* mesh)
 				else if (s == 24)
 				{
 					// UV, normal, tangent, vertex colour
-					readUV(mesh, i, data);
-					readNormal(mesh, i + 0x4, data);
-					readVertexColour(mesh, i + 0x14, data);
+					if (!bUVExists)
+					{
+						readUV(mesh, i, data);
+						readNormal(mesh, i + 0x4, data);
+						readVertexColour(mesh, i + 0x14, data);
+					}
+					else
+					{
+						readNormal(mesh, i + 0x0, data);
+						readVertexColour(mesh, i + 0x14, data);
+					}
 				}
 				else if (s == 28)
 				{
