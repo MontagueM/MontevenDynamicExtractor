@@ -141,9 +141,32 @@ void Material::parseMaterial(std::unordered_map<uint64_t, uint32_t> hash64Table)
     uint32_t textureCount;
     uint32_t textureOffset;
     // Pixel shader textures
-    memcpy((char*)&textureCount, data + 0x2A0, 4);
-    memcpy((char*)&textureOffset, data + 0x2A8, 4);
-    textureOffset += 0x2A8 + 0x10;
+    memcpy((char*)&textureCount, data + 0x2B8, 4);
+    //memcpy((char*)&textureOffset, data + 0x2A8, 4);
+    //textureOffset += 0x2A8 + 0x10;
+    //Reading TextureOffset from 0x2A8 or 0x2D8 (my initial fix) is now unreliable for now afaik
+    //so this solution is quick, dirty, and probably slower but it works ig
+
+    int extOff = fs - 16;
+    bool bFound = false;
+    uint32_t val;
+    while (true)
+    {
+        memcpy((char*)&val, data + extOff, 4);
+        if (val == 0x80806DCF)
+        {
+            bFound = true;
+            extOff += 8;
+            textureOffset = extOff;
+            break;
+        }
+        extOff -= 4;
+    }
+    if (!bFound) {
+        return;
+    }
+
+
     uint64_t h64Val;
     for (int i = textureOffset; i < textureOffset + textureCount * 0x18; i += 0x18)
     {
@@ -163,11 +186,18 @@ void Material::parseMaterial(std::unordered_map<uint64_t, uint32_t> hash64Table)
                 textures[textureIndex] = texture;
             }
         }
-        else
+        else if (h64Check.substr(h64Check.length() - 2) == "80" && h64Check.substr(h64Check.length() - 4) != "8080")
         {
-            printf("Support old texture format");
-            return;
+            std::string textureHash = getReferenceFromHash(h64Check, packagesPath);
+            //std::cout << textureHash + "\n"; debugging nonsense
+            Texture* texture = new Texture(textureHash, packagesPath);
+            textures[textureIndex] = texture;
         }
+	else
+	{
+	    printf("Support old texture format");
+	    return;
+	}
     }
 }
 
