@@ -137,7 +137,7 @@ void Texture::writeFile(DDSHeader dds, DXT10Header dxt, std::string fullSavePath
 
 void Material::parseMaterial(std::unordered_map<uint64_t, uint32_t> hash64Table)
 {
-    getData();
+    int fs = getData();
     uint32_t textureCount;
     uint32_t textureOffset;
     // Pixel shader textures
