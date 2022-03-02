@@ -4,22 +4,22 @@
 
 void Texture::getHeader(std::string x)
 {
-	memcpy((char*)&textureFormat, data + 4, 2);
-	memcpy((char*)&width, data + 0x22, 2);
-	memcpy((char*)&height, data + 0x24, 2);
-	memcpy((char*)&arraySize, data + 0x28, 2);
-	uint32_t val;
-	memcpy((char*)&val, data + 0x3C, 4);
-	largeHash = uint32ToHexStr(val);
+    memcpy((char*)&textureFormat, data + 4, 2);
+    memcpy((char*)&width, data + 0x22, 2);
+    memcpy((char*)&height, data + 0x24, 2);
+    memcpy((char*)&arraySize, data + 0x28, 2);
+    uint32_t val;
+    memcpy((char*)&val, data + 0x3C, 4);
+    largeHash = uint32ToHexStr(val);
 }
 
 void Texture::tex2DDS(std::string fullSavePath)
 {
-	if (largeHash != "ffffffff" && largeHash != "")
-		dataFile = new File(largeHash, packagesPath);
-	else
-		dataFile = new File(getReferenceFromHash(hash, packagesPath), packagesPath);
-	writeTexture(fullSavePath);
+    if (largeHash != "ffffffff" && largeHash != "")
+        dataFile = new File(largeHash, packagesPath);
+    else
+        dataFile = new File(getReferenceFromHash(hash, packagesPath), packagesPath);
+    writeTexture(fullSavePath);
 }
 
 void Texture::tex2Other(std::string fullSavePath, std::string saveFormat)
@@ -50,7 +50,7 @@ void Texture::tex2Other(std::string fullSavePath, std::string saveFormat)
     //std::wstring str = L'"' + wPathNoBackslashes + L"/texconv.exe" + L'"' + L" " + wFSP + L"\" -y -ft " + wsaveFormat + L" -f " + wdxgiFormat;
     //wprintf(str.c_str());
     //_wsystem(str.c_str());
-   
+
     std::string str = "texconv.exe \"" + fullSavePath + "\" -y -ft " + saveFormat + " -f " + dxgiFormat;
     printf(str.c_str());
     system(str.c_str());
@@ -63,10 +63,10 @@ void Texture::tex2Other(std::string fullSavePath, std::string saveFormat)
 
 void Texture::writeTexture(std::string fullSavePath)
 {
-	bool bCompressed = false;
-	if (70 < textureFormat < 99) bCompressed = true;
+    bool bCompressed = false;
+    if (70 < textureFormat < 99) bCompressed = true;
 
-	DDSHeader dds;
+    DDSHeader dds;
     DXT10Header dxt;
     dds.MagicNumber = 542327876;
     dds.dwSize = 124;
@@ -124,7 +124,7 @@ void Texture::writeTexture(std::string fullSavePath)
 void Texture::writeFile(DDSHeader dds, DXT10Header dxt, std::string fullSavePath)
 {
     FILE* outputFile;
-    
+
     fopen_s(&outputFile, fullSavePath.c_str(), "wb");
     if (outputFile != NULL) {
         fwrite(&dds, sizeof(struct DDSHeader), 1, outputFile);
@@ -137,36 +137,40 @@ void Texture::writeFile(DDSHeader dds, DXT10Header dxt, std::string fullSavePath
 
 void Material::parseMaterial(std::unordered_map<uint64_t, uint32_t> hash64Table)
 {
-    int fs = getData();
+    uint32_t fileSize;
+    fileSize = getData();
     uint32_t textureCount;
     uint32_t textureOffset;
     // Pixel shader textures
     memcpy((char*)&textureCount, data + 0x2B8, 4);
+    if (textureCount == 0)
+        return;
     //memcpy((char*)&textureOffset, data + 0x2A8, 4);
     //textureOffset += 0x2A8 + 0x10;
     //Reading TextureOffset from 0x2A8 or 0x2D8 (my initial fix) is now unreliable for now afaik
     //so this solution is quick, dirty, and probably slower but it works ig
 
-    int extOff = fs - 16;
+    uint32_t off = 0;
     bool bFound = false;
     uint32_t val;
+    off = fileSize - 32;
     while (true)
     {
-        memcpy((char*)&val, data + extOff, 4);
+        if (off == 0)
+            break;
+        memcpy((char*)&val, data + off, 4);
         if (val == 0x80806DCF)
         {
             bFound = true;
-            extOff += 8;
-            textureOffset = extOff;
+            off += 8;
+            textureOffset = off;
             break;
         }
-        extOff -= 4;
+        off -= 4;
     }
     if (!bFound) {
         return;
     }
-
-
     uint64_t h64Val;
     for (int i = textureOffset; i < textureOffset + textureCount * 0x18; i += 0x18)
     {
@@ -193,11 +197,11 @@ void Material::parseMaterial(std::unordered_map<uint64_t, uint32_t> hash64Table)
             Texture* texture = new Texture(textureHash, packagesPath);
             textures[textureIndex] = texture;
         }
-	else
-	{
-	    printf("Support old texture format");
-	    return;
-	}
+        else
+        {
+            printf("Support old texture format");
+            return;
+        }
     }
 }
 
@@ -294,7 +298,7 @@ std::string getCBufferFromOffset(unsigned char* data, int offset, int count, uin
         for (int i = 0; i < count; i++)
         {
             memcpy((char*)&val, data + offset + i, 1);
-            std::string floats = std::to_string((float)val/128) + ",";
+            std::string floats = std::to_string((float)val / 128) + ",";
             allFloat += floats;
             if (i % 8 == 0 && i != 0) allFloat += "\n  ";
         }
