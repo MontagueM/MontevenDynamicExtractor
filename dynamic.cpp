@@ -37,11 +37,11 @@ void Dynamic::considerSkeletonOverride()
 			break;
 		case 1:
 			printf("Skeleton flag 1, ripped models will use the player body rig.");
-			skeletonHash = "F8EEA880";
+			skeletonHash = "F8EEA880"; //this changed
 			break;
 		case 2:
 			printf("Skeleton flag 2, ripped models will use the player face rig.");
-			skeletonHash = "CC54A280";
+			skeletonHash = "CC54A280"; //i havent checked but probably this too
 			break;
 		}
 	}
@@ -58,7 +58,7 @@ void Dynamic::getTexturePlates()
 		//dyn2->getData();
 		if (!dyn2->getData()) continue;
 		memcpy((char*)&offset, dyn2->data + 0x18, 4);
-		offset += 712;
+		offset += 808;
 		memcpy((char*)&fileVal, dyn2->data + offset, 4);
 		fileHash = uint32ToHexStr(fileVal);
 		if (fileHash == "ffffffff") continue;
@@ -143,7 +143,7 @@ void Dynamic::getDyn3Files()
 			continue;
 		}
 		memcpy((char*)&off, dyn2->data + off + 572, 4);
-		if (off < 2155872256)
+		if (off < 0x80800000)
 		{
 			printf("\nDynamic has no mesh data (D), skipping...");
 			continue;
@@ -173,13 +173,13 @@ void Dynamic::getDyn3Files()
 			while (true)
 			{
 				memcpy((char*)&val, dyn2->data + extOff, 4);
-				if (val == 2155872276)
+				if (val == 0x80800014)
 				{
 					bFound = true;
 					extOff -= 8;
 					break;
 				}
-				else if (val == 2155913144) break;
+				else if (val == 0x80809FB8) break;
 				extOff -= 4;
 			}
 			if (bFound)
