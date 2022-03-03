@@ -81,7 +81,7 @@ std::vector<std::string> getAPIModelHashes(uint32_t apiHash, std::string package
 
 uint32_t getArtArrangementHash(uint32_t apiHash, std::string packagesPath)
 {
-	File* dataTable = new File("AA3FE280", packagesPath);
+	File* dataTable = new File("1760AE80", packagesPath);
 	dataTable->getData();
 	File* arrangementTable = new File("137AD080", packagesPath);
 	arrangementTable->getData();
@@ -99,8 +99,8 @@ uint32_t getArtArrangementHash(uint32_t apiHash, std::string packagesPath)
 			memcpy((char*)&val, dataTable->data + i + 0x10, 4);
 			File dataFile = File(uint32ToHexStr(val), packagesPath);
 			dataFile.getData();
-			memcpy((char*)&val, dataFile.data + 0x88, 4);
-			val += 0x88 + 8;
+			memcpy((char*)&val, dataFile.data + 0x48, 4);
+			val += 0x1E8 + 8;
 			memcpy((char*)&val2, dataFile.data + val, 4);
 			val += val2 + 0x12;
 			memcpy((char*)&val2, dataFile.data + val, 2);
@@ -119,7 +119,7 @@ uint32_t getArtArrangementHash(uint32_t apiHash, std::string packagesPath)
 
 bool getAPIShader(uint32_t apiHash, std::string outputPath, std::string packagesPath, std::unordered_map<uint64_t, uint32_t> hash64Table)
 {
-	File* dataTable = new File("AA3FE280", packagesPath);
+	File* dataTable = new File("1760AE80", packagesPath);
 	dataTable->getData();
 
 	uint32_t tableOffset = 0x30;
