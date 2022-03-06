@@ -99,17 +99,8 @@ uint32_t getArtArrangementHash(uint32_t apiHash, std::string packagesPath)
 			memcpy((char*)&val, dataTable->data + i + 0x10, 4);
 			File dataFile = File(uint32ToHexStr(val), packagesPath);
 			dataFile.getData();
-			memcpy((char*)&val, dataFile.data + 0x48, 4);
-			if (val == 0)
-			{
-			    memcpy((char*)&val, dataFile.data + 0x88, 4);
-			    val += 0x1E8 + 8;
-			}
-			else
-			{
-			    val += 0x94 + 8;
-			}
-			val += 0x1E8 + 8;
+			memcpy((char*)&val, dataFile.data + 0x90, 4);
+			val += 0x90 + 8;
 			memcpy((char*)&val2, dataFile.data + val, 4);
 			val += val2 + 0x12;
 			memcpy((char*)&val2, dataFile.data + val, 2);
