@@ -144,8 +144,15 @@ FbxMesh* FbxModel::createMesh(Submesh* submesh, bool bAddSkeleton)
 		else
 			mesh->SetControlPointAt(FbxVector4(-v[0], v[2], v[1]), i);
 	}
-	for (auto& face : submesh->faces)
+	for (int f = 0; f < submesh->faces.size(); f++)
 	{
+		if (!submesh->faces[f].size())
+		{
+			//std::perror("why is it failing here\n");
+			continue;
+		}
+		std::vector<uint32_t> face = submesh->faces[f];
+		//std::cout << std::to_string(f) << ": " << std::to_string(face[0]) << " " << std::to_string(face[1]) << " " << std::to_string(face[2]) << "\n";
 		mesh->BeginPolygon();
 		mesh->AddPolygon(face[0]);
 		mesh->AddPolygon(face[1]);
