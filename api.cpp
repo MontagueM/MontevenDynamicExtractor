@@ -81,7 +81,7 @@ std::vector<std::string> getAPIModelHashes(uint32_t apiHash, std::string package
 
 uint32_t getArtArrangementHash(uint32_t apiHash, std::string packagesPath)
 {
-	File* dataTable = new File("1760AE80", packagesPath);
+	File* dataTable = new File("4A67AE80", packagesPath);
 	dataTable->getData();
 	File* arrangementTable = new File("137AD080", packagesPath);
 	arrangementTable->getData();
