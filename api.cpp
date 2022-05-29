@@ -119,7 +119,7 @@ uint32_t getArtArrangementHash(uint32_t apiHash, std::string packagesPath)
 
 bool getAPIShader(uint32_t apiHash, std::string outputPath, std::string packagesPath, std::unordered_map<uint64_t, uint32_t> hash64Table)
 {
-	File* dataTable = new File("1760AE80", packagesPath);
+	File* dataTable = new File("4A67AE80", packagesPath);
 	dataTable->getData();
 
 	uint32_t tableOffset = 0x30;
