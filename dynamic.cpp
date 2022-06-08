@@ -272,7 +272,6 @@ void Dynamic::parseDyn3s()
 				memcpy((char*)&submesh->indexOffset, dyn3->data + k + 0x8, 4);
 				memcpy((char*)&submesh->indexCount, dyn3->data + k + 0xC, 4);
 				memcpy((char*)&submesh->lodLevel, dyn3->data + k + 0x1D, 1);
-				std::cout << "lodlevel " + std::to_string(submesh->lodLevel) + " @ offset " + std::to_string(k + 0x1B) << "\n";
 				if (submesh->lodLevel < currentLOD) lodGroup++;
 				currentLOD = submesh->lodLevel;
 				submesh->lodGroup = lodGroup;
@@ -418,7 +417,7 @@ void Dynamic::getSubmeshes()
 			if (mesh->vertNorm.size()) submesh->vertNorm = trimVertsData(mesh->vertNorm, dsort, false);
 			if (mesh->vertUV.size()) submesh->vertUV = trimVertsData(mesh->vertUV, dsort, false);
 			if (mesh->vertCol.size()) submesh->vertCol = trimVertsData(mesh->vertCol, dsort, true);
-			if (mesh->weights.size()) submesh->weights = trimVertsData(mesh->weights, dsort, false);
+			if (mesh->weights.size()) submesh->weights = trimVertsData(mesh->weights, dsort, false); //hash 5BF4DE80 is failing on trimming the weights data.
 			if (mesh->weightIndices.size()) submesh->weightIndices = trimVertsData(mesh->weightIndices, dsort);
 			//existingOffsets.push_back(submesh->indexOffset);
 			existingSubmeshes[submesh->indexOffset] = submesh->lodLevel;
@@ -542,6 +541,8 @@ std::vector<std::vector<float_t>> Dynamic::trimVertsData(std::vector<std::vector
 	std::vector<float_t> zeroVec = { 0, 0, 0, 0 };
 	for (auto& val : dsort)
 	{
+		if (!val)
+			continue;
 		if (bVertCol)
 		{
 			if (val >= verts.size()) newVec.push_back(zeroVec);
@@ -549,6 +550,7 @@ std::vector<std::vector<float_t>> Dynamic::trimVertsData(std::vector<std::vector
 		}
 		else
 		{
+			if (val >= verts.size()) continue;
 			newVec.push_back(verts[val]);
 		}
 	}
@@ -560,6 +562,7 @@ std::vector<std::vector<uint8_t>> Dynamic::trimVertsData(std::vector<std::vector
 	std::vector<std::vector<uint8_t>> newVec;
 	for (auto& val : dsort)
 	{
+		if (val >= verts.size()) continue;
 		newVec.push_back(verts[val]);
 	}
 	return newVec;

@@ -5,7 +5,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-p "C:/Steam SSD Games/steamapps/common/Destiny 2/packages" -o "D:/MDE/TWQOut" -i 2d93a380</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-p "C:/Steam SSD Games/steamapps/common/Destiny 2/packages" -o "D:/MDE/TWQOut" -i 5BF4DE80</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>
