@@ -37,11 +37,11 @@ void Dynamic::considerSkeletonOverride()
 			break;
 		case 1:
 			printf("Skeleton flag 1, ripped models will use the player body rig.");
-			skeletonHash = "F8EEA880"; //this changed
+			skeletonHash = "BC38AB80"; //this is eva's body rig but could be the same
 			break;
 		case 2:
 			printf("Skeleton flag 2, ripped models will use the player face rig.");
-			skeletonHash = "CC54A280"; //i havent checked but probably this too
+			skeletonHash = "9018AB80"; //this is ikora's head rig but... might be the same?
 			break;
 		}
 	}
@@ -271,7 +271,8 @@ void Dynamic::parseDyn3s()
 				memcpy((char*)&submesh->primType, dyn3->data + k + 6, 2);
 				memcpy((char*)&submesh->indexOffset, dyn3->data + k + 0x8, 4);
 				memcpy((char*)&submesh->indexCount, dyn3->data + k + 0xC, 4);
-				memcpy((char*)&submesh->lodLevel, dyn3->data + k + 0x1B, 1);
+				memcpy((char*)&submesh->lodLevel, dyn3->data + k + 0x1D, 1);
+				std::cout << "lodlevel " + std::to_string(submesh->lodLevel) + " @ offset " + std::to_string(k + 0x1B) << "\n";
 				if (submesh->lodLevel < currentLOD) lodGroup++;
 				currentLOD = submesh->lodLevel;
 				submesh->lodGroup = lodGroup;

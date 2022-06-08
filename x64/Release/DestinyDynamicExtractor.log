@@ -1,6 +1,98 @@
-﻿     Creating library C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Release\DestinyDynamicExtractor.lib and object C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Release\DestinyDynamicExtractor.exp
+﻿  dynamic.cpp
+D:\MontevenDynamicExtractor-main\dynamic.cpp(140,21): warning C4018: '>=': signed/unsigned mismatch
+D:\MontevenDynamicExtractor-main\dynamic.cpp(191,28): warning C4018: '<': signed/unsigned mismatch
+D:\MontevenDynamicExtractor-main\dynamic.cpp(219,26): warning C4018: '<': signed/unsigned mismatch
+D:\MontevenDynamicExtractor-main\dynamic.cpp(261,39): warning C4018: '<': signed/unsigned mismatch
+D:\MontevenDynamicExtractor-main\dynamic.cpp(210,6): warning C4101: 'fileSize': unreferenced local variable
+D:\MontevenDynamicExtractor-main\dynamic.cpp(384,33): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
+D:\MontevenDynamicExtractor-main\dynamic.cpp(385,24): warning C4244: 'initializing': conversion from 'double' to 'size_t', possible loss of data
+D:\MontevenDynamicExtractor-main\dynamic.cpp(441,17): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+D:\MontevenDynamicExtractor-main\dynamic.cpp(444,17): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+D:\MontevenDynamicExtractor-main\dynamic.cpp(447,17): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+D:\MontevenDynamicExtractor-main\dynamic.cpp(450,17): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+D:\MontevenDynamicExtractor-main\dynamic.cpp(453,17): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+D:\MontevenDynamicExtractor-main\dynamic.cpp(456,17): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+D:\MontevenDynamicExtractor-main\dynamic.cpp(472,18): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+D:\MontevenDynamicExtractor-main\dynamic.cpp(475,18): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+D:\MontevenDynamicExtractor-main\dynamic.cpp(478,18): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+D:\MontevenDynamicExtractor-main\dynamic.cpp(481,18): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+D:\MontevenDynamicExtractor-main\dynamic.cpp(484,18): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+D:\MontevenDynamicExtractor-main\dynamic.cpp(487,18): warning C4305: '=': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+D:\MontevenDynamicExtractor-main\dynamic.cpp(705,41): warning C4267: 'initializing': conversion from 'size_t' to 'uint32_t', possible loss of data
+D:\MontevenDynamicExtractor-main\dynamic.cpp(718,30): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+E:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.31.31103\include\utility(190,16): warning C4244: 'initializing': conversion from '_Ty' to '_Ty1', possible loss of data
+          with
+          [
+              _Ty=__int64
+          ]
+          and
+          [
+              _Ty1=const uint32_t
+          ]
+D:\MontevenDynamicExtractor-main\skeleton.h(195): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[9],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
+          with
+          [
+              _Other1=__int64,
+              _Other2=const char (&)[9]
+          ]
+D:\MontevenDynamicExtractor-main\skeleton.h(54): message : see reference to function template instantiation 'std::pair<const uint32_t,std::string>::pair<__int64,const char(&)[9],0>(_Other1 &&,_Other2) noexcept(false)' being compiled
+          with
+          [
+              _Other1=__int64,
+              _Other2=const char (&)[9]
+          ]
+     Creating library D:\MontevenDynamicExtractor-main\x64\Release\DestinyDynamicExtractor.lib and object D:\MontevenDynamicExtractor-main\x64\Release\DestinyDynamicExtractor.exp
   Generating code
-  Previous IPDB and IOBJ mismatch, fall back to full compilation.
-  All 3275 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  1 of 4152 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    5 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
-  DestinyDynamicExtractor.vcxproj -> C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\x64\Release\DestinyDynamicExtractor.dll
+  DestinyDynamicExtractor.vcxproj -> D:\MontevenDynamicExtractor-main\x64\Release\DestinyDynamicExtractor.exe

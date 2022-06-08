@@ -148,7 +148,7 @@ FbxMesh* FbxModel::createMesh(Submesh* submesh, bool bAddSkeleton)
 	{
 		if (!submesh->faces[f].size())
 		{
-			//std::perror("why is it failing here\n");
+			std::perror("why is it failing here\n");
 			continue;
 		}
 		std::vector<uint32_t> face = submesh->faces[f];
