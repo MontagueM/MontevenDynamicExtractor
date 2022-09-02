@@ -12,12 +12,13 @@ static void show_usage()
 	std::cerr << "-a [api hash] extracts the models paired with that given api hash if valid. -i, -b ignored";
 }
 
-
 /*
 Using Sarge https://mayaposch.wordpress.com/2019/03/17/parsing-command-line-arguments-in-c/
 */
+
 int main(int argc, char** argv)
 {
+
 	Sarge sarge;
 
 	sarge.setArgument("p", "pkgspath", "pkgs path", true);

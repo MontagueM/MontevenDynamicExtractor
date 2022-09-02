@@ -541,8 +541,6 @@ std::vector<std::vector<float_t>> Dynamic::trimVertsData(std::vector<std::vector
 	std::vector<float_t> zeroVec = { 0, 0, 0, 0 };
 	for (auto& val : dsort)
 	{
-		if (!val)
-			continue;
 		if (bVertCol)
 		{
 			if (val >= verts.size()) newVec.push_back(zeroVec);
@@ -550,7 +548,6 @@ std::vector<std::vector<float_t>> Dynamic::trimVertsData(std::vector<std::vector
 		}
 		else
 		{
-			if (val >= verts.size()) continue;
 			newVec.push_back(verts[val]);
 		}
 	}
@@ -562,7 +559,6 @@ std::vector<std::vector<uint8_t>> Dynamic::trimVertsData(std::vector<std::vector
 	std::vector<std::vector<uint8_t>> newVec;
 	for (auto& val : dsort)
 	{
-		if (val >= verts.size()) continue;
 		newVec.push_back(verts[val]);
 	}
 	return newVec;

@@ -230,6 +230,8 @@ void Material::exportTextures(std::string fullSavePath, std::string saveFormat)
 
 void Material::parseCBuffers()
 {
+    //beyond light valid stuff
+
     /*
     90008080 stride 16
     09008080 stride 1
@@ -246,7 +248,27 @@ void Material::parseCBuffers()
     pixel 0x2F0 90008080 internal offset
     pixel 0x30C external cbuffer hash
     */
-    std::vector<int> pixelOffsets = { 0x2C0, 0x2D0, 0x2F0 };
+
+    //wq valid stuff
+
+    /*
+    90008080 stride 16
+    09008080 stride 1
+    3F018080 stride 16 external cbuffers
+    ---
+    vertex 0x70 vertex shader texture offset
+    vertex 0x90 09008080 internal offset
+    vertex 0xA0 90008080 internal offset
+    vertex 0xB0 3F018080 internal offset
+    vertex 0xC0 90008080 internal offset
+    pixel 0x2D8 09008080 internal offset
+    pixel 0x2E8 90008080 internal offset
+    pixel 0x2F8 3F018080 internal offset
+    pixel 0x308 90008080 internal offset
+    pixel 0x30C external cbuffer hash
+    */
+
+    std::vector<int> pixelOffsets = { 0x2D8, 0x2E8, 0x308 };
     uint32_t val;
     uint32_t count;
     getData();
@@ -263,8 +285,8 @@ void Material::parseCBuffers()
         cbuffers.push_back(floats);
         i++;
     }
-    memcpy((char*)&val, data + 0x30C, 4);
-    if (val != 4294967295)
+    memcpy((char*)&val, data + 0x324, 4);
+    if (val != 0xFFFFFFFF)
     {
         File buffer = File(getReferenceFromHash(uint32ToHexStr(val), packagesPath), packagesPath);
         int fileSize = buffer.getData();
@@ -290,7 +312,7 @@ void Material::writeCBuffers(std::string fullSavePath)
 
 std::string getCBufferFromOffset(unsigned char* data, int offset, int count, uint32_t cbType, std::string name)
 {
-    if (cbType == 2155872265)
+    if (cbType == 0x80800009)
     {
         std::string allFloat = "static float cb" + name + '[' + std::to_string(count) + "] = \n{\n  ";
         allFloat.reserve(count);
@@ -305,7 +327,7 @@ std::string getCBufferFromOffset(unsigned char* data, int offset, int count, uin
         allFloat += "\n};\n";
         return allFloat;
     }
-    else if (cbType == 2155872400 || offset == 0)
+    else if (cbType == 0x80800090 || offset == 0)
     {
         std::string allFloat4 = "static float4 cb" + name + '[' + std::to_string(count) + "] = \n{\n";
         float_t val;
@@ -327,6 +349,6 @@ std::string getCBufferFromOffset(unsigned char* data, int offset, int count, uin
     else
     {
         std::cerr << "\nUnknown cbuffer class found, exiting...\n";
-        exit(1);
+        return "";
     }
 }
