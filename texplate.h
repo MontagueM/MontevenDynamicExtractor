@@ -1,15 +1,15 @@
 #pragma once
 #include <unordered_map>
-#include "opencv2/opencv.hpp"
-#include "opencv2/imgcodecs.hpp"
+//#include "opencv2/opencv.hpp"
+//#include "opencv2/imgcodecs.hpp"
 #include "helpers.h"
 #include "texture.h"
-
+#include <DirectXTex.h>
+#include <comdef.h>
 /*
 - Parse texture plate set to get each plate
 - Parse each plate to get their coords, scales, and tex refs
-- Extract each texture from a plate
-- Open in opencv and combine using texplate data
+- Open in DirectXTex and combine using texplate data
 - Save as a final image
 */
 
@@ -34,7 +34,7 @@ private:
 public:
 
 	void parsePlate();
-	void savePlate(std::string fullSavePath);
+	void savePlate(std::string fullSavePath, std::string saveFormat);
 	std::vector<TexplateTexture*> textures;
 	TexturePlate(std::string x, std::string pkgsPath, std::string t) : File(x, pkgsPath)
 	{
@@ -51,5 +51,5 @@ private:
 public:
 	TexturePlateSet(std::string x, std::string pkgsPath) : File(x, pkgsPath) {};
 	bool parse();
-	void saveTexturePlateSet(std::string fullSavePath);
+	void saveTexturePlateSet(std::string fullSavePath, std::string saveFormat);
 };

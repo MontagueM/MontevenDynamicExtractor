@@ -25,11 +25,11 @@ bool TexturePlateSet::parse()
 	return true;
 }
 
-void TexturePlateSet::saveTexturePlateSet(std::string fullSavePath)
+void TexturePlateSet::saveTexturePlateSet(std::string fullSavePath, std::string saveFormat)
 {
 	for (auto& plate : texplates)
 	{
-		plate->savePlate(fullSavePath);
+		plate->savePlate(fullSavePath, saveFormat);
 	}
 }
 
@@ -53,7 +53,7 @@ void TexturePlate::parsePlate()
 	}
 }
 
-void TexturePlate::savePlate(std::string fullSavePath)
+void TexturePlate::savePlate(std::string fullSavePath, std::string saveFormat)
 {
 	if (!textures.size()) return;
 
@@ -83,21 +83,47 @@ void TexturePlate::savePlate(std::string fullSavePath)
 	}
 
 	// Extract every image on plate
-	//std::vector<cv::Mat> cvIms;
-	cv::Mat4b res(dimensions[0], dimensions[1], cv::Vec4b(0, 0, 0, 0));
+	DirectX::ScratchImage OutputPlate;
+	OutputPlate.Initialize2D(DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM, dimensions[0], dimensions[1], 1, 0);
 	for (auto& tex : textures)
 	{
-		std::string save = fullSavePath + tex->hash + ".PNG";
-		tex->tex2Other(fullSavePath + tex->hash + ".dds", "png");
-		cv::Mat cvIm = cv::imread(save, cv::IMREAD_UNCHANGED);
-		if (cvIm.empty())
-		{
-			printf("Tex not written!");
-			exit(1);
-		}
-		cvIm.copyTo(res(cv::Rect(tex->offsetX, tex->offsetY, tex->scaleX, tex->scaleY)));
-		remove(save.c_str());
+		tex->get();
+		DirectX::Rect ImageRect(0, 0, tex->width, tex->height);
+		DirectX::ScratchImage DSResizedImage;
+		DirectX::Resize(*tex->DSImage.GetImage(0,0,0), tex->scaleX, tex->scaleY,
+			DirectX::TEX_FILTER_FLAGS::TEX_FILTER_DEFAULT, DSResizedImage);
+
+		DirectX::Image Resized1 = *DSResizedImage.GetImage(0, 0, 0);
+		DirectX::CopyRectangle(*DSResizedImage.GetImage(0, 0, 0), ImageRect, *OutputPlate.GetImage(0, 0, 0), DirectX::TEX_FILTER_FLAGS::TEX_FILTER_DEFAULT, tex->offsetX, tex->offsetY);
+		tex->DSImage.Release();
+		DSResizedImage.Release();
 		free(tex);
 	}
-	cv::imwrite(fullSavePath + hash + "_" + type + ".png", res);
+	
+	std::string FileName;
+	std::wstring widestr;
+	const wchar_t* widecstr;
+	if (saveFormat == "dds")
+	{
+		FileName = fullSavePath + hash + "_" + type + ".DDS";
+		widestr = std::wstring(FileName.begin(), FileName.end());
+		widecstr = widestr.c_str();
+		DirectX::SaveToDDSFile(*OutputPlate.GetImage(0, 0, 0), DirectX::DDS_FLAGS::DDS_FLAGS_NONE, widecstr);
+	}
+	else if (saveFormat == "tga")
+	{
+		FileName = fullSavePath + hash + "_" + type + ".TGA";
+		widestr = std::wstring(FileName.begin(), FileName.end());
+		widecstr = widestr.c_str();
+		DirectX::SaveToTGAFile(*OutputPlate.GetImage(0, 0, 0), widecstr);
+	}
+	else if (saveFormat == "png")
+	{
+		FileName = fullSavePath + hash + "_" + type + ".PNG";
+		widestr = std::wstring(FileName.begin(), FileName.end());
+		widecstr = widestr.c_str();
+		DirectX::SaveToWICFile(*OutputPlate.GetImage(0, 0, 0), DirectX::WIC_FLAGS::WIC_FLAGS_NONE,
+			GetWICCodec(DirectX::WIC_CODEC_PNG), widecstr);
+	}
+	OutputPlate.Release();
 }

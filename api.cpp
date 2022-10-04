@@ -117,7 +117,8 @@ uint32_t getArtArrangementHash(uint32_t apiHash, std::string packagesPath)
 }
 
 
-bool getAPIShader(uint32_t apiHash, std::string outputPath, std::string packagesPath, std::unordered_map<uint64_t, uint32_t> hash64Table)
+bool getAPIShader(uint32_t apiHash, std::string outputPath, std::string packagesPath,
+	std::unordered_map<uint64_t, uint32_t> hash64Table, std::string saveFormat)
 {
 	File* dataTable = new File("4A67AE80", packagesPath);
 	dataTable->getData();
@@ -272,7 +273,7 @@ bool getAPIShader(uint32_t apiHash, std::string outputPath, std::string packages
 					normalName = channelName + "_" + std::to_string(texID) + "_" + texHash + "_" + addString;
 				}
 				else diffuseName = channelName + "_" + std::to_string(texID) + "_" + texHash + "_" + addString;
-				tex.tex2Other(outputPath + "/" + channelName + "_" + std::to_string(texID) + "_" + texHash + "_" + addString + ".dds", "png");
+				tex.save(outputPath + "/" + channelName + "_" + std::to_string(texID) + "_" + texHash + "_" + addString, saveFormat);
 			}
 			// Get dye data
 			if (finalDyeFile == nullptr) continue;

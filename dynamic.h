@@ -55,7 +55,7 @@ public:
 	}
 
 	bool get();
-	void pack(std::string saveDirectory, bool bCBuffer);
+	void pack(std::string saveDirectory, bool bCBuffer, std::string saveFormat);
 	void save(std::string saveDirectory, std::string saveName);
 	bool RequestInfo(int& SubmeshCount, bool& bHasSkeleton);
 	bool RequestSaveDynamicMeshData();

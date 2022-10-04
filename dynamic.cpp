@@ -565,7 +565,7 @@ std::vector<std::vector<uint8_t>> Dynamic::trimVertsData(std::vector<std::vector
 }
 
 
-void Dynamic::pack(std::string saveDirectory, bool bCBuffer)
+void Dynamic::pack(std::string saveDirectory, bool bCBuffer, std::string saveFormat)
 {
 	std::filesystem::create_directories(saveDirectory);
 	for (int i = 0; i < meshes.size(); i++)
@@ -614,7 +614,7 @@ void Dynamic::pack(std::string saveDirectory, bool bCBuffer)
 		{
 			bool status = texplateSet->parse();
 			if (!status) continue;
-			texplateSet->saveTexturePlateSet(saveDirectory + "/textures/");
+			texplateSet->saveTexturePlateSet(saveDirectory + "/textures/", saveFormat);
 		}
 
 		if (!externalMaterials.size()) return;
@@ -623,7 +623,7 @@ void Dynamic::pack(std::string saveDirectory, bool bCBuffer)
 		for (auto& mat : externalMaterials)
 		{
 			mat->parseMaterial(h64Table);
-			mat->exportTextures(saveDirectory + "/unk_textures/", "png");
+			mat->exportTextures(saveDirectory + "/unk_textures/", saveFormat);
 		}
 	}
 }

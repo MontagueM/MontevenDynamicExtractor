@@ -5,7 +5,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-p "C:/Steam SSD Games/steamapps/common/Destiny 2/packages" -o "output" -t -c -i 7b51bc80</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-p "C:/Steam SSD Games/steamapps/common/Destiny 2/packages" -o "output" -t -a 542198399</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDll|x64'">
