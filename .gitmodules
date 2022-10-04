@@ -1,0 +1,3 @@
+[submodule "DestinyUnpackerCPP"]
+    path = DestinyUnpackerCPP
+    url = https://github.com/MontagueM/DestinyUnpackerCPP.git
