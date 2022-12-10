@@ -56,12 +56,15 @@ void Dynamic::getTexturePlates()
 	{
 		// can optimise by replacing with pointers
 		//dyn2->getData();
-		if (!dyn2->getData()) continue;
+		int fileSize = dyn2->getData();
+		if (!fileSize) continue;
 		memcpy((char*)&offset, dyn2->data + 0x18, 4);
 		offset += 808;
+		if (offset >= fileSize)
+			continue;
 		memcpy((char*)&fileVal, dyn2->data + offset, 4);
 		fileHash = uint32ToHexStr(fileVal);
-		if (fileHash == "ffffffff") continue;
+		if (fileHash == "ffffffff" || fileHash == "00000000") continue;
 		TexturePlateSet* texplateSet = new TexturePlateSet(fileHash, packagesPath);
 		texplateSets.push_back(texplateSet);
 	}
