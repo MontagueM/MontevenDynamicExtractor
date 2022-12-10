@@ -47,7 +47,7 @@ std::vector<std::string> dataNames =
 std::vector<std::string> getAPIModelHashes(uint32_t apiHash, std::string packagesPath, std::unordered_map<uint64_t, uint32_t> hash64Table, bool& bSingle)
 {
 	std::vector<std::string> modelHashes;
-	File* modelTable = new File("A67AD080", packagesPath);
+	File* modelTable = new File("0A4CCE80", packagesPath);
 	modelTable->getData();
 	// Finding val
 	uint32_t tableOffset = 0x40;
@@ -81,9 +81,9 @@ std::vector<std::string> getAPIModelHashes(uint32_t apiHash, std::string package
 
 uint32_t getArtArrangementHash(uint32_t apiHash, std::string packagesPath)
 {
-	File* dataTable = new File("4A67AE80", packagesPath);
+	File* dataTable = new File("6260AE80", packagesPath);
 	dataTable->getData();
-	File* arrangementTable = new File("137AD080", packagesPath);
+	File* arrangementTable = new File("0D60AE80", packagesPath);
 	arrangementTable->getData();
 
 	uint32_t tableOffset = 0x30;
@@ -120,7 +120,7 @@ uint32_t getArtArrangementHash(uint32_t apiHash, std::string packagesPath)
 bool getAPIShader(uint32_t apiHash, std::string outputPath, std::string packagesPath,
 	std::unordered_map<uint64_t, uint32_t> hash64Table, std::string saveFormat)
 {
-	File* dataTable = new File("4A67AE80", packagesPath);
+	File* dataTable = new File("6260AE80", packagesPath);
 	dataTable->getData();
 
 	uint32_t tableOffset = 0x30;
@@ -273,7 +273,7 @@ bool getAPIShader(uint32_t apiHash, std::string outputPath, std::string packages
 					normalName = channelName + "_" + std::to_string(texID) + "_" + texHash + "_" + addString;
 				}
 				else diffuseName = channelName + "_" + std::to_string(texID) + "_" + texHash + "_" + addString;
-				tex.save(outputPath + "/" + channelName + "_" + std::to_string(texID) + "_" + texHash + "_" + addString, saveFormat);
+				tex.tex2Other(outputPath + "/" + channelName + "_" + std::to_string(texID) + "_" + texHash + "_" + addString + ".dds", "png");
 			}
 			// Get dye data
 			if (finalDyeFile == nullptr) continue;

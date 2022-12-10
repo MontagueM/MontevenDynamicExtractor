@@ -16,7 +16,14 @@ File::File(std::string x, std::string pkgsPath)
 
 int File::getData()
 {
-	if (hash.substr(hash.length() - 2) != "80" || hash.substr(hash.length() - 4) == "8080") return 0;
+	// check if (string to int) 
+	int hashInt = hexStrToUint32(hash);
+	if (hashInt < 0x80a00000 || hashInt > 0x81ffffff)
+	{
+		std::cout << "Invalid hash: " << hash << std::endl;
+		return 0;
+	}
+
 
 	if (pkgID == "")
 	{

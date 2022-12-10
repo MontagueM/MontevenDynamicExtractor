@@ -614,7 +614,7 @@ void Dynamic::pack(std::string saveDirectory, bool bCBuffer, std::string saveFor
 		{
 			bool status = texplateSet->parse();
 			if (!status) continue;
-			texplateSet->saveTexturePlateSet(saveDirectory + "/textures/", saveFormat);
+			texplateSet->saveTexturePlateSet(saveDirectory + "/textures/");
 		}
 
 		if (!externalMaterials.size()) return;
