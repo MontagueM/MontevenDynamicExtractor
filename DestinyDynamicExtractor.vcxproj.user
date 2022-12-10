@@ -5,7 +5,11 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+<<<<<<< HEAD
     <LocalDebuggerCommandArguments>-p "D:\SteamLibrary\steamapps\common\Destiny 2" -o "output" -t -a 4279814045</LocalDebuggerCommandArguments>
+=======
+    <LocalDebuggerCommandArguments>-p "C:/Steam SSD Games/steamapps/common/Destiny 2/packages" -o "output" -t -c -i 7b51bc80</LocalDebuggerCommandArguments>
+>>>>>>> parent of 069bcc8 (Switch to using DirectXTex instead of OpenCV for texplating)
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDll|x64'">

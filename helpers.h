@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <unordered_map>
-#include "DestinyUnpackerCPP/package.h"
+#include "../MontsUnpackerCPP/package.h"
 
 // forward declarations
 class Texture;
@@ -124,8 +124,4 @@ public:
 	VertexBufferHeader* spsbWeightsFile = nullptr;
 };
 
-
-std::string getReferenceFromHash(std::string hash, std::string pkgsPath);
 std::string getHash64(uint64_t hash64, std::unordered_map<uint64_t, uint32_t> hash64Table);
-std::string getPkgID(std::string hash);
-uint16_t getPkgID(uint32_t hash);

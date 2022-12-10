@@ -565,7 +565,7 @@ std::vector<std::vector<uint8_t>> Dynamic::trimVertsData(std::vector<std::vector
 }
 
 
-void Dynamic::pack(std::string saveDirectory, bool bCBuffer, std::string saveFormat)
+void Dynamic::pack(std::string saveDirectory, bool bCBuffer)
 {
 	std::filesystem::create_directories(saveDirectory);
 	for (int i = 0; i < meshes.size(); i++)
@@ -623,7 +623,7 @@ void Dynamic::pack(std::string saveDirectory, bool bCBuffer, std::string saveFor
 		for (auto& mat : externalMaterials)
 		{
 			mat->parseMaterial(h64Table);
-			mat->exportTextures(saveDirectory + "/unk_textures/", saveFormat);
+			mat->exportTextures(saveDirectory + "/unk_textures/", "png");
 		}
 	}
 }

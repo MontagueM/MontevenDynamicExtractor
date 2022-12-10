@@ -117,8 +117,7 @@ uint32_t getArtArrangementHash(uint32_t apiHash, std::string packagesPath)
 }
 
 
-bool getAPIShader(uint32_t apiHash, std::string outputPath, std::string packagesPath,
-	std::unordered_map<uint64_t, uint32_t> hash64Table, std::string saveFormat)
+bool getAPIShader(uint32_t apiHash, std::string outputPath, std::string packagesPath, std::unordered_map<uint64_t, uint32_t> hash64Table)
 {
 	File* dataTable = new File("6260AE80", packagesPath);
 	dataTable->getData();

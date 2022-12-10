@@ -5,13 +5,11 @@
 
 static void show_usage()
 {
-	std::cerr << "Usage: MontevenDynamicExtractorv1.7.9 -p [packages path]"
-		<< "-o [output path] -n [file name] -i [input hash] -t -b [package ID] -a [api hash] -f [save format]"
+	std::cerr << "Usage: MontevenDynamicExtractorv1.0.0 -p [packages path] -o [output path] -n [file name] -i [input hash] -t -b [package ID] -a [api hash]"
 		<< std::endl;
 	std::cerr << "-t enables texture extraction\n";
 	std::cerr << "-b [package ID] extracts all the dynamic models available for that package ID. -t, -i, -n are ignored\n";
-	std::cerr << "-a [api hash] extracts the models paired with that given api hash if valid. -i, -b ignored\n";
-	std::cerr << "-f [save format] allows you to select what format you want to save the textures in. Valid: dds, tga, png";
+	std::cerr << "-a [api hash] extracts the models paired with that given api hash if valid. -i, -b ignored";
 }
 
 /*
@@ -20,14 +18,6 @@ Using Sarge https://mayaposch.wordpress.com/2019/03/17/parsing-command-line-argu
 
 int main(int argc, char** argv)
 {
-	//Initializing COM
-
-	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-	if (FAILED(hr))
-	{
-		std::perror("Failed to Initialize COM");
-		exit(1);
-	}
 
 	Sarge sarge;
 
@@ -41,7 +31,6 @@ int main(int argc, char** argv)
 	sarge.setArgument("s", "skeloverride", "skeleton override", true);
 	sarge.setArgument("c", "cbuffer", "enable cbuffer extraction", false);
 	sarge.setArgument("h", "shader", "shader hash", true);
-	sarge.setArgument("f", "format", "save format", true);
 	sarge.setDescription("Destiny 2 dynamic model extractor by Monteven.");
 	sarge.setUsage("MontevenDynamicExtractor");
 
@@ -63,7 +52,6 @@ int main(int argc, char** argv)
 	std::string batchPkg;
 	std::string apiHashStr = "";
 	std::string shaderHashStr = "";
-	std::string saveFormat = "png";
 	uint32_t apiHash = 0;
 	uint32_t shaderHash = 0;
 	sarge.getFlag("pkgspath", pkgsPath);
@@ -73,7 +61,7 @@ int main(int argc, char** argv)
 	sarge.getFlag("api", apiHashStr);
 	sarge.getFlag("shader", shaderHashStr);
 	sarge.getFlag("skeloverride", skeletonOverrideStr);
-	sarge.getFlag("format", saveFormat);
+
 	if (skeletonOverrideStr != "") skeletonOverride = std::stol(skeletonOverrideStr);
 	if (apiHashStr != "") apiHash = std::stoul(apiHashStr);
 	if (shaderHashStr != "") shaderHash = std::stoul(shaderHashStr);
@@ -134,7 +122,7 @@ int main(int argc, char** argv)
 		printf("Shader flag found, getting shader data...\n");
 		std::string savePath = outputPath + "/" + std::to_string(shaderHash);
 		std::filesystem::create_directories(savePath);
-		bool status = getAPIShader(shaderHash, savePath, pkgsPath, hash64Table, saveFormat);
+		bool status = getAPIShader(shaderHash, savePath, pkgsPath, hash64Table);
 		if (status)
 		{
 			printf("Shader rip done!");
@@ -177,7 +165,7 @@ int main(int argc, char** argv)
 			if (dyn.get())
 			{
 				printf("\n\nFile extraction readied...\n");
-				dyn.pack(savePath, bCBuffer, saveFormat);
+				dyn.pack(savePath, bCBuffer);
 				dyn.save(savePath, fName + "_" + h);
 			}
 			else
@@ -190,7 +178,7 @@ int main(int argc, char** argv)
 	if (batchPkg != "")
 	{
 		printf("Batch flag found, exporting batch...\n");
-		doBatch(pkgsPath, outputPath, batchPkg, hash64Table, skeletonOverride, saveFormat);
+		doBatch(pkgsPath, outputPath, batchPkg, hash64Table, skeletonOverride);
 		printf("Batch done!\n");
 		return 0;
 	}
@@ -204,7 +192,7 @@ int main(int argc, char** argv)
 	{
 		printf("\n\nFile extraction readied...\n");
 		outputPath += "/" + fileName + "/";
-		dyn.pack(outputPath, bCBuffer, saveFormat);
+		dyn.pack(outputPath, bCBuffer);
 		dyn.save(outputPath, fileName);
 		std::cout << "\nFile extraction complete! Saved to " << outputPath << "/" << fileName << ".fbx\n";
 	}
@@ -214,8 +202,7 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-void doBatch(std::string pkgsPath, std::string outputPath, std::string batchPkg,
-	std::unordered_map<uint64_t, uint32_t> hash64Table, int skeletonOverride, std::string saveFormat)
+void doBatch(std::string pkgsPath, std::string outputPath, std::string batchPkg, std::unordered_map<uint64_t, uint32_t> hash64Table, int skeletonOverride)
 {
 	// We need to get an array of all the valid dyn1 hashes
 	Package pkg(batchPkg, pkgsPath);
@@ -228,7 +215,7 @@ void doBatch(std::string pkgsPath, std::string outputPath, std::string batchPkg,
 		bool status = dyn.get();
 		if (status)
 		{
-			dyn.pack(outputPath, false, saveFormat);
+			dyn.pack(outputPath, false);
 			dyn.save(outputPath, hash);
 			std::cout << "\nFile extraction complete! Saved to " << outputPath << "/" << hash << ".fbx\n";
 		}

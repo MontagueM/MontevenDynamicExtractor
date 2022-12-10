@@ -53,7 +53,7 @@ extern "C"
 		int status = dynamic.get();
 		if (status)
 		{
-			dynamic.pack(ExportPath, false, "png");
+			dynamic.pack(ExportPath, false);
 			dynamic.save(ExportPath, ExportName);
 			return true;
 		}
