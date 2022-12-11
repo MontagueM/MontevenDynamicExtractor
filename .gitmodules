@@ -1,4 +1,0 @@
-[submodule "DestinyUnpackerCPP"]
-	path = DestinyUnpackerCPP
-	url = https://github.com/nblockbuster/DestinyUnpackerCPP.git
-	branch = main-ood29
