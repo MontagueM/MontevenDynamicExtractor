@@ -175,7 +175,7 @@ bool getAPIShader(uint32_t apiHash, std::string outputPath, std::string packages
 
 	File* channelTable = new File("C92FCF80", packagesPath);
 	channelTable->getData();
-	File* dyeManifestTable = new File("A77AD080", packagesPath);
+	File* dyeManifestTable = new File("664ECE80", packagesPath);
 	dyeManifestTable->getData();
 	File* dyeFileTable = new File("BDB2C180", packagesPath);
 	dyeFileTable->getData();
