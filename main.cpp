@@ -88,11 +88,15 @@ int main(int argc, char** argv)
 		show_usage();
 		return 1;
 	}
-	else if (!std::filesystem::exists(outputPath) || !std::filesystem::exists(pkgsPath))
+	else if (!std::filesystem::exists(pkgsPath))
 	{
-		std::cerr << "Output path or packages path does not exist. Check they exist and try again.\n";
+		std::cerr << "Packages path does not exist. Check that it exists and try again.\n";
 		show_usage();
 		return 1;
+	}
+	else if (!std::filesystem::exists(outputPath))
+	{
+		std::filesystem::create_directories(outputPath);
 	}
 
 	if (pkgsPath.find('\\') != std::string::npos || outputPath.find('\\') != std::string::npos)
