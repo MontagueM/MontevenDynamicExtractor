@@ -11,128 +11,66 @@ void Texture::getHeader(std::string x)
     uint32_t val;
     memcpy((char*)&val, data + 0x3C, 4);
     largeHash = uint32ToHexStr(val);
+    dxgiFormat = (DXGI_FORMAT)textureFormat;
 }
 
-void Texture::tex2DDS(std::string fullSavePath)
+void Texture::save(std::string fullSavePath, std::string saveFormat)
+{
+    if (DSImage.GetImageCount() == 0) return;
+    DirectX::Image DImage = *DSImage.GetImage(0, 0, 0);
+    if (!DImage.width) return;
+    std::string FileName;
+    std::wstring widestr;
+    const wchar_t* widecstr;
+    if (saveFormat == "png")
+    {
+        FileName += ".png";
+        widestr = std::wstring(FileName.begin(), FileName.end());
+        widecstr = widestr.c_str();
+        DirectX::SaveToWICFile(DImage, DirectX::WIC_FLAGS::WIC_FLAGS_NONE, GetWICCodec(DirectX::WIC_CODEC_PNG), widecstr);
+    }
+    else
+    {
+        FileName += ".dds";
+        widestr = std::wstring(FileName.begin(), FileName.end());
+        widecstr = widestr.c_str();
+		DirectX::SaveToDDSFile(DImage, DirectX::DDS_FLAGS_NONE, widecstr);
+	}
+}
+
+void Texture::get()
 {
     if (largeHash != "ffffffff" && largeHash != "")
         dataFile = new File(largeHash, packagesPath);
     else
         dataFile = new File(getReferenceFromHash(hash, packagesPath), packagesPath);
-    writeTexture(fullSavePath);
-}
 
-void Texture::tex2Other(std::string fullSavePath, std::string saveFormat)
-{
-    tex2DDS(fullSavePath);
-    std::string dxgiFormat;
-    dxgiFormat = DXGI_FORMAT[textureFormat];
+    dataFile->getData();
 
-    /// Code to try and fix texconv not always working from command line, couldn't get it to work
-    //wchar_t exePath[MAX_PATH];
-    //DWORD nSize = 0;
-    //GetModuleFileName(NULL, exePath, MAX_PATH);
-    //std::wstring wPath(exePath);
-    //wPath.erase(wPath.rfind('\\'));
-
-    //std::wstring wFSP(fullSavePath.begin(), fullSavePath.end());
-    //std::wstring wsaveFormat(saveFormat.begin(), saveFormat.end());
-    //std::wstring wdxgiFormat(dxgiFormat.begin(), dxgiFormat.end());
-
-    //std::wstring wPathNoBackslashes = L"";
-
-    //for (auto& c : wPath)
-    //{
-    //    if (c == '\\') wPathNoBackslashes += '/';
-    //    else wPathNoBackslashes += c;
-    //}
-
-    //std::wstring str = L'"' + wPathNoBackslashes + L"/texconv.exe" + L'"' + L" " + wFSP + L"\" -y -ft " + wsaveFormat + L" -f " + wdxgiFormat;
-    //wprintf(str.c_str());
-    //_wsystem(str.c_str());
-
-    std::string str = "texconv.exe \"" + fullSavePath + "\" -y -ft " + saveFormat + " -f " + dxgiFormat;
-    printf(str.c_str());
-    system(str.c_str());
-
-    // Delete dds file if it exists
-    std::string newPath = fullSavePath.substr(0, fullSavePath.size() - 3) + saveFormat;
-    std::ifstream f(newPath);
-    if (f) std::remove(fullSavePath.c_str());
-}
-
-void Texture::writeTexture(std::string fullSavePath)
-{
     bool bCompressed = false;
     if (70 < textureFormat < 99) bCompressed = true;
 
-    DDSHeader dds;
-    DXT10Header dxt;
-    dds.MagicNumber = 542327876;
-    dds.dwSize = 124;
-    dds.dwFlags = (0x1 + 0x2 + 0x4 + 0x1000) + 0x8;
-    dds.dwHeight = height;
-    dds.dwWidth = width;
-    dds.dwPitchOrLinearSize = 0;
-    dds.dwDepth = 0;
-    dds.dwMipMapCount = 0;
-    dds.dwReserved1 = std::array<uint32_t, 11>();
-    dds.dwPFSize = 32;
-    dds.dwPFRGBBitCount = 0;
-    dds.dwPFRGBBitCount = 32;
-    dds.dwPFRBitMask = 0xFF;
-    dds.dwPFGBitMask = 0xFF00;
-    dds.dwPFBBitMask = 0xFF0000;
-    dds.dwPFABitMask = 0xFF000000;
-    dds.dwCaps = 0x1000;
-    dds.dwCaps2 = 0;
-    dds.dwCaps3 = 0;
-    dds.dwCaps4 = 0;
-    dds.dwReserved2 = 0;
+    DirectX::Image DImage;
+
+    DImage.width = width;
+    DImage.height = height;
+	DImage.format = dxgiFormat;
+
+    size_t rowPitch;
+    size_t slicePitch;
+    DirectX::ComputePitch(dxgiFormat, width, height, rowPitch, slicePitch);
+    DImage.rowPitch = rowPitch;
+    DImage.slicePitch = slicePitch;
+    DImage.pixels = dataFile->data;
     if (bCompressed)
     {
-        dds.dwPFFlags = 0x1 + 0x4;  // contains alpha data + contains compressed RGB data
-        dds.dwPFFourCC = 808540228;
-        dxt.dxgiFormat = textureFormat;
-        dxt.resourceDimension = 3;  // DDS_DIMENSION_TEXTURE2D
-        if (arraySize % 6 == 0)
-        {
-            // Compressed cubemap
-            dxt.miscFlag = 4;
-            dxt.arraySize = arraySize / 6;
-        }
-        else
-        {
-            // Compressed BCn
-            dxt.miscFlag = 0;
-            dxt.arraySize = 1;
-        }
+        DirectX::Decompress(DImage, DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM, DSImage);
     }
     else
     {
-        // Uncompressed
-        dds.dwPFFlags = 0x1 + 0x40;  // contains alpha data + contains uncompressed RGB data
-        dds.dwPFFourCC = 0;
-        dxt.miscFlag = 0;
-        dxt.arraySize = 1;
-        dxt.miscFlags2 = 0x1;
+        DSImage.InitializeFromImage(DImage);
     }
-
-    writeFile(dds, dxt, fullSavePath);
-}
-
-void Texture::writeFile(DDSHeader dds, DXT10Header dxt, std::string fullSavePath)
-{
-    FILE* outputFile;
-
-    fopen_s(&outputFile, fullSavePath.c_str(), "wb");
-    if (outputFile != NULL) {
-        fwrite(&dds, sizeof(struct DDSHeader), 1, outputFile);
-        fwrite(&dxt, sizeof(struct DXT10Header), 1, outputFile);
-        int fileSize = dataFile->getData();
-        fwrite(dataFile->data, fileSize, 1, outputFile);
-        fclose(outputFile);
-    }
+    delete dataFile->data;
 }
 
 void Material::parseMaterial(std::unordered_map<uint64_t, uint32_t> hash64Table)
@@ -145,32 +83,9 @@ void Material::parseMaterial(std::unordered_map<uint64_t, uint32_t> hash64Table)
     memcpy((char*)&textureCount, data + 0x2B8, 4);
     if (textureCount == 0)
         return;
-    //memcpy((char*)&textureOffset, data + 0x2A8, 4);
-    //textureOffset += 0x2A8 + 0x10;
-    //Reading TextureOffset from 0x2A8 or 0x2D8 (my initial fix) is now unreliable for now afaik
-    //so this solution is quick, dirty, and probably slower but it works ig
-
-    uint32_t off = 0;
-    bool bFound = false;
-    uint32_t val;
-    off = fileSize - 32;
-    while (true)
-    {
-        if (off == 0)
-            break;
-        memcpy((char*)&val, data + off, 4);
-        if (val == 0x80806DCF)
-        {
-            bFound = true;
-            off += 8;
-            textureOffset = off;
-            break;
-        }
-        off -= 4;
-    }
-    if (!bFound) {
-        return;
-    }
+    memcpy((char*)&textureOffset, data + 0x2C0, 4);
+    textureOffset += 0x2C0 + 0x10;
+    
     uint64_t h64Val;
     for (int i = textureOffset; i < textureOffset + textureCount * 0x18; i += 0x18)
     {
@@ -190,10 +105,9 @@ void Material::parseMaterial(std::unordered_map<uint64_t, uint32_t> hash64Table)
                 textures[textureIndex] = texture;
             }
         }
-        else if (h64Check.substr(h64Check.length() - 2) == "80" && h64Check.substr(h64Check.length() - 4) != "8080")
+        else if ((h64Check.substr(h64Check.length() - 2) == "80" || h64Check.substr(h64Check.length() - 2) == "81") && h64Check.substr(h64Check.length() - 4) != "8080")
         {
             std::string textureHash = getReferenceFromHash(h64Check, packagesPath);
-            //std::cout << textureHash + "\n"; debugging nonsense
             Texture* texture = new Texture(textureHash, packagesPath);
             textures[textureIndex] = texture;
         }
@@ -207,23 +121,16 @@ void Material::parseMaterial(std::unordered_map<uint64_t, uint32_t> hash64Table)
 
 void Material::exportTextures(std::string fullSavePath, std::string saveFormat)
 {
-    std::string actualSavePath;
     std::string newPath;
     for (auto& element : textures)
     {
         uint8_t texID = element.first;
         Texture* tex = element.second;
-        actualSavePath = fullSavePath + "/" + tex->hash + ".dds";
         newPath = fullSavePath + "/" + tex->hash + "." + saveFormat;
-        std::ifstream f(newPath);
-        std::ifstream q(actualSavePath);
-        if (f || q)
-        {
-            free(tex);
-            continue;
-        }
-        if (saveFormat == "dds") tex->tex2DDS(actualSavePath);
-        else tex->tex2Other(actualSavePath, saveFormat);
+        if (!tex) continue;
+        tex->get();
+        tex->save(newPath, saveFormat);
+        tex->DSImage.Release();
         free(tex);
     }
 }

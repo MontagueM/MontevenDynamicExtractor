@@ -20,6 +20,7 @@ Using Sarge https://mayaposch.wordpress.com/2019/03/17/parsing-command-line-argu
 
 int main(int argc, char** argv)
 {
+	CoInitializeEx(nullptr, COINITBASE_MULTITHREADED);
 
 	Sarge sarge;
 

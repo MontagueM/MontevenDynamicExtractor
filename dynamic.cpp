@@ -63,8 +63,8 @@ void Dynamic::getTexturePlates()
 		if (offset >= fileSize)
 			continue;
 		memcpy((char*)&fileVal, dyn2->data + offset, 4);
+		if (fileVal < 0x80a00000 || fileVal > 0x81ffffff) continue;
 		fileHash = uint32ToHexStr(fileVal);
-		if (fileHash == "ffffffff" || fileHash == "00000000") continue;
 		TexturePlateSet* texplateSet = new TexturePlateSet(fileHash, packagesPath);
 		texplateSets.push_back(texplateSet);
 	}
