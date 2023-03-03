@@ -5,7 +5,7 @@
 
 static void show_usage()
 {
-	std::cerr << "Usage: MontevenDynamicExtractorv1.8.0 -p [packages path] -o [output path] -n [file name] -i [input hash] -t -b [package ID] -a [api hash] -h [shader hash] -c"
+	std::cerr << "Usage: MontevenDynamicExtractorv1.9.0 -p [packages path] -o [output path] -n [file name] -i [input hash] -t -b [package ID] -a [api hash] -h [shader hash] -c"
 		<< std::endl;
 	std::cerr << "-t enables texture extraction\n";
 	std::cerr << "-b [package ID] extracts all the dynamic models available for that package ID. -t, -i, -n are ignored\n";
