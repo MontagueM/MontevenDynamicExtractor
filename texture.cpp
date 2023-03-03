@@ -24,14 +24,21 @@ void Texture::save(std::string fullSavePath, std::string saveFormat)
     const wchar_t* widecstr;
     if (saveFormat == "png")
     {
-        FileName += ".png";
+        FileName = fullSavePath + ".png";
         widestr = std::wstring(FileName.begin(), FileName.end());
         widecstr = widestr.c_str();
         DirectX::SaveToWICFile(DImage, DirectX::WIC_FLAGS::WIC_FLAGS_NONE, GetWICCodec(DirectX::WIC_CODEC_PNG), widecstr);
     }
+    else if (saveFormat == "tga")
+    {
+        FileName = fullSavePath + ".tga";
+        widestr = std::wstring(FileName.begin(), FileName.end());
+        widecstr = widestr.c_str();
+        DirectX::SaveToTGAFile(DImage, widecstr);
+    }
     else
     {
-        FileName += ".dds";
+        FileName = fullSavePath + ".dds";
         widestr = std::wstring(FileName.begin(), FileName.end());
         widecstr = widestr.c_str();
 		DirectX::SaveToDDSFile(DImage, DirectX::DDS_FLAGS_NONE, widecstr);
@@ -126,7 +133,7 @@ void Material::exportTextures(std::string fullSavePath, std::string saveFormat)
     {
         uint8_t texID = element.first;
         Texture* tex = element.second;
-        newPath = fullSavePath + "/" + tex->hash + "." + saveFormat;
+        newPath = fullSavePath + "/" + tex->hash;
         if (!tex) continue;
         tex->get();
         tex->save(newPath, saveFormat);

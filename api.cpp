@@ -47,7 +47,7 @@ std::vector<std::string> dataNames =
 std::vector<std::string> getAPIModelHashes(uint32_t apiHash, std::string packagesPath, std::unordered_map<uint64_t, uint32_t> hash64Table, bool& bSingle)
 {
 	std::vector<std::string> modelHashes;
-	File* modelTable = new File("0A4CCE80", packagesPath);
+	File* modelTable = new File("C1A1A780", packagesPath);
 	modelTable->getData();
 	// Finding val
 	uint32_t tableOffset = 0x40;
@@ -81,9 +81,9 @@ std::vector<std::string> getAPIModelHashes(uint32_t apiHash, std::string package
 
 uint32_t getArtArrangementHash(uint32_t apiHash, std::string packagesPath)
 {
-	File* dataTable = new File("6260AE80", packagesPath);
+	File* dataTable = new File("92A0A780", packagesPath);
 	dataTable->getData();
-	File* arrangementTable = new File("0D60AE80", packagesPath);
+	File* arrangementTable = new File("0FA0A780", packagesPath);
 	arrangementTable->getData();
 
 	uint32_t tableOffset = 0x30;
@@ -119,7 +119,7 @@ uint32_t getArtArrangementHash(uint32_t apiHash, std::string packagesPath)
 
 bool getAPIShader(uint32_t apiHash, std::string outputPath, std::string packagesPath, std::unordered_map<uint64_t, uint32_t> hash64Table)
 {
-	File* dataTable = new File("6260AE80", packagesPath);
+	File* dataTable = new File("92A0A780", packagesPath);
 	dataTable->getData();
 
 	uint32_t tableOffset = 0x30;
@@ -173,11 +173,11 @@ bool getAPIShader(uint32_t apiHash, std::string outputPath, std::string packages
 	}
 	if (defaultChannelDyeMap.size() == 0) return false;
 
-	File* channelTable = new File("C92FCF80", packagesPath);
+	File* channelTable = new File("0DA0A780", packagesPath);
 	channelTable->getData();
-	File* dyeManifestTable = new File("664ECE80", packagesPath);
+	File* dyeManifestTable = new File("C2A1A780", packagesPath);
 	dyeManifestTable->getData();
-	File* dyeFileTable = new File("BDB2C180", packagesPath);
+	File* dyeFileTable = new File("A28EA780", packagesPath);
 	dyeFileTable->getData();
 	uint32_t channelHash;
 	uint32_t dyeManifestHash;
@@ -364,7 +364,7 @@ void writeShader(std::unordered_map<std::string, std::unordered_map<std::string,
 std::vector<std::string> getAPISingleHashes(uint32_t mHash, uint32_t fHash, std::string packagesPath, std::unordered_map<uint64_t, uint32_t> hash64Table)
 {
 	std::vector<std::string> h64Files = { "", "" };
-	File pairTable = File("BEB2C180", packagesPath);
+	File pairTable = File("A38EA780", packagesPath);
 	pairTable.getData();
 	uint32_t tableOffset = 0x30;
 	uint32_t tableCount;
@@ -416,7 +416,7 @@ std::vector<std::string> getAPIMultiHashes(uint32_t tableOffset, File* modelTabl
 		}
 	}
 
-	File pairTable = File("BEB2C180", packagesPath);
+	File pairTable = File("A38EA780", packagesPath);
 	pairTable.getData();
 	uint32_t table2Offset = 0x30;
 	uint32_t table2Count;

@@ -452,8 +452,14 @@ std::unordered_map<uint64_t, uint32_t> generateH64Table(std::string packagesPath
 		status = fopen_s(&pkgFile, pkg.packagePath.c_str(), "rb");
 		if (status)
 		{
-			std::cerr << "FAILED GETTING PACKAGES FOR H64 ERR5632";
-			exit(status);
+			if (status == 24) {
+				_setmaxstdio(2048);
+				status = fopen_s(&pkgFile, pkg.packagePath.c_str(), "rb");
+			}
+			else {
+				std::cerr << "FAILED GETTING PACKAGES FOR H64 ERR5632";
+				exit(status);
+			}
 		}
 		// Hash64 Table
 		uint32_t hash64TableCount;

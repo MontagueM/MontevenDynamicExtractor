@@ -72,17 +72,21 @@ void TexturePlate::savePlate(std::string fullSavePath)
 
 	maxValue = (int)pow(2, ceil(log2(maxValue)));
 
+	DXGI_FORMAT dxFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+	if (type == "Diffuse")
+		dxFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+
 	DirectX::ScratchImage OutputPlate;
-	OutputPlate.Initialize2D(DXGI_FORMAT_R8G8B8A8_UNORM, maxValue, maxValue, 1, 0);
+	OutputPlate.Initialize2D(dxFormat, maxValue, maxValue, 1, 0);
 	for (auto& tex : textures)
 	{
 		tex->get();
 		DirectX::ScratchImage DSResizedImage;
 		DirectX::Rect imageRect = DirectX::Rect(0, 0, tex->width, tex->height);
-		DirectX::Resize(*tex->DSImage.GetImage(0, 0, 0), tex->scaleX, tex->scaleY, DirectX::TEX_FILTER_FLAGS::TEX_FILTER_DEFAULT, DSResizedImage);
+		DirectX::Resize(*tex->DSImage.GetImage(0, 0, 0), tex->scaleX, tex->scaleY, DirectX::TEX_FILTER_FLAGS::TEX_FILTER_SEPARATE_ALPHA, DSResizedImage);
 
 		DirectX::Image Resized = *DSResizedImage.GetImage(0, 0, 0);
-		DirectX::CopyRectangle(Resized, imageRect, *OutputPlate.GetImage(0, 0, 0), DirectX::TEX_FILTER_FLAGS::TEX_FILTER_DEFAULT, tex->offsetX, tex->offsetY);
+		DirectX::CopyRectangle(Resized, imageRect, *OutputPlate.GetImage(0, 0, 0), DirectX::TEX_FILTER_FLAGS::TEX_FILTER_SEPARATE_ALPHA, tex->offsetX, tex->offsetY);
 		
 		tex->DSImage.Release();
 		DSResizedImage.Release();
@@ -97,6 +101,6 @@ void TexturePlate::savePlate(std::string fullSavePath)
 	widecstr = widestr.c_str();
 
 	DirectX::SaveToWICFile(*OutputPlate.GetImage(0, 0, 0), DirectX::WIC_FLAGS::WIC_FLAGS_NONE, GetWICCodec(DirectX::WIC_CODEC_PNG), widecstr);
-	
+
 	OutputPlate.Release();
 }

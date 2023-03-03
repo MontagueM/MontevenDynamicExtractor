@@ -18,7 +18,7 @@ int File::getData()
 	int hashInt = hexStrToUint32(hash);
 	if (hashInt < 0x80a00000 || hashInt > 0x81ffffff)
 	{
-		std::cout << "Invalid hash: " << hash << std::endl;
+		//std::cout << "Invalid hash: " << hash << std::endl;
 		return 0;
 	}
 
