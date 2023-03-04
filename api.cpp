@@ -272,6 +272,7 @@ bool getAPIShader(uint32_t apiHash, std::string outputPath, std::string packages
 					normalName = channelName + "_" + std::to_string(texID) + "_" + texHash + "_" + addString;
 				}
 				else diffuseName = channelName + "_" + std::to_string(texID) + "_" + texHash + "_" + addString;
+				tex.get();
 				tex.save(outputPath + "/" + channelName + "_" + std::to_string(texID) + "_" + texHash + "_" + addString, "png");
 			}
 			// Get dye data
