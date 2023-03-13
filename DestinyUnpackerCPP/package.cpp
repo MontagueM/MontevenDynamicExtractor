@@ -356,7 +356,7 @@ uint8_t Package::getEntryTypes(std::string hash, uint8_t &subType)
 	auto status = fopen_s(&pkgFile, packagePath.c_str(), "rb");
 	if (status != 0)
 	{
-		printf("\nFailed to initialise pkg file, exiting...\n");
+		std::cerr << "\nFailed to initialise pkg file, exiting: " << std::to_string(status) << '\n';
 		std::cerr << hash << std::endl << packagePath;
 		return -1;
 		//exit(1);
@@ -437,7 +437,7 @@ std::unordered_map<uint64_t, uint32_t> generateH64Table(std::string packagesPath
 		status = fopen_s(&pkgFile, path.c_str(), "rb");
 		if (status)
 		{
-			std::cerr << "FAILED GETTING PACKAGES FOR H64 ERR1515";
+			std::cerr << "FAILED GETTING PACKAGES FOR H64 ERR1515: " << std::to_string(status);
 			exit(status);
 		}
 		fseek(pkgFile, 0x10, SEEK_SET);
@@ -457,7 +457,7 @@ std::unordered_map<uint64_t, uint32_t> generateH64Table(std::string packagesPath
 				status = fopen_s(&pkgFile, pkg.packagePath.c_str(), "rb");
 			}
 			else {
-				std::cerr << "FAILED GETTING PACKAGES FOR H64 ERR5632";
+				std::cerr << "FAILED GETTING PACKAGES FOR H64 ERR5632: " << std::to_string(status);
 				exit(status);
 			}
 		}
@@ -490,7 +490,7 @@ bool saveH64Table(std::unordered_map<uint64_t, uint32_t> hash64Table)
 	int status = fopen_s(&file, "h64", "wb");
 	if (status)
 	{
-		std::cerr << "FAILED WRITING H64 ERR5157";
+		std::cerr << "FAILED WRITING H64 ERR5157: " << std::to_string(status);
 		exit(status);
 	}
 	if (file == NULL) return false;
@@ -510,7 +510,7 @@ std::unordered_map<uint64_t, uint32_t> loadH64Table()
 	int status = fopen_s(&file, "h64", "rb");
 	if (status)
 	{
-		std::cerr << "FAILED READING H64 ERR1231";
+		std::cerr << "FAILED READING H64 ERR1231: " << std::to_string(status);
 		exit(status);
 	}
 	uint64_t h64Val;

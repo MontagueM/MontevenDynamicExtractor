@@ -239,7 +239,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="api.h" />
-    <ClInclude Include="dxgiformat.h" />
     <ClInclude Include="dynamic.h" />
     <ClInclude Include="fbxmodel.h" />
     <ClInclude Include="helpers.h" />

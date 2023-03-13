@@ -90,3 +90,4 @@ public:
 };
 
 std::string getCBufferFromOffset(unsigned char* data, int offset, int count, uint32_t cbType, std::string name);
+bool isFormatCompressed(DXGI_FORMAT fmt);
