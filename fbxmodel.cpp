@@ -181,7 +181,15 @@ void FbxModel::save(std::string savePath, bool ascii)
 	if (ascii) intAscii = 1;
 
 	FbxExporter* exporter = FbxExporter::Create(manager, "");
-	exporter->Initialize(savePath.c_str(), intAscii, manager->GetIOSettings());
+	exporter->Initialize("tmp.fbx", intAscii, manager->GetIOSettings());
 	exporter->Export(scene);
 	exporter->Destroy();
+
+	// skirting around the fact that FbxExporter->Initialize() doesnt support unicode
+	int wchars_num = MultiByteToWideChar(CP_ACP, 0, savePath.c_str(), -1, NULL, 0);
+	wchar_t* widestr = new wchar_t[wchars_num];
+	MultiByteToWideChar(CP_ACP, 0, savePath.c_str(), -1, widestr, wchars_num);
+	
+	CopyFile(L"tmp.fbx", widestr, false);
+	DeleteFile(L"tmp.fbx");
 }

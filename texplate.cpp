@@ -94,13 +94,15 @@ void TexturePlate::savePlate(std::string fullSavePath)
 	}
 
 	std::string FileName;
-	std::wstring widestr;
-	const wchar_t* widecstr;
+	wchar_t* widestr;
 	FileName = fullSavePath + hash + "_" + type + ".png";
-	widestr = std::wstring(FileName.begin(), FileName.end());
-	widecstr = widestr.c_str();
-
-	DirectX::SaveToWICFile(*OutputPlate.GetImage(0, 0, 0), DirectX::WIC_FLAGS::WIC_FLAGS_NONE, GetWICCodec(DirectX::WIC_CODEC_PNG), widecstr);
+	
+	// convert to unicode (utf-16)
+	int wchars_num = MultiByteToWideChar(CP_ACP, 0, FileName.c_str(), -1, NULL, 0);
+	widestr = new wchar_t[wchars_num];
+	MultiByteToWideChar(CP_ACP, 0, FileName.c_str(), -1, widestr, wchars_num);
+	
+	DirectX::SaveToWICFile(*OutputPlate.GetImage(0, 0, 0), DirectX::WIC_FLAGS::WIC_FLAGS_NONE, GetWICCodec(DirectX::WIC_CODEC_PNG), widestr);
 
 	OutputPlate.Release();
 }
