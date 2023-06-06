@@ -1,7 +1,0 @@
-﻿  dynamic.cpp
-  helpers.cpp
-  The contents of <filesystem> are available only with C++17 or later.
-  main.cpp
-  Generating Code...
-helpers.obj : error LNK2019: unresolved external symbol "public: __thiscall Package::Package(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >)" (??0Package@@QAE@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0@Z) referenced in function "class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > __cdecl getReferenceFromHash(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >)" (?getReferenceFromHash@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V12@00@Z)
-C:\Users\monta\OneDrive\Destiny 2 Datamining\CPP\DestinyDataminingCPP\Debug\DestinyDynamicExtractor.exe : fatal error LNK1120: 1 unresolved externals

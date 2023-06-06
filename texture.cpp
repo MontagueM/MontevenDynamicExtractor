@@ -4,146 +4,92 @@
 
 void Texture::getHeader(std::string x)
 {
-	memcpy((char*)&textureFormat, data + 4, 2);
-	memcpy((char*)&width, data + 0x22, 2);
-	memcpy((char*)&height, data + 0x24, 2);
-	memcpy((char*)&arraySize, data + 0x28, 2);
-	uint32_t val;
-	memcpy((char*)&val, data + 0x3C, 4);
-	largeHash = uint32ToHexStr(val);
+    memcpy((char*)&textureFormat, data + 4, 2);
+    memcpy((char*)&width, data + 0x22, 2);
+    memcpy((char*)&height, data + 0x24, 2);
+    memcpy((char*)&arraySize, data + 0x28, 2);
+    uint32_t val;
+    memcpy((char*)&val, data + 0x3C, 4);
+    largeHash = uint32ToHexStr(val);
+    dxgiFormat = (DXGI_FORMAT)textureFormat;
 }
 
-void Texture::tex2DDS(std::string fullSavePath)
+void Texture::save(std::string fullSavePath, std::string saveFormat)
 {
-	if (largeHash != "ffffffff" && largeHash != "")
-		dataFile = new File(largeHash, packagesPath);
-	else
-		dataFile = new File(getReferenceFromHash(hash, packagesPath), packagesPath);
-	writeTexture(fullSavePath);
-}
-
-void Texture::tex2Other(std::string fullSavePath, std::string saveFormat)
-{
-    tex2DDS(fullSavePath);
-    std::string dxgiFormat;
-    dxgiFormat = DXGI_FORMAT[textureFormat];
-
-    /// Code to try and fix texconv not always working from command line, couldn't get it to work
-    //wchar_t exePath[MAX_PATH];
-    //DWORD nSize = 0;
-    //GetModuleFileName(NULL, exePath, MAX_PATH);
-    //std::wstring wPath(exePath);
-    //wPath.erase(wPath.rfind('\\'));
-
-    //std::wstring wFSP(fullSavePath.begin(), fullSavePath.end());
-    //std::wstring wsaveFormat(saveFormat.begin(), saveFormat.end());
-    //std::wstring wdxgiFormat(dxgiFormat.begin(), dxgiFormat.end());
-
-    //std::wstring wPathNoBackslashes = L"";
-
-    //for (auto& c : wPath)
-    //{
-    //    if (c == '\\') wPathNoBackslashes += '/';
-    //    else wPathNoBackslashes += c;
-    //}
-
-    //std::wstring str = L'"' + wPathNoBackslashes + L"/texconv.exe" + L'"' + L" " + wFSP + L"\" -y -ft " + wsaveFormat + L" -f " + wdxgiFormat;
-    //wprintf(str.c_str());
-    //_wsystem(str.c_str());
-   
-    std::string str = "texconv.exe \"" + fullSavePath + "\" -y -ft " + saveFormat + " -f " + dxgiFormat;
-    printf(str.c_str());
-    system(str.c_str());
-
-    // Delete dds file if it exists
-    std::string newPath = fullSavePath.substr(0, fullSavePath.size() - 3) + saveFormat;
-    std::ifstream f(newPath);
-    if (f) std::remove(fullSavePath.c_str());
-}
-
-void Texture::writeTexture(std::string fullSavePath)
-{
-	bool bCompressed = false;
-	if (70 < textureFormat < 99) bCompressed = true;
-
-	DDSHeader dds;
-    DXT10Header dxt;
-    dds.MagicNumber = 542327876;
-    dds.dwSize = 124;
-    dds.dwFlags = (0x1 + 0x2 + 0x4 + 0x1000) + 0x8;
-    dds.dwHeight = height;
-    dds.dwWidth = width;
-    dds.dwPitchOrLinearSize = 0;
-    dds.dwDepth = 0;
-    dds.dwMipMapCount = 0;
-    dds.dwReserved1 = std::array<uint32_t, 11>();
-    dds.dwPFSize = 32;
-    dds.dwPFRGBBitCount = 0;
-    dds.dwPFRGBBitCount = 32;
-    dds.dwPFRBitMask = 0xFF;
-    dds.dwPFGBitMask = 0xFF00;
-    dds.dwPFBBitMask = 0xFF0000;
-    dds.dwPFABitMask = 0xFF000000;
-    dds.dwCaps = 0x1000;
-    dds.dwCaps2 = 0;
-    dds.dwCaps3 = 0;
-    dds.dwCaps4 = 0;
-    dds.dwReserved2 = 0;
-    if (bCompressed)
+    if (DSImage.GetImageCount() == 0) return;
+    DirectX::Image DImage = *DSImage.GetImage(0, 0, 0);
+    if (!DImage.width) return;
+    std::string FileName;
+    std::wstring widestr;
+    const wchar_t* widecstr;
+    if (saveFormat == "png")
     {
-        dds.dwPFFlags = 0x1 + 0x4;  // contains alpha data + contains compressed RGB data
-        dds.dwPFFourCC = 808540228;
-        dxt.dxgiFormat = textureFormat;
-        dxt.resourceDimension = 3;  // DDS_DIMENSION_TEXTURE2D
-        if (arraySize % 6 == 0)
-        {
-            // Compressed cubemap
-            dxt.miscFlag = 4;
-            dxt.arraySize = arraySize / 6;
-        }
-        else
-        {
-            // Compressed BCn
-            dxt.miscFlag = 0;
-            dxt.arraySize = 1;
-        }
+        FileName = fullSavePath + ".png";
+        widestr = std::wstring(FileName.begin(), FileName.end());
+        widecstr = widestr.c_str();
+        DirectX::SaveToWICFile(DImage, DirectX::WIC_FLAGS::WIC_FLAGS_NONE, GetWICCodec(DirectX::WIC_CODEC_PNG), widecstr);
+    }
+    else if (saveFormat == "tga")
+    {
+        FileName = fullSavePath + ".tga";
+        widestr = std::wstring(FileName.begin(), FileName.end());
+        widecstr = widestr.c_str();
+        DirectX::SaveToTGAFile(DImage, widecstr);
     }
     else
     {
-        // Uncompressed
-        dds.dwPFFlags = 0x1 + 0x40;  // contains alpha data + contains uncompressed RGB data
-        dds.dwPFFourCC = 0;
-        dxt.miscFlag = 0;
-        dxt.arraySize = 1;
-        dxt.miscFlags2 = 0x1;
-    }
-
-    writeFile(dds, dxt, fullSavePath);
+        FileName = fullSavePath + ".dds";
+        widestr = std::wstring(FileName.begin(), FileName.end());
+        widecstr = widestr.c_str();
+		DirectX::SaveToDDSFile(DImage, DirectX::DDS_FLAGS_NONE, widecstr);
+	}
 }
 
-void Texture::writeFile(DDSHeader dds, DXT10Header dxt, std::string fullSavePath)
+void Texture::get()
 {
-    FILE* outputFile;
-    
-    fopen_s(&outputFile, fullSavePath.c_str(), "wb");
-    if (outputFile != NULL) {
-        fwrite(&dds, sizeof(struct DDSHeader), 1, outputFile);
-        fwrite(&dxt, sizeof(struct DXT10Header), 1, outputFile);
-        int fileSize = dataFile->getData();
-        fwrite(dataFile->data, fileSize, 1, outputFile);
-        fclose(outputFile);
+    if (largeHash != "ffffffff" && largeHash != "")
+        dataFile = new File(largeHash, packagesPath);
+    else
+        dataFile = new File(getReferenceFromHash(hash, packagesPath), packagesPath);
+
+    dataFile->getData();
+
+    DirectX::Image DImage;
+
+    DImage.width = width;
+    DImage.height = height;
+	DImage.format = dxgiFormat;
+
+    size_t rowPitch;
+    size_t slicePitch;
+    DirectX::ComputePitch(dxgiFormat, width, height, rowPitch, slicePitch);
+    DImage.rowPitch = rowPitch;
+    DImage.slicePitch = slicePitch;
+    DImage.pixels = dataFile->data;
+    if (isFormatCompressed(dxgiFormat))
+    {
+        DirectX::Decompress(DImage, DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM, DSImage);
     }
+    else
+    {
+        DSImage.InitializeFromImage(DImage);
+    }
+    delete dataFile->data;
 }
 
 void Material::parseMaterial(std::unordered_map<uint64_t, uint32_t> hash64Table)
 {
-    getData();
+    uint32_t fileSize;
+    fileSize = getData();
     uint32_t textureCount;
     uint32_t textureOffset;
     // Pixel shader textures
-    memcpy((char*)&textureCount, data + 0x2A0, 4);
-    memcpy((char*)&textureOffset, data + 0x2A8, 4);
-    textureOffset += 0x2A8 + 0x10;
+    memcpy((char*)&textureCount, data + 0x2B8, 4);
+    if (textureCount == 0)
+        return;
+    memcpy((char*)&textureOffset, data + 0x2C0, 4);
+    textureOffset += 0x2C0 + 0x10;
+    
     uint64_t h64Val;
     for (int i = textureOffset; i < textureOffset + textureCount * 0x18; i += 0x18)
     {
@@ -163,6 +109,12 @@ void Material::parseMaterial(std::unordered_map<uint64_t, uint32_t> hash64Table)
                 textures[textureIndex] = texture;
             }
         }
+        else if ((h64Check.substr(h64Check.length() - 2) == "80" || h64Check.substr(h64Check.length() - 2) == "81") && h64Check.substr(h64Check.length() - 4) != "8080")
+        {
+            std::string textureHash = getReferenceFromHash(h64Check, packagesPath);
+            Texture* texture = new Texture(textureHash, packagesPath);
+            textures[textureIndex] = texture;
+        }
         else
         {
             printf("Support old texture format");
@@ -173,29 +125,24 @@ void Material::parseMaterial(std::unordered_map<uint64_t, uint32_t> hash64Table)
 
 void Material::exportTextures(std::string fullSavePath, std::string saveFormat)
 {
-    std::string actualSavePath;
     std::string newPath;
     for (auto& element : textures)
     {
         uint8_t texID = element.first;
         Texture* tex = element.second;
-        actualSavePath = fullSavePath + "/" + tex->hash + ".dds";
-        newPath = fullSavePath + "/" + tex->hash + "." + saveFormat;
-        std::ifstream f(newPath);
-        std::ifstream q(actualSavePath);
-        if (f || q)
-        {
-            free(tex);
-            continue;
-        }
-        if (saveFormat == "dds") tex->tex2DDS(actualSavePath);
-        else tex->tex2Other(actualSavePath, saveFormat);
+        newPath = fullSavePath + "/" + tex->hash;
+        if (!tex) continue;
+        tex->get();
+        tex->save(newPath, saveFormat);
+        tex->DSImage.Release();
         free(tex);
     }
 }
 
 void Material::parseCBuffers()
 {
+    //beyond light valid stuff
+
     /*
     90008080 stride 16
     09008080 stride 1
@@ -212,7 +159,27 @@ void Material::parseCBuffers()
     pixel 0x2F0 90008080 internal offset
     pixel 0x30C external cbuffer hash
     */
-    std::vector<int> pixelOffsets = { 0x2C0, 0x2D0, 0x2F0 };
+
+    //wq valid stuff
+
+    /*
+    90008080 stride 16
+    09008080 stride 1
+    3F018080 stride 16 external cbuffers
+    ---
+    vertex 0x70 vertex shader texture offset
+    vertex 0x90 09008080 internal offset
+    vertex 0xA0 90008080 internal offset
+    vertex 0xB0 3F018080 internal offset
+    vertex 0xC0 90008080 internal offset
+    pixel 0x2D8 09008080 internal offset
+    pixel 0x2E8 90008080 internal offset
+    pixel 0x2F8 3F018080 internal offset
+    pixel 0x308 90008080 internal offset
+    pixel 0x30C external cbuffer hash
+    */
+
+    std::vector<int> pixelOffsets = { 0x2D8, 0x2E8, 0x308 };
     uint32_t val;
     uint32_t count;
     getData();
@@ -229,8 +196,8 @@ void Material::parseCBuffers()
         cbuffers.push_back(floats);
         i++;
     }
-    memcpy((char*)&val, data + 0x30C, 4);
-    if (val != 4294967295)
+    memcpy((char*)&val, data + 0x324, 4);
+    if (val != 0xFFFFFFFF)
     {
         File buffer = File(getReferenceFromHash(uint32ToHexStr(val), packagesPath), packagesPath);
         int fileSize = buffer.getData();
@@ -256,7 +223,7 @@ void Material::writeCBuffers(std::string fullSavePath)
 
 std::string getCBufferFromOffset(unsigned char* data, int offset, int count, uint32_t cbType, std::string name)
 {
-    if (cbType == 2155872265)
+    if (cbType == 0x80800009)
     {
         std::string allFloat = "static float cb" + name + '[' + std::to_string(count) + "] = \n{\n  ";
         allFloat.reserve(count);
@@ -264,14 +231,14 @@ std::string getCBufferFromOffset(unsigned char* data, int offset, int count, uin
         for (int i = 0; i < count; i++)
         {
             memcpy((char*)&val, data + offset + i, 1);
-            std::string floats = std::to_string((float)val/128) + ",";
+            std::string floats = std::to_string((float)val / 128) + ",";
             allFloat += floats;
             if (i % 8 == 0 && i != 0) allFloat += "\n  ";
         }
         allFloat += "\n};\n";
         return allFloat;
     }
-    else if (cbType == 2155872400 || offset == 0)
+    else if (cbType == 0x80800090 || offset == 0)
     {
         std::string allFloat4 = "static float4 cb" + name + '[' + std::to_string(count) + "] = \n{\n";
         float_t val;
@@ -293,6 +260,35 @@ std::string getCBufferFromOffset(unsigned char* data, int offset, int count, uin
     else
     {
         std::cerr << "\nUnknown cbuffer class found, exiting...\n";
-        exit(1);
+        return "";
+    }
+}
+
+bool isFormatCompressed(DXGI_FORMAT fmt) {
+    switch (fmt) {
+    case DXGI_FORMAT_BC1_TYPELESS:
+    case DXGI_FORMAT_BC1_UNORM:
+    case DXGI_FORMAT_BC1_UNORM_SRGB:
+    case DXGI_FORMAT_BC2_TYPELESS:
+    case DXGI_FORMAT_BC2_UNORM:
+    case DXGI_FORMAT_BC2_UNORM_SRGB:
+    case DXGI_FORMAT_BC3_TYPELESS:
+    case DXGI_FORMAT_BC3_UNORM:
+    case DXGI_FORMAT_BC3_UNORM_SRGB:
+    case DXGI_FORMAT_BC4_TYPELESS:
+    case DXGI_FORMAT_BC4_UNORM:
+    case DXGI_FORMAT_BC4_SNORM:
+    case DXGI_FORMAT_BC5_TYPELESS:
+    case DXGI_FORMAT_BC5_UNORM:
+    case DXGI_FORMAT_BC5_SNORM:
+    case DXGI_FORMAT_BC6H_TYPELESS:
+    case DXGI_FORMAT_BC6H_UF16:
+    case DXGI_FORMAT_BC6H_SF16:
+    case DXGI_FORMAT_BC7_TYPELESS:
+    case DXGI_FORMAT_BC7_UNORM:
+    case DXGI_FORMAT_BC7_UNORM_SRGB:
+        return true;
+    default:
+        return false;
     }
 }

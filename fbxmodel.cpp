@@ -144,8 +144,15 @@ FbxMesh* FbxModel::createMesh(Submesh* submesh, bool bAddSkeleton)
 		else
 			mesh->SetControlPointAt(FbxVector4(-v[0], v[2], v[1]), i);
 	}
-	for (auto& face : submesh->faces)
+	for (int f = 0; f < submesh->faces.size(); f++)
 	{
+		if (!submesh->faces[f].size())
+		{
+			std::perror("why is it failing here\n");
+			continue;
+		}
+		std::vector<uint32_t> face = submesh->faces[f];
+		//std::cout << std::to_string(f) << ": " << std::to_string(face[0]) << " " << std::to_string(face[1]) << " " << std::to_string(face[2]) << "\n";
 		mesh->BeginPolygon();
 		mesh->AddPolygon(face[0]);
 		mesh->AddPolygon(face[1]);
@@ -174,7 +181,15 @@ void FbxModel::save(std::string savePath, bool ascii)
 	if (ascii) intAscii = 1;
 
 	FbxExporter* exporter = FbxExporter::Create(manager, "");
-	exporter->Initialize(savePath.c_str(), intAscii, manager->GetIOSettings());
+	exporter->Initialize("tmp.fbx", intAscii, manager->GetIOSettings());
 	exporter->Export(scene);
 	exporter->Destroy();
+
+	// skirting around the fact that FbxExporter->Initialize() doesnt support unicode
+	int wchars_num = MultiByteToWideChar(CP_ACP, 0, savePath.c_str(), -1, NULL, 0);
+	wchar_t* widestr = new wchar_t[wchars_num];
+	MultiByteToWideChar(CP_ACP, 0, savePath.c_str(), -1, widestr, wchars_num);
+	
+	CopyFile(L"tmp.fbx", widestr, false);
+	DeleteFile(L"tmp.fbx");
 }

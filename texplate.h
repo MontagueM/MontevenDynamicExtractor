@@ -1,7 +1,5 @@
 #pragma once
 #include <unordered_map>
-#include "opencv2/opencv.hpp"
-#include "opencv2/imgcodecs.hpp"
 #include "helpers.h"
 #include "texture.h"
 
@@ -9,7 +7,7 @@
 - Parse texture plate set to get each plate
 - Parse each plate to get their coords, scales, and tex refs
 - Extract each texture from a plate
-- Open in opencv and combine using texplate data
+- Resize and combine using DirectXTex
 - Save as a final image
 */
 
