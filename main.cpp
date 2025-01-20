@@ -5,19 +5,23 @@
 
 static void show_usage()
 {
-	std::cerr << "Usage: MontevenDynamicExtractorv1.0.0 -p [packages path] -o [output path] -n [file name] -i [input hash] -t -b [package ID] -a [api hash]"
+	std::cerr << "Usage: MontevenDynamicExtractorv1.9.1 -p [packages path] -o [output path] -n [file name] -i [input hash] -t -b [package ID] -a [api hash] -h [shader hash] -c"
 		<< std::endl;
 	std::cerr << "-t enables texture extraction\n";
 	std::cerr << "-b [package ID] extracts all the dynamic models available for that package ID. -t, -i, -n are ignored\n";
-	std::cerr << "-a [api hash] extracts the models paired with that given api hash if valid. -i, -b ignored";
+	std::cerr << "-a [api hash] extracts the models paired with that given api hash if valid. -i, -b are ignored\n";
+	std::cerr << "-h [api shader hash] extracts the shader that is paired with the given api hash. -i, -b, -a are ignored.\n";
+	std::cerr << "-c enables cbuffer extraction";
 }
-
 
 /*
 Using Sarge https://mayaposch.wordpress.com/2019/03/17/parsing-command-line-arguments-in-c/
 */
+
 int main(int argc, char** argv)
 {
+	CoInitializeEx(nullptr, COINITBASE_MULTITHREADED);
+
 	Sarge sarge;
 
 	sarge.setArgument("p", "pkgspath", "pkgs path", true);
@@ -81,21 +85,25 @@ int main(int argc, char** argv)
 	// Checking params are valid
 	if (pkgsPath == "" || outputPath == "" || (modelHash == "" && batchPkg == "" && apiHash == 0 && shaderHash == 0))
 	{
-		std::cerr << "Invalid parameters, potentially backslashes in paths or paths not given.\n";
+		std::cerr << "Invalid parameters, paths not given.\n";
 		show_usage();
 		return 1;
 	}
-	else if (!std::filesystem::exists(outputPath) || !std::filesystem::exists(pkgsPath))
+	else if (!std::filesystem::exists(pkgsPath))
 	{
-		std::cerr << "Output path or packages path does not exist. Check they exist and try again.\n";
+		std::cerr << "Packages path does not exist. Check that it exists and try again.\n";
 		show_usage();
 		return 1;
+	}
+	else if (!std::filesystem::exists(outputPath))
+	{
+		std::filesystem::create_directories(outputPath);
 	}
 
 	if (pkgsPath.find('\\') != std::string::npos || outputPath.find('\\') != std::string::npos)
 	{
-		printf("\nBackslashes in paths detected, please change to forward slashes (/).\n");
-		return 1;
+		std::replace(pkgsPath.begin(), pkgsPath.end(), '\\', '/');
+		std::replace(outputPath.begin(), outputPath.end(), '\\', '/');
 	}
 
 	// Check if h64 file exists, if not then generate and save
@@ -220,17 +228,5 @@ void doBatch(std::string pkgsPath, std::string outputPath, std::string batchPkg,
 		}
 		else
 			printf("\nDynamic has no mesh data (A), skipping...\n");
-	}
-}
-
-void replaceBackslashes(std::string& path)
-{
-	for (int i = 0; i < path.size(); i++)
-	{
-		if (path[i] == '\\')
-		{
-			path.insert(i, 1, '\\');
-			i++;
-		}
 	}
 }

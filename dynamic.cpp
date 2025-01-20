@@ -37,11 +37,11 @@ void Dynamic::considerSkeletonOverride()
 			break;
 		case 1:
 			printf("Skeleton flag 1, ripped models will use the player body rig.");
-			skeletonHash = "F8EEA880";
+			skeletonHash = "BC38AB80"; //this is eva's body rig but could be the same
 			break;
 		case 2:
 			printf("Skeleton flag 2, ripped models will use the player face rig.");
-			skeletonHash = "CC54A280";
+			skeletonHash = "9018AB80"; //this is ikora's head rig but... might be the same?
 			break;
 		}
 	}
@@ -56,12 +56,15 @@ void Dynamic::getTexturePlates()
 	{
 		// can optimise by replacing with pointers
 		//dyn2->getData();
-		if (!dyn2->getData()) continue;
+		int fileSize = dyn2->getData();
+		if (!fileSize) continue;
 		memcpy((char*)&offset, dyn2->data + 0x18, 4);
-		offset += 712;
+		offset += 808;
+		if (offset >= fileSize)
+			continue;
 		memcpy((char*)&fileVal, dyn2->data + offset, 4);
+		if (fileVal < 0x80a00000 || fileVal > 0x81ffffff) continue;
 		fileHash = uint32ToHexStr(fileVal);
-		if (fileHash == "ffffffff") continue;
 		TexturePlateSet* texplateSet = new TexturePlateSet(fileHash, packagesPath);
 		texplateSets.push_back(texplateSet);
 	}
@@ -143,7 +146,7 @@ void Dynamic::getDyn3Files()
 			continue;
 		}
 		memcpy((char*)&off, dyn2->data + off + 572, 4);
-		if (off < 2155872256)
+		if (off < 0x80800000)
 		{
 			printf("\nDynamic has no mesh data (D), skipping...");
 			continue;
@@ -173,13 +176,13 @@ void Dynamic::getDyn3Files()
 			while (true)
 			{
 				memcpy((char*)&val, dyn2->data + extOff, 4);
-				if (val == 2155872276)
+				if (val == 0x80800014)
 				{
 					bFound = true;
 					extOff -= 8;
 					break;
 				}
-				else if (val == 2155913144) break;
+				else if (val == 0x80809FB8) break;
 				extOff -= 4;
 			}
 			if (bFound)
@@ -271,7 +274,7 @@ void Dynamic::parseDyn3s()
 				memcpy((char*)&submesh->primType, dyn3->data + k + 6, 2);
 				memcpy((char*)&submesh->indexOffset, dyn3->data + k + 0x8, 4);
 				memcpy((char*)&submesh->indexCount, dyn3->data + k + 0xC, 4);
-				memcpy((char*)&submesh->lodLevel, dyn3->data + k + 0x1B, 1);
+				memcpy((char*)&submesh->lodLevel, dyn3->data + k + 0x1D, 1);
 				if (submesh->lodLevel < currentLOD) lodGroup++;
 				currentLOD = submesh->lodLevel;
 				submesh->lodGroup = lodGroup;
@@ -417,7 +420,7 @@ void Dynamic::getSubmeshes()
 			if (mesh->vertNorm.size()) submesh->vertNorm = trimVertsData(mesh->vertNorm, dsort, false);
 			if (mesh->vertUV.size()) submesh->vertUV = trimVertsData(mesh->vertUV, dsort, false);
 			if (mesh->vertCol.size()) submesh->vertCol = trimVertsData(mesh->vertCol, dsort, true);
-			if (mesh->weights.size()) submesh->weights = trimVertsData(mesh->weights, dsort, false);
+			if (mesh->weights.size()) submesh->weights = trimVertsData(mesh->weights, dsort, false); //hash 5BF4DE80 is failing on trimming the weights data.
 			if (mesh->weightIndices.size()) submesh->weightIndices = trimVertsData(mesh->weightIndices, dsort);
 			//existingOffsets.push_back(submesh->indexOffset);
 			existingSubmeshes[submesh->indexOffset] = submesh->lodLevel;
